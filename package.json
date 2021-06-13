@@ -1,0 +1,23 @@
+{
+  "name": "microsoft_teams_deployed",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "devstart": "nodemon server.js",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run devstart\" \"npm run client\"",
+    "create-pro": "npm run build --prefix client",
+    "heroku-postbuild": "npm install --prefix client && npm run create-pro"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "socket.io": "^4.1.2",
+    "uuid": "^8.3.2"
+  }
+}

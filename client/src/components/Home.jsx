@@ -6,7 +6,7 @@ export default function Home() {
   let history = useHistory();
   function handleJoin() {
     axios
-      .get("http://localhost:5000/api/join")
+      .get("/api/join")
       .then((response) => {
         history.push(`/join/${response.data.link}`);
       })

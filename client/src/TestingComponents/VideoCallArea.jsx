@@ -37,11 +37,32 @@ export default function VideoCallArea() {
           myPeer.disconnect();
           socket.disconnect();
           navigator.mediaDevices.getDisplayMedia().then((stream) => {
+            connectedPeers.current = {};
             console.log(stream);
-            setVideos((prev) => {
-              console.log("changing to screen share now!!");
-              prev[0] = { userId: 10101, stream };
-              return prev;
+            setVideos([]);
+            socket.connect();
+            const myPeer = new Peer(undefined, {
+              // host: "peerjs-server.herokuapp.com",
+              // secure: true,
+              // port: 443,
+              host: "/",
+              port: "3001",
+            });
+            myPeer.on("open", (userId) => {
+              const roomId = window.location.pathname.split("/")[2];
+              socket.emit("join-room", roomId, userId);
+            });
+            myPeer.on("call", (call) => {
+              call.answer(stream);
+              call.on("stream", (userVideoStream) => {
+                if (connectedPeers.current[call.peer]) {
+                  return;
+                }
+                connectedPeers.current[call.peer] = call;
+                setVideos((prev) => {
+                  return [...prev, { userId: call.peer, stream: userVideoStream }];
+                });
+              });
             });
           });
         };

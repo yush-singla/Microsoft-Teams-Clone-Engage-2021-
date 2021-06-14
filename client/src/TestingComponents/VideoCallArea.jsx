@@ -14,126 +14,114 @@ export default function VideoCallArea() {
   const toggleAudio = useRef();
   const toggleVideo = useRef();
   const toggleShareScreen = useRef();
+
   useEffect(() => {
-    console.log("used effect");
-    navigator.mediaDevices
-      .getUserMedia({ audio: true, video: true })
-      .then((stream) => {
-        toggleAudio.current = () => {
-          console.log(stream.getVideoTracks()[0].enabled);
-          stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;
-          setAudio((prev) => !prev);
-        };
-        toggleVideo.current = () => {
-          console.log(stream.getAudioTracks()[0].enabled);
-          stream.getVideoTracks()[0].enabled = !stream.getVideoTracks()[0].enabled;
-          setVideo((prev) => !prev);
-        };
-        toggleShareScreen.current = () => {
+    async function setStreaming() {
+      let stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+      toggleAudio.current = () => {
+        console.log(stream.getVideoTracks()[0].enabled);
+        stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;
+        setAudio((prev) => !prev);
+      };
+      toggleVideo.current = () => {
+        console.log(stream.getAudioTracks()[0].enabled);
+        stream.getVideoTracks()[0].enabled = !stream.getVideoTracks()[0].enabled;
+        setVideo((prev) => !prev);
+      };
+      const myPeer = new Peer(undefined, {
+        // host: "peerjs-server.herokuapp.com",
+        // secure: true,
+        // port: 443,
+        host: "/",
+        port: "3001",
+      });
+      toggleShareScreen.current = () => {
+        stream.getTracks().forEach((track) => {
+          track.stop();
+        });
+        socket.disconnect();
+        myPeer.disconnect();
+        StartScreenShare();
+      };
+      myPeer.on("open", (userId) => {
+        console.log("new peer has been created");
+        console.log(myPeer);
+        socket.connect();
+        setMyId(userId);
+        setVideos((prev) => {
+          return [...prev, { stream, userId }];
+        });
+        const roomId = window.location.pathname.split("/")[2];
+        socket.emit("join-room", roomId, userId);
+      });
+      socket.on("user-connected", (userId) => {
+        const call = myPeer.call(userId, stream);
+        if (!call) console.error("call is undefined");
+        call.on("stream", (userVideoStream) => {
+          if (connectedPeers.current[call.peer]) {
+            return;
+          }
+          connectedPeers.current[call.peer] = call;
+          addVideoStream(userVideoStream, call.peer);
+        });
+        call.on("close", () => {
+          setVideos((prev) => {
+            return prev.filter((video) => video.userId !== call.peer);
+          });
+        });
+      });
+      socket.on("user-disconnected", (userId) => {
+        console.log("disconnected", userId);
+        connectedPeers.current[userId].close();
+        delete connectedPeers[userId];
+      });
+      myPeer.on("call", (call) => {
+        call.answer(stream);
+        call.on("stream", (userVideoStream) => {
+          if (connectedPeers.current[call.peer]) {
+            return;
+          }
+          connectedPeers.current[call.peer] = call;
+          addVideoStream(userVideoStream, call.peer);
+        });
+        call.on("close", () => {
+          setVideos((prev) => {
+            return prev.filter((video) => video.userId !== call.peer);
+          });
+        });
+      });
+      history.listen(() => {
+        if (history.action === "POP") {
           stream.getTracks().forEach((track) => {
             track.stop();
           });
           console.log(history);
+
           myPeer.disconnect();
           socket.disconnect();
-          navigator.mediaDevices.getDisplayMedia().then((stream) => {
-            connectedPeers.current = {};
-            console.log(stream);
-            setVideos([]);
-            socket.connect();
-            const myPeer = new Peer(undefined, {
-              // host: "peerjs-server.herokuapp.com",
-              // secure: true,
-              // port: 443,
-              host: "/",
-              port: "3001",
-            });
-            myPeer.on("open", (userId) => {
-              const roomId = window.location.pathname.split("/")[2];
-              socket.emit("join-room", roomId, userId);
-            });
-            myPeer.on("call", (call) => {
-              call.answer(stream);
-              call.on("stream", (userVideoStream) => {
-                if (connectedPeers.current[call.peer]) {
-                  return;
-                }
-                connectedPeers.current[call.peer] = call;
-                setVideos((prev) => {
-                  return [...prev, { userId: call.peer, stream: userVideoStream }];
-                });
-              });
-            });
-          });
-        };
-        const myPeer = new Peer(undefined, {
-          // host: "peerjs-server.herokuapp.com",
-          // secure: true,
-          // port: 443,
-          host: "/",
-          port: "3001",
-        });
-        myPeer.on("open", (userId) => {
-          console.log("new peer has been created");
-          console.log(myPeer);
-          socket.connect();
-          setMyId(userId);
-          setVideos((prev) => {
-            return [...prev, { stream, userId }];
-          });
-          const roomId = window.location.pathname.split("/")[2];
-          socket.emit("join-room", roomId, userId);
-        });
-        socket.on("user-connected", (userId) => {
-          const call = myPeer.call(userId, stream);
-          if (!call) console.error("call is undefined");
-          call.on("stream", (userVideoStream) => {
-            if (connectedPeers.current[call.peer]) {
-              return;
-            }
-            connectedPeers.current[call.peer] = call;
-            addVideoStream(userVideoStream, call.peer);
-          });
-          call.on("close", () => {
-            setVideos((prev) => {
-              return prev.filter((video) => video.userId !== call.peer);
-            });
-          });
-        });
-        socket.on("user-disconnected", (userId) => {
-          console.log("disconnected", userId);
-          connectedPeers.current[userId].close();
-          delete connectedPeers[userId];
-        });
-        myPeer.on("call", (call) => {
-          call.answer(stream);
-          call.on("stream", (userVideoStream) => {
-            if (connectedPeers.current[call.peer]) {
-              return;
-            }
-            connectedPeers.current[call.peer] = call;
-            addVideoStream(userVideoStream, call.peer);
-          });
-          call.on("close", () => {
-            setVideos((prev) => {
-              return prev.filter((video) => video.userId !== call.peer);
-            });
-          });
-        });
-        history.listen(() => {
-          if (history.action === "POP") {
-            stream.getTracks().forEach((track) => {
-              track.stop();
-            });
-            console.log(history);
-
-            myPeer.disconnect();
-            socket.disconnect();
-          }
-        });
-      })
-      .catch((error) => console.log(error));
+        }
+      });
+    }
+    setStreaming();
   }, []);
+
+  async function StartScreenShare() {
+    let AudioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    let ScreenShareStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+    let tracks = [];
+    tracks.concat(AudioStream.getAudioTracks());
+    tracks.concat(ScreenShareStream.getVideoTracks());
+    let stream = new MediaStream(tracks);
+    socket.connect();
+    const myPeer = new Peer(undefined, {
+      // host: "peerjs-server.herokuapp.com",
+      // secure: true,
+      // port: 443,
+      host: "/",
+      port: "3001",
+    });
+  }
+
   function addVideoStream(userStream, userId) {
     setVideos((prev) => {
       return [...prev, { userId, stream: userStream }];

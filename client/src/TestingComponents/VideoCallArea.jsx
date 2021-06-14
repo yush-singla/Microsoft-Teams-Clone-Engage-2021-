@@ -29,22 +29,7 @@ export default function VideoCallArea() {
           stream.getVideoTracks()[0].enabled = !stream.getVideoTracks()[0].enabled;
           setVideo((prev) => !prev);
         };
-        // toggleShareScreen.current = () => {
-        //   stream.getTracks().forEach((track) => {
-        //     track.stop();
-        //   });
-        //   console.log(history);
-        //   myPeer.disconnect();
-        //   socket.disconnect();
-        //   navigator.mediaDevices.getDisplayMedia().then((stream) => {
-        //     console.log(stream);
-        //     setVideos((prev) => {
-        //       console.log("changing to screen share now!!");
-        //       prev[0] = { userId: 10101, stream };
-        //       return prev;
-        //     });
-        //   });
-        // };
+
         const myPeer = new Peer(undefined, {
           // host: "peerjs-server.herokuapp.com",
           // secure: true,

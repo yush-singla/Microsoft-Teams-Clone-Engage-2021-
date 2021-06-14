@@ -13,6 +13,8 @@ export default function VideoCallArea() {
     navigator.mediaDevices
       .getUserMedia({ audio: true, video: true })
       .then((stream) => {
+        document.getElementById("toggleMute").removeEventListener("click");
+        document.getElementById("toggleCamera").removeEventListener("click");
         document.getElementById("toggleMute").addEventListener("click", () => {
           console.log(stream.getVideoTracks()[0].enabled);
           stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;

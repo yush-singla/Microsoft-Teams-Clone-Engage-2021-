@@ -11,29 +11,40 @@ export default function VideoCallArea() {
   const [videos, setVideos] = useState([]);
   const [audio, setAudio] = useState(true);
   const [video, setVideo] = useState(true);
+  const toggleAudio = useRef();
+  const toggleVideo = useRef();
+  const toggleShareScreen = useRef();
   useEffect(() => {
     console.log("used effect");
     navigator.mediaDevices
       .getUserMedia({ audio: true, video: true })
       .then((stream) => {
-        document.getElementById("toggleMute").removeEventListener("click", () => {
-          stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;
-          setAudio((prev) => !prev);
-        });
-        document.getElementById("toggleCamera").removeEventListener("click", () => {
-          stream.getVideoTracks()[0].enabled = !stream.getVideoTracks()[0].enabled;
-          setVideo((prev) => !prev);
-        });
-        document.getElementById("toggleMute").addEventListener("click", () => {
+        toggleAudio.current = () => {
           console.log(stream.getVideoTracks()[0].enabled);
           stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;
           setAudio((prev) => !prev);
-        });
-        document.getElementById("toggleCamera").addEventListener("click", () => {
+        };
+        toggleVideo.current = () => {
           console.log(stream.getAudioTracks()[0].enabled);
           stream.getVideoTracks()[0].enabled = !stream.getVideoTracks()[0].enabled;
           setVideo((prev) => !prev);
-        });
+        };
+        toggleShareScreen.current = () => {
+          stream.getTracks().forEach((track) => {
+            track.stop();
+          });
+          console.log(history);
+          myPeer.disconnect();
+          socket.disconnect();
+          navigator.mediaDevices.getDisplayMedia().then((stream) => {
+            console.log(stream);
+            setVideos((prev) => {
+              console.log("changing to screen share now!!");
+              prev[0] = { userId: 10101, stream };
+              return prev;
+            });
+          });
+        };
         const myPeer = new Peer(undefined, {
           // host: "peerjs-server.herokuapp.com",
           // secure: true,
@@ -101,9 +112,6 @@ export default function VideoCallArea() {
         });
       })
       .catch((error) => console.log(error));
-    // return () => {
-
-    // };
   }, []);
   function addVideoStream(userStream, userId) {
     setVideos((prev) => {
@@ -112,8 +120,15 @@ export default function VideoCallArea() {
   }
   return (
     <div>
-      <button id="toggleMute">{audio ? "Mute" : "UnMute"}</button>
-      <button id="toggleCamera">{video ? "Hide Video" : "Show Video"}</button>
+      <button id="toggleMute" onClick={toggleAudio.current}>
+        {audio ? "Mute" : "UnMute"}
+      </button>
+      <button id="toggleCamera" onClick={toggleVideo.current}>
+        {video ? "Hide Video" : "Show Video"}
+      </button>
+      <button id="toggleScreenShare" onClick={toggleShareScreen.current}>
+        Share Screen
+      </button>
       {videos.map((video, key) => {
         return (
           <video

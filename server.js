@@ -20,15 +20,49 @@ app.get("/api/join", (req, res) => {
   res.send({ link: uuidV4() });
 });
 
+let waitingRooms = {};
+let participants = {};
+
 io.on("connection", (socket) => {
-  console.log(socket.id);
+  participants[socket.id] = { waiting: true, inMeeting: false };
+  socket.on("req-join-room", (roomId, cb) => {
+    console.log("req for joining by " + socket.id);
+    if (waitingRooms[roomId] === undefined) {
+      console.log("invalid room");
+      cb({ status: "invalid room" });
+    } else {
+      console.log("sending a message to the" + waitingRooms[roomId]);
+      socket.to(waitingRooms[roomId]).emit("req-to-join-room", socket.id, "join");
+    }
+    socket.on("disconnect", () => {
+      // console.log(participants[socket.id]);
+      // if (participants[socket.id] === undefined || participants[socket.id].inMeeting) return;
+      console.log("disconnected in the waiting area itself");
+      socket.to(waitingRooms[roomId]).emit("req-to-join-room", socket.id, "leave");
+    });
+  });
+  socket.on("this-user-is-allowed", (socketId) => {
+    participants[socket.id] = { waiting: false, inMeeting: true };
+    console.log("after change", participants[socket.id]);
+    console.log("got allowed");
+    socket.to(socketId).emit("you-are-admitted");
+  });
   socket.on("join-room", (roomId, userId) => {
-    console.log(roomId, userId);
+    console.log("joined a room " + socket.id);
+    if (waitingRooms[roomId] === undefined) {
+      waitingRooms[roomId] = socket.id;
+    }
+    // console.log(roomId, userId);
+    //
     socket.join(roomId);
     socket.to(roomId).emit("user-connected", userId);
 
     socket.on("disconnect", () => {
+      // if (participants[socket.id] === undefined || participants[socket.id].waiting) return;
       console.log("disconected", userId);
+      if (waitingRooms[roomId] === socket.id) {
+        delete waitingRooms[roomId];
+      }
       socket.to(roomId).emit("user-disconnected", userId);
     });
   });

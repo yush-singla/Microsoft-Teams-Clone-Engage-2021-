@@ -1,20 +1,30 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
-import { useHistory } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 
 export default function Home() {
-  let history = useHistory();
+  const [link, setLink] = useState(null);
   function handleJoin() {
     axios
       .get("/api/join")
       .then((response) => {
-        history.push(`/join/${response.data.link}`);
+        setLink(`/join/${response.data.link}`);
       })
       .catch((error) => console.log(error));
   }
+  if (link) {
+    return (
+      <Redirect
+        to={{
+          pathname: link,
+          state: { from: "/create" },
+        }}
+      />
+    );
+  }
   return (
     <div>
-      <button onClick={handleJoin}>Join Room</button>
+      <button onClick={handleJoin}>Create New Meet</button>
     </div>
   );
 }

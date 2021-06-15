@@ -53,6 +53,7 @@ io.on("connection", (socket) => {
       waitingRooms[roomId] = socket.id;
     }
     // console.log(roomId, userId);
+    //
     socket.join(roomId);
     socket.to(roomId).emit("user-connected", userId);
 

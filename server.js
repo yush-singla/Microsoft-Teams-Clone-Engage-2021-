@@ -33,6 +33,7 @@ io.on("connection", (socket) => {
       socket.to(waitingRooms[roomId]).emit("req-to-join-room", socket.id, "join");
     }
     socket.on("disconnect", () => {
+      console.log("disconnected in the waiting area itself");
       socket.to(waitingRooms[roomId]).emit("req-to-join-room", socket.id, "leave");
     });
   });

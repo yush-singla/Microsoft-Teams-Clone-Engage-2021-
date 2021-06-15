@@ -15,13 +15,19 @@ export default function VideoCallArea() {
   const toggleAudio = useRef();
   const toggleVideo = useRef();
   const toggleShareScreen = useRef({ start: null, stop: undefined });
-
+  const [speakerToggle, setSpeakerToggle] = useState(false);
   useEffect(() => {
     setCameraStreaming();
   }, []);
   async function setCameraStreaming(callback) {
     try {
-      let stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+      let stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: {
+          width: { min: 1024, ideal: 1280, max: 1920 },
+          height: { min: 576, ideal: 720, max: 1080 },
+        },
+      });
       if (callback) callback();
       connectedPeers.current = {};
       socket.connect();
@@ -42,6 +48,7 @@ export default function VideoCallArea() {
         port: "3001",
       });
       toggleShareScreen.current.start = () => {
+        console.log(videos);
         setScreenShareStream(() => {
           setSharingScreen(true);
           stream.getTracks().forEach((track) => {
@@ -62,9 +69,13 @@ export default function VideoCallArea() {
     }
   }
   async function setScreenShareStream(callback) {
+    console.log("got called screen share");
     try {
       let AudioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      let ScreenShareStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      let ScreenShareStream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: true,
+      });
       if (callback) callback();
       connectedPeers.current = {};
       let tracks = [];
@@ -92,6 +103,7 @@ export default function VideoCallArea() {
       toggleShareScreen.current.stop = () => {
         setCameraStreaming(() => {
           myPeer.disconnect();
+          setSharingScreen(false);
           stream.getTracks().forEach((track) => {
             track.stop();
           });
@@ -101,6 +113,7 @@ export default function VideoCallArea() {
             socket.off(event);
           });
           socket.disconnect();
+          console.log("disconnected the socket");
         });
       };
       setUpSocketsAndPeerEvents({ socket, myPeer, stream });
@@ -198,18 +211,42 @@ export default function VideoCallArea() {
       </button>
       {videos.map((video, key) => {
         return (
-          <video
-            muted={video.userId === myId}
-            key={video.userId}
-            playsInline
-            autoPlay
-            ref={(videoRef) => {
-              if (videoRef) videoRef.srcObject = video.stream;
-              return videoRef;
-            }}
-          />
+          <>
+            <video
+              muted={video.userId === myId || speakerToggle}
+              key={video.userId}
+              playsInline
+              autoPlay
+              style={{ height: "100px", width: "200px" }}
+              ref={(videoRef) => {
+                if (videoRef) videoRef.srcObject = video.stream;
+                return videoRef;
+              }}
+            />
+            {/* {video.userId !== myId && (
+              <button
+                onClick={() => {
+                  setVideos((prev) => {
+                    prev.forEach((vid) => {
+                      if (vid.id === video.id) vid.muted = vid.muted ? false : true;
+                    });
+                    return [...prev];
+                  });
+                }}
+              >
+                mute this person
+              </button>
+            )} */}
+          </>
         );
       })}
+      <button
+        onClick={() => {
+          setSpeakerToggle((prev) => !prev);
+        }}
+      >
+        Toggle Speaker
+      </button>
     </div>
   );
 }

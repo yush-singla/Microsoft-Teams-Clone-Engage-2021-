@@ -20,20 +20,46 @@ app.get("/api/join", (req, res) => {
   res.send({ link: uuidV4() });
 });
 
+let waitingRooms = {};
+
 io.on("connection", (socket) => {
-  console.log(socket.id);
+  socket.on("req-join-room", (roomId, cb) => {
+    console.log("req for joining by " + socket.id);
+    if (waitingRooms[roomId] === undefined) {
+      console.log("invalid room");
+      cb({ status: "invalid room" });
+    } else {
+      console.log("sending a message to the" + waitingRooms[roomId]);
+      socket.to(waitingRooms[roomId]).emit("req-to-join-room", socket.id, "join");
+    }
+    socket.on("disconnect", () => {
+      socket.to(waitingRooms[roomId]).emit("req-to-join-room", socket.id, "leave");
+    });
+  });
+  socket.on("this-user-is-allowed", (socketId) => {
+    console.log("got allowed");
+    socket.to(socketId).emit("you-are-admitted");
+  });
   socket.on("join-room", (roomId, userId) => {
-    console.log(roomId, userId);
+    console.log("joined a room " + socket.id);
+    if (waitingRooms[roomId] === undefined) {
+      waitingRooms[roomId] = socket.id;
+    }
+    // console.log(roomId, userId);
     socket.join(roomId);
     socket.to(roomId).emit("user-connected", userId);
 
     socket.on("disconnect", () => {
       console.log("disconected", userId);
+      if (waitingRooms[roomId] === socket.id) {
+        delete waitingRooms[roomId];
+      }
       socket.to(roomId).emit("user-disconnected", userId);
     });
   });
 });
 const path = require("path");
+const { join } = require("path");
 app.use(express.static(path.join(__dirname, "./client/build")));
 app.get("*", function (req, res) {
   console.log("came here");

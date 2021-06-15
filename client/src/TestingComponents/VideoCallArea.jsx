@@ -16,7 +16,21 @@ export default function VideoCallArea() {
   const toggleVideo = useRef();
   const toggleShareScreen = useRef({ start: null, stop: undefined });
   const [speakerToggle, setSpeakerToggle] = useState(false);
+  const [askForPermission, setAskForPermission] = useState([]);
+  const allowUser = useRef();
   useEffect(() => {
+    socket.on("req-to-join-room", (socketId, attemtingTo) => {
+      if (attemtingTo === "join") {
+        console.log(`called with ${socketId}`);
+        setAskForPermission((prev) => [...prev, socketId]);
+        allowUser.current = () => {
+          console.log("emitting the message");
+          socket.emit("this-user-is-allowed", socketId);
+        };
+      } else {
+        setAskForPermission((prev) => [...prev.filter((request) => request !== socketId)]);
+      }
+    });
     setCameraStreaming();
   }, []);
   async function setCameraStreaming(callback) {
@@ -211,33 +225,17 @@ export default function VideoCallArea() {
       </button>
       {videos.map((video, key) => {
         return (
-          <>
-            <video
-              muted={video.userId === myId || speakerToggle}
-              key={video.userId}
-              playsInline
-              autoPlay
-              style={{ height: "100px", width: "200px" }}
-              ref={(videoRef) => {
-                if (videoRef) videoRef.srcObject = video.stream;
-                return videoRef;
-              }}
-            />
-            {/* {video.userId !== myId && (
-              <button
-                onClick={() => {
-                  setVideos((prev) => {
-                    prev.forEach((vid) => {
-                      if (vid.id === video.id) vid.muted = vid.muted ? false : true;
-                    });
-                    return [...prev];
-                  });
-                }}
-              >
-                mute this person
-              </button>
-            )} */}
-          </>
+          <video
+            muted={video.userId === myId || speakerToggle}
+            key={video.userId}
+            playsInline
+            autoPlay
+            style={{ height: "100px", width: "200px" }}
+            ref={(videoRef) => {
+              if (videoRef) videoRef.srcObject = video.stream;
+              return videoRef;
+            }}
+          />
         );
       })}
       <button
@@ -247,6 +245,21 @@ export default function VideoCallArea() {
       >
         Toggle Speaker
       </button>
+      {askForPermission.map((request, key) => {
+        return (
+          <React.Fragment key={Math.floor(Math.random() * 10000)}>
+            <div>person is {request}</div>
+            <button
+              onClick={() => {
+                socket.emit("this-user-is-allowed", request);
+                setAskForPermission((prev) => [...prev.filter((req) => req !== request)]);
+              }}
+            >
+              accept
+            </button>
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 }

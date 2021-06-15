@@ -21,8 +21,10 @@ app.get("/api/join", (req, res) => {
 });
 
 let waitingRooms = {};
+let participants = {};
 
 io.on("connection", (socket) => {
+  participants[socket.id] = { waiting: true, inMeeting: false };
   socket.on("req-join-room", (roomId, cb) => {
     console.log("req for joining by " + socket.id);
     if (waitingRooms[roomId] === undefined) {
@@ -33,11 +35,15 @@ io.on("connection", (socket) => {
       socket.to(waitingRooms[roomId]).emit("req-to-join-room", socket.id, "join");
     }
     socket.on("disconnect", () => {
+      // console.log(participants[socket.id]);
+      // if (participants[socket.id] === undefined || participants[socket.id].inMeeting) return;
       console.log("disconnected in the waiting area itself");
       socket.to(waitingRooms[roomId]).emit("req-to-join-room", socket.id, "leave");
     });
   });
   socket.on("this-user-is-allowed", (socketId) => {
+    participants[socket.id] = { waiting: false, inMeeting: true };
+    console.log("after change", participants[socket.id]);
     console.log("got allowed");
     socket.to(socketId).emit("you-are-admitted");
   });
@@ -51,6 +57,7 @@ io.on("connection", (socket) => {
     socket.to(roomId).emit("user-connected", userId);
 
     socket.on("disconnect", () => {
+      // if (participants[socket.id] === undefined || participants[socket.id].waiting) return;
       console.log("disconected", userId);
       if (waitingRooms[roomId] === socket.id) {
         delete waitingRooms[roomId];
@@ -60,7 +67,6 @@ io.on("connection", (socket) => {
   });
 });
 const path = require("path");
-const { join } = require("path");
 app.use(express.static(path.join(__dirname, "./client/build")));
 app.get("*", function (req, res) {
   console.log("came here");

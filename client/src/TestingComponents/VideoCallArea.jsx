@@ -34,6 +34,8 @@ export default function VideoCallArea() {
     setCameraStreaming();
   }, []);
   async function setCameraStreaming(callback) {
+    setVideo(true);
+    setAudio(true);
     try {
       let stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
@@ -83,6 +85,7 @@ export default function VideoCallArea() {
     }
   }
   async function setScreenShareStream(callback) {
+    setAudio(true);
     console.log("got called screen share");
     try {
       let AudioStream = await navigator.mediaDevices.getUserMedia({ audio: true });

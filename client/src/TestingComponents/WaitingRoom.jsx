@@ -19,6 +19,10 @@ export default function WaitingRoom() {
       setStatus("allowed");
       alert("allowed");
     });
+    socket.on("you-are-denied", () => {
+      setStatus("denied");
+      alert("host denied entry to the meeting");
+    });
   }, []);
   if (status === "invalid room") {
     return <Redirect to="/create" />;
@@ -33,6 +37,9 @@ export default function WaitingRoom() {
         }}
       />
     );
+  }
+  if (status === "denied") {
+    return <Redirect to="/create" />;
   }
   return <div>Waiting for the host to let you in the meet!!</div>;
 }

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSocket } from "../utils/SocketProvider";
 import Peer from "peerjs";
 import { useHistory } from "react-router";
+import AlertDialog from "../components/DialogBox";
 
 export default function VideoCallArea() {
   let history = useHistory();
@@ -17,12 +18,16 @@ export default function VideoCallArea() {
   const toggleShareScreen = useRef({ start: null, stop: undefined });
   const [speakerToggle, setSpeakerToggle] = useState(false);
   const [askForPermission, setAskForPermission] = useState([]);
+  const [openDialogBox, setOpenDialogBox] = useState(false);
+  const [nameOfPersonToJoin, setNameOfPersoToJoin] = useState({});
   const allowUser = useRef();
   useEffect(() => {
     socket.on("req-to-join-room", (socketId, attemtingTo) => {
       if (attemtingTo === "join") {
         console.log(`called with ${socketId}`);
         setAskForPermission((prev) => [...prev, socketId]);
+        setNameOfPersoToJoin({ name: socketId, id: socketId });
+        setOpenDialogBox(true);
         allowUser.current = () => {
           console.log("emitting the message");
           socket.emit("this-user-is-allowed", socketId);
@@ -207,8 +212,31 @@ export default function VideoCallArea() {
       return [...prev, { userId, stream: userStream }];
     });
   }
+
+  function admitToMeeting({ socketId }) {
+    console.log("admitiing to meeting", socketId);
+    socket.emit("this-user-is-allowed", socketId);
+    setAskForPermission((prev) => [...prev.filter((req) => req !== socketId)]);
+  }
+
+  function denyMeeting({ socketId }) {
+    console.log("denyying to meeting", socketId);
+    socket.emit("this-user-is-denied", socketId);
+    setAskForPermission((prev) => [...prev.filter((req) => req !== socketId)]);
+  }
+
   return (
     <div>
+      {openDialogBox && (
+        <AlertDialog
+          openDialogBox={openDialogBox}
+          id={nameOfPersonToJoin.id}
+          name={nameOfPersonToJoin.name}
+          admitToMeeting={admitToMeeting}
+          setOpenDialogBox={setOpenDialogBox}
+          denyMeeting={denyMeeting}
+        />
+      )}
       <button id="toggleMute" onClick={toggleAudio.current}>
         {audio ? "Mute" : "UnMute"}
       </button>
@@ -248,17 +276,31 @@ export default function VideoCallArea() {
       >
         Toggle Speaker
       </button>
+      <button
+        onClick={() => {
+          socket.disconnect();
+          window.open("/", "_self");
+        }}
+      >
+        Leave Meeting
+      </button>
       {askForPermission.map((request, key) => {
         return (
           <React.Fragment key={Math.floor(Math.random() * 10000)}>
             <div>person is {request}</div>
             <button
               onClick={() => {
-                socket.emit("this-user-is-allowed", request);
-                setAskForPermission((prev) => [...prev.filter((req) => req !== request)]);
+                admitToMeeting({ socketId: request });
               }}
             >
               accept
+            </button>
+            <button
+              onClick={() => {
+                denyMeeting({ socketId: request });
+              }}
+            >
+              remove from waiting area
             </button>
           </React.Fragment>
         );

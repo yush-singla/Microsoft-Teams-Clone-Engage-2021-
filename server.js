@@ -47,6 +47,9 @@ io.on("connection", (socket) => {
     console.log("got allowed");
     socket.to(socketId).emit("you-are-admitted");
   });
+  socket.on("this-user-is-denied", (socketId) => {
+    socket.to(socketId).emit("you-are-denied");
+  });
   socket.on("join-room", (roomId, userId) => {
     console.log("joined a room " + socket.id);
     if (waitingRooms[roomId] === undefined) {

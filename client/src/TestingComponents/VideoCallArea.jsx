@@ -92,8 +92,8 @@ export default function VideoCallArea() {
         // host: "peerjs-server.herokuapp.com",
         // secure: true,
         // port: 443,
-        host: "/",
-        port: "3001",
+        // host: "/",
+        // port: "3001",
       });
       toggleShareScreen.current.start = () => {
         console.log(videos);
@@ -145,8 +145,8 @@ export default function VideoCallArea() {
         // host: "peerjs-server.herokuapp.com",
         // secure: true,
         // port: 443,
-        host: "/",
-        port: "3001",
+        // host: "/",
+        // port: "3001",
       });
       socket.connect();
       toggleShareScreen.current.stop = () => {

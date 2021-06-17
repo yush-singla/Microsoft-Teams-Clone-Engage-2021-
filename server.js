@@ -22,9 +22,10 @@ app.get("/api/join", (req, res) => {
 
 let waitingRooms = {};
 let participants = {};
+let getUserIdBySocketId = {};
+let getSocketIdByUserId = {};
 
 io.on("connection", (socket) => {
-  participants[socket.id] = { waiting: true, inMeeting: false };
   socket.on("req-join-room", (roomId, cb) => {
     console.log("req for joining by " + socket.id);
     if (waitingRooms[roomId] === undefined) {
@@ -51,6 +52,8 @@ io.on("connection", (socket) => {
     socket.to(socketId).emit("you-are-denied");
   });
   socket.on("join-room", (roomId, userId) => {
+    getUserIdBySocketId[socket.id] = userId;
+    getSocketIdByUserId[userId] = socket.id;
     console.log("joined a room " + socket.id);
     if (waitingRooms[roomId] === undefined) {
       waitingRooms[roomId] = socket.id;
@@ -59,7 +62,6 @@ io.on("connection", (socket) => {
     //
     socket.join(roomId);
     socket.to(roomId).emit("user-connected", userId);
-
     socket.on("disconnect", () => {
       // if (participants[socket.id] === undefined || participants[socket.id].waiting) return;
       console.log("disconected", userId);
@@ -68,6 +70,16 @@ io.on("connection", (socket) => {
       }
       socket.to(roomId).emit("user-disconnected", userId);
     });
+  });
+  socket.on("changed-audio-status", ({ status }) => {
+    const roomId = Array.from(socket.rooms).pop();
+    console.log("change", roomId);
+    socket.to(roomId).emit("changed-audio-status-reply", { status, userId: getUserIdBySocketId[socket.id] });
+  });
+  socket.on("changed-video-status", ({ status }) => {
+    const roomId = Array.from(socket.rooms).pop();
+    console.log("change", roomId);
+    socket.to(roomId).emit("changed-video-status-reply", { status, userId: getUserIdBySocketId[socket.id] });
   });
 });
 const path = require("path");

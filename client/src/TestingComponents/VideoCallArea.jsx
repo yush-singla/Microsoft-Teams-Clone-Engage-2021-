@@ -36,6 +36,31 @@ export default function VideoCallArea() {
         setAskForPermission((prev) => [...prev.filter((request) => request !== socketId)]);
       }
     });
+    socket.on("changed-audio-status-reply", ({ status, userId }) => {
+      console.log("chandler");
+      setVideos((prev) => {
+        prev.forEach((video) => {
+          if (video.userId === userId) {
+            video.audio = status;
+          }
+        });
+        return [...prev];
+      });
+    });
+    socket.on("changed-video-status-reply", ({ status, userId }) => {
+      console.log("chandler", status, userId);
+      setVideos((prev) => {
+        console.log(prev);
+        prev.forEach((video) => {
+          if (video.userId === userId) {
+            console.log("status", status);
+            video.video = status;
+          }
+        });
+        console.log(prev);
+        return [...prev];
+      });
+    });
     setCameraStreaming();
   }, []);
   async function setCameraStreaming(callback) {
@@ -55,11 +80,13 @@ export default function VideoCallArea() {
       toggleAudio.current = () => {
         stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;
         setAudio((prev) => !prev);
+        socket.emit("changed-audio-status", { status: stream.getAudioTracks()[0].enabled });
       };
       toggleVideo.current = () => {
         console.log(stream.getAudioTracks()[0].enabled);
         stream.getVideoTracks()[0].enabled = !stream.getVideoTracks()[0].enabled;
         setVideo((prev) => !prev);
+        socket.emit("changed-video-status", { status: stream.getVideoTracks()[0].enabled });
       };
       const myPeer = new Peer(undefined, {
         // host: "peerjs-server.herokuapp.com",
@@ -148,7 +175,7 @@ export default function VideoCallArea() {
     myPeer.on("open", (userId) => {
       setMyId(userId);
       setVideos((prev) => {
-        return [{ stream, userId }];
+        return [{ stream, userId, audio: true, video: true }];
       });
       const roomId = window.location.pathname.split("/")[2];
       socket.emit("join-room", roomId, userId);
@@ -209,7 +236,7 @@ export default function VideoCallArea() {
 
   function addVideoStream(userStream, userId) {
     setVideos((prev) => {
-      return [...prev, { userId, stream: userStream }];
+      return [...prev, { userId, stream: userStream, audio: true, video: true }];
     });
   }
 
@@ -256,17 +283,21 @@ export default function VideoCallArea() {
       </button>
       {videos.map((video, key) => {
         return (
-          <video
-            muted={video.userId === myId || speakerToggle}
-            key={video.userId}
-            playsInline
-            autoPlay
-            style={{ height: "100px", width: "200px" }}
-            ref={(videoRef) => {
-              if (videoRef) videoRef.srcObject = video.stream;
-              return videoRef;
-            }}
-          />
+          <>
+            <video
+              muted={video.userId === myId || speakerToggle}
+              key={video.userId}
+              playsInline
+              autoPlay
+              style={{ height: "100px", width: "200px" }}
+              ref={(videoRef) => {
+                if (videoRef) videoRef.srcObject = video.stream;
+                return videoRef;
+              }}
+            />
+            {!video.audio && <p>muted</p>}
+            {!video.video && <p>camOff</p>}
+          </>
         );
       })}
       <button

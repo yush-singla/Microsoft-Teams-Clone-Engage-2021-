@@ -26,15 +26,19 @@ let getUserIdBySocketId = {};
 let getSocketIdByUserId = {};
 
 io.on("connection", (socket) => {
-  socket.on("req-join-room", (roomId, cb) => {
-    console.log("req for joining by " + socket.id);
+  socket.on("check-valid-room", (roomId, cb) => {
+    console.log(roomId);
     if (waitingRooms[roomId] === undefined) {
       console.log("invalid room");
       cb({ status: "invalid room" });
-    } else {
-      console.log("sending a message to the" + waitingRooms[roomId]);
-      socket.to(waitingRooms[roomId]).emit("req-to-join-room", socket.id, "join");
     }
+  });
+  socket.on("req-join-room", (roomId, cb) => {
+    console.log("req for joining by " + socket.id);
+
+    console.log("sending a message to the" + waitingRooms[roomId]);
+    socket.to(waitingRooms[roomId]).emit("req-to-join-room", socket.id, "join");
+
     socket.on("disconnect", () => {
       // console.log(participants[socket.id]);
       // if (participants[socket.id] === undefined || participants[socket.id].inMeeting) return;

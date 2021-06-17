@@ -4,7 +4,7 @@ import Peer from "peerjs";
 import { useHistory } from "react-router";
 import AlertDialog from "../components/DialogBox";
 
-export default function VideoCallArea() {
+export default function VideoCallArea(props) {
   let history = useHistory();
   const socket = useSocket();
   const [myId, setMyId] = useState(undefined);
@@ -37,7 +37,6 @@ export default function VideoCallArea() {
       }
     });
     socket.on("changed-audio-status-reply", ({ status, userId }) => {
-      console.log("chandler");
       setVideos((prev) => {
         prev.forEach((video) => {
           if (video.userId === userId) {
@@ -48,7 +47,6 @@ export default function VideoCallArea() {
       });
     });
     socket.on("changed-video-status-reply", ({ status, userId }) => {
-      console.log("chandler", status, userId);
       setVideos((prev) => {
         console.log(prev);
         prev.forEach((video) => {
@@ -61,11 +59,15 @@ export default function VideoCallArea() {
         return [...prev];
       });
     });
+    if (props.location.state.audio === undefined) {
+      props.location.state.audio = true;
+    }
+    if (props.location.state.video === undefined) {
+      props.location.state.video = false;
+    }
     setCameraStreaming();
   }, []);
   async function setCameraStreaming(callback) {
-    setVideo(true);
-    setAudio(true);
     try {
       let stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
@@ -74,7 +76,18 @@ export default function VideoCallArea() {
           height: { min: 576, ideal: 720, max: 1080 },
         },
       });
-      if (callback) callback();
+      if (callback) {
+        callback();
+        setVideo(false);
+        setAudio(true);
+        stream.getAudioTracks()[0].enabled = true;
+        stream.getVideoTracks()[0].enabled = false;
+      } else {
+        setVideo(props.location.state.video);
+        setAudio(props.location.state.audio);
+        stream.getAudioTracks()[0].enabled = props.location.state.audio;
+        stream.getVideoTracks()[0].enabled = props.location.state.video;
+      }
       connectedPeers.current = {};
       socket.connect();
       toggleAudio.current = () => {
@@ -134,6 +147,7 @@ export default function VideoCallArea() {
       toggleAudio.current = () => {
         stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;
         setAudio((prev) => !prev);
+        socket.emit("changed-audio-status", { status: stream.getAudioTracks()[0].enabled });
       };
       stream.getVideoTracks()[0].onended = () => {
         setSharingScreen(false);

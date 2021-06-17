@@ -15,6 +15,13 @@ export default function WaitingRoom() {
   useEffect(() => {
     console.log("requesting access");
     showUserVideo();
+    const roomId = window.location.pathname.split("/")[2];
+    socket.emit("check-valid-room", roomId, ({ status }) => {
+      if (status === "invalid room") {
+        alert("Link is invalid");
+        setStatus("invalid room");
+      }
+    });
     socket.on("you-are-admitted", () => {
       setStatus("allowed");
       alert("allowed");
@@ -31,12 +38,7 @@ export default function WaitingRoom() {
   function askToJoin() {
     setHasAskedToJoin(true);
     const roomId = window.location.pathname.split("/")[2];
-    socket.emit("req-join-room", roomId, ({ status }) => {
-      if (status === "invalid room") {
-        alert("Link is invalid");
-        setStatus("invalid room");
-      }
-    });
+    socket.emit("req-join-room", roomId);
   }
   async function showUserVideo() {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
@@ -63,7 +65,7 @@ export default function WaitingRoom() {
       <Redirect
         to={{
           pathname: link,
-          state: { from: "/", audio: true, video: true },
+          state: { from: "/", audio, video },
         }}
       />
     );

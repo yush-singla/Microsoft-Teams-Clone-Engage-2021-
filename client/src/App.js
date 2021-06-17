@@ -5,10 +5,10 @@ import VideoCallArea from "./TestingComponents/VideoCallArea";
 import { BrowserRouter as Router, Switch, Route, useLocation, Redirect } from "react-router-dom";
 import WaitingRoom from "./TestingComponents/WaitingRoom";
 
-function ProtectedRoute({ children, ...rest }) {
+function ProtectedRoute({ component: Component, ...rest }) {
   const { state } = useLocation();
   console.log(state);
-  if (state && state.from === "/") return <Route {...rest}>{children}</Route>;
+  if (state && state.from === "/") return <Route {...rest} render={(props) => <Component {...props} />}></Route>;
   else return <Redirect to={`/waitingroom/${window.location.pathname.split("/")[2]}`} />;
 }
 
@@ -17,9 +17,7 @@ export default function App() {
     <SocketProvider>
       <Router>
         <Switch>
-          <ProtectedRoute path="/join">
-            <VideoCallArea />
-          </ProtectedRoute>
+          <ProtectedRoute path="/join" component={VideoCallArea} />
           <Route path="/waitingroom">
             <WaitingRoom />
           </Route>

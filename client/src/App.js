@@ -8,7 +8,7 @@ import WaitingRoom from "./TestingComponents/WaitingRoom";
 function ProtectedRoute({ children, ...rest }) {
   const { state } = useLocation();
   console.log(state);
-  if (state && state.from === "/create") return <Route {...rest}>{children}</Route>;
+  if (state && state.from === "/") return <Route {...rest}>{children}</Route>;
   else return <Redirect to={`/waitingroom/${window.location.pathname.split("/")[2]}`} />;
 }
 
@@ -20,10 +20,10 @@ export default function App() {
           <ProtectedRoute path="/join">
             <VideoCallArea />
           </ProtectedRoute>
-          <Route path="/create" component={Home} />
           <Route path="/waitingroom">
             <WaitingRoom />
           </Route>
+          <Route path="/" component={Home} />
         </Switch>
       </Router>
     </SocketProvider>

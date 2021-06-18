@@ -12,6 +12,8 @@ export default function VideoCallArea(props) {
   const [videos, setVideos] = useState([]);
   const [audio, setAudio] = useState(true);
   const [video, setVideo] = useState(true);
+  const audioStatus = useRef(true);
+  const videoStatus = useRef(false);
   const [sharingScreen, setSharingScreen] = useState(false);
   const toggleAudio = useRef();
   const toggleVideo = useRef();
@@ -36,14 +38,17 @@ export default function VideoCallArea(props) {
         setAskForPermission((prev) => [...prev.filter((request) => request !== socketId)]);
       }
     });
-    socket.on("update-audio-video-state", ({ video, audio, userId }) => {
-      console.log("updated data", { video, audio });
+    socket.on("update-audio-video-state", ({ video: userVideo, audio: userAudio, userId }) => {
+      console.log("updated data", { userVideo, userAudio, userId });
       setVideos((prev) => {
         console.log(prev);
-        prev.forEach((vid) => {
-          if (video.id === userId) {
-            vid.audio = audio;
-            vid.video = video;
+        prev.map((vid, key) => {
+          if (vid.userId === userId) {
+            console.log(vid);
+            vid.audio = userAudio;
+            vid.video = userVideo;
+            console.log(vid);
+            console.log(prev[key]);
           }
         });
         console.log(prev);
@@ -94,6 +99,8 @@ export default function VideoCallArea(props) {
         callback();
         setVideo(false);
         setAudio(true);
+        audioStatus.current = true;
+        videoStatus.current = false;
         console.log("setted audio video for this as true and false,respectively");
         stream.getAudioTracks()[0].enabled = true;
         stream.getVideoTracks()[0].enabled = false;
@@ -101,6 +108,10 @@ export default function VideoCallArea(props) {
         console.log("setted audio video for this as true and false,respectively");
         setVideo(props.location.state.video);
         setAudio(props.location.state.audio);
+        audioStatus.current = props.location.state.audio;
+        videoStatus.current = props.location.state.video;
+        console.log(props.location.state);
+        console.log("here see this", { audioStatus, videoStatus });
         stream.getAudioTracks()[0].enabled = props.location.state.audio;
         stream.getVideoTracks()[0].enabled = props.location.state.video;
       }
@@ -140,6 +151,7 @@ export default function VideoCallArea(props) {
           socket.disconnect();
         });
       };
+      console.log("before", { audio, video });
       setUpSocketsAndPeerEvents({ socket, myPeer, stream });
     } catch (err) {
       console.log(err);
@@ -147,6 +159,7 @@ export default function VideoCallArea(props) {
   }
   async function setScreenShareStream(callback) {
     setAudio(true);
+    audioStatus.current = true;
     console.log("got called screen share");
     try {
       let AudioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -202,15 +215,17 @@ export default function VideoCallArea(props) {
   }
 
   function setUpSocketsAndPeerEvents({ socket, myPeer, stream }) {
+    console.log("here", audioStatus.current, videoStatus.current);
     myPeer.on("open", (userId) => {
       setMyId(userId);
+      console.log("setting in component", { audioStatus, videoStatus });
       setVideos((prev) => {
-        return [{ stream, userId, audio: audio, video: video }];
+        return [{ stream, userId, audio: audioStatus.current, video: videoStatus.current }];
       });
       const roomId = window.location.pathname.split("/")[2];
-      socket.emit("join-room", roomId, userId);
+      socket.emit("join-room", roomId, userId, { audio: audioStatus.current, video: videoStatus.current });
     });
-    socket.on("user-connected", (userId, socketId) => {
+    socket.on("user-connected", (userId, socketId, { audio: userAudio, video: userVideo }) => {
       const call = myPeer.call(userId, stream);
       if (call === undefined) {
         console.log(socket);
@@ -222,11 +237,15 @@ export default function VideoCallArea(props) {
           return;
         }
         connectedPeers.current[call.peer] = call;
-        addVideoStream(userVideoStream, call.peer);
-        console.log({ video, audio });
+        addVideoStream(userVideoStream, call.peer, { userAudio, userVideo });
+        // console.log("is it correct", { video, audio });
         const roomId = window.location.pathname.split("/")[2];
-        console.log("acknowledging connected users about the change", { video, audio });
-        socket.emit("acknowledge-connected-user", { video, audio, socketId, userId, roomId });
+        setVideo((prev) => {
+          console.log("the state of video is", prev);
+          return prev;
+        });
+        // console.log("acknowledging connected users about the change", { video, audio });
+        socket.emit("acknowledge-connected-user", { video: videoStatus.current, audio: audioStatus.current, socketId, userId, roomId });
       });
       call.on("close", () => {
         setVideos((prev) => {
@@ -247,7 +266,7 @@ export default function VideoCallArea(props) {
           return;
         }
         connectedPeers.current[call.peer] = call;
-        addVideoStream(userVideoStream, call.peer);
+        addVideoStream(userVideoStream, call.peer, { userAudio: false, userVideo: false });
       });
       call.on("close", () => {
         setVideos((prev) => {
@@ -268,9 +287,9 @@ export default function VideoCallArea(props) {
     });
   }
 
-  function addVideoStream(userStream, userId) {
+  function addVideoStream(userStream, userId, { userAudio, userVideo }) {
     setVideos((prev) => {
-      return [...prev, { userId, stream: userStream, audio: true, video: true }];
+      return [...prev, { userId, stream: userStream, audio: userAudio, video: userVideo }];
     });
   }
 
@@ -329,8 +348,8 @@ export default function VideoCallArea(props) {
                 return videoRef;
               }}
             />
-            {!video.audio && <p>muted</p>}
-            {!video.video && <p>camOff</p>}
+            {!video.audio && video.userId !== myId && <p>muted</p>}
+            {!video.video && video.userId !== myId && <p>camOff</p>}
           </>
         );
       })}

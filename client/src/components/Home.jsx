@@ -85,7 +85,7 @@ export default function Home() {
   return (
     <Box py={2} className={classes.joinButtons}>
       <Grid container spacing={1} className={classes.joinButtons}>
-        <Grid item xs={12} md={7}>
+        <Grid item xs={12} md={8}>
           <Box pt={isDesktop ? 7 : 1} ml={isDesktop && 5} mr={isDesktop ? 20 : 1} textAlign="center">
             <Box pt={2} mx={4}>
               <Typography variant="h2">Welcome To Microsoft Teams!</Typography>
@@ -128,7 +128,7 @@ export default function Home() {
             </Box>
           </Box>
         </Grid>
-        <Grid xs={12} md={5} item>
+        <Grid xs={12} md={4} item>
           <Box textAlign="center" pt={8} pr={3}>
             {/* <img src="https://picsum.photos/560/470" alt="yes" /> */}
             <CarouselComponent />

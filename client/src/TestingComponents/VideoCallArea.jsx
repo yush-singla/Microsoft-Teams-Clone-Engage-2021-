@@ -36,6 +36,20 @@ export default function VideoCallArea(props) {
         setAskForPermission((prev) => [...prev.filter((request) => request !== socketId)]);
       }
     });
+    socket.on("update-audio-video-state", ({ video, audio, userId }) => {
+      console.log("updated data", { video, audio });
+      setVideos((prev) => {
+        console.log(prev);
+        prev.forEach((vid) => {
+          if (video.id === userId) {
+            vid.audio = audio;
+            vid.video = video;
+          }
+        });
+        console.log(prev);
+        return [...prev];
+      });
+    });
     socket.on("changed-audio-status-reply", ({ status, userId }) => {
       setVideos((prev) => {
         prev.forEach((video) => {
@@ -80,9 +94,11 @@ export default function VideoCallArea(props) {
         callback();
         setVideo(false);
         setAudio(true);
+        console.log("setted audio video for this as true and false,respectively");
         stream.getAudioTracks()[0].enabled = true;
         stream.getVideoTracks()[0].enabled = false;
       } else {
+        console.log("setted audio video for this as true and false,respectively");
         setVideo(props.location.state.video);
         setAudio(props.location.state.audio);
         stream.getAudioTracks()[0].enabled = props.location.state.audio;
@@ -189,12 +205,12 @@ export default function VideoCallArea(props) {
     myPeer.on("open", (userId) => {
       setMyId(userId);
       setVideos((prev) => {
-        return [{ stream, userId, audio: true, video: true }];
+        return [{ stream, userId, audio: audio, video: video }];
       });
       const roomId = window.location.pathname.split("/")[2];
       socket.emit("join-room", roomId, userId);
     });
-    socket.on("user-connected", (userId) => {
+    socket.on("user-connected", (userId, socketId) => {
       const call = myPeer.call(userId, stream);
       if (call === undefined) {
         console.log(socket);
@@ -207,6 +223,10 @@ export default function VideoCallArea(props) {
         }
         connectedPeers.current[call.peer] = call;
         addVideoStream(userVideoStream, call.peer);
+        console.log({ video, audio });
+        const roomId = window.location.pathname.split("/")[2];
+        console.log("acknowledging connected users about the change", { video, audio });
+        socket.emit("acknowledge-connected-user", { video, audio, socketId, userId, roomId });
       });
       call.on("close", () => {
         setVideos((prev) => {

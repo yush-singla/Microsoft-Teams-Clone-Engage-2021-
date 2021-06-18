@@ -65,7 +65,7 @@ io.on("connection", (socket) => {
     // console.log(roomId, userId);
     //
     socket.join(roomId);
-    socket.to(roomId).emit("user-connected", userId);
+    socket.to(roomId).emit("user-connected", userId, socket.id);
     socket.on("disconnect", () => {
       // if (participants[socket.id] === undefined || participants[socket.id].waiting) return;
       console.log("disconected", userId);
@@ -74,6 +74,11 @@ io.on("connection", (socket) => {
       }
       socket.to(roomId).emit("user-disconnected", userId);
     });
+  });
+  socket.on("acknowledge-connected-user", ({ socketId, video, audio, userId, roomId }) => {
+    console.log({ audio, video, roomId });
+    console.log("sending to roomid now");
+    io.in(roomId).emit("update-audio-video-state", { audio, video, userId });
   });
   socket.on("changed-audio-status", ({ status }) => {
     const roomId = Array.from(socket.rooms).pop();

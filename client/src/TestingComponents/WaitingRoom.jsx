@@ -1,13 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSocket } from "../utils/SocketProvider";
 import { Redirect } from "react-router";
-import { Box, Paper, IconButton, Button, Grid, Tooltip } from "@material-ui/core";
+import { Box, Paper, IconButton, Button, Grid, Tooltip, makeStyles, Typography } from "@material-ui/core";
 import MicOffIcon from "@material-ui/icons/MicOff";
 import MicIcon from "@material-ui/icons/Mic";
 import VideocamOffIcon from "@material-ui/icons/VideocamOff";
 import VideocamIcon from "@material-ui/icons/Videocam";
 
+const useStyles = makeStyles({
+  paperStyle: {
+    backgroundColor: "#DDDDDD",
+  },
+});
+
 export default function WaitingRoom() {
+  const classes = useStyles();
   const socket = useSocket();
   const [myVideo, setMyVideo] = useState(null);
   const toggleAudio = useRef();
@@ -80,38 +87,46 @@ export default function WaitingRoom() {
   }
   return (
     <>
-      <Box textAlign="center">
-        <div>WaitingRoom</div>
-        <video
-          muted
-          playsInline
-          autoPlay
-          style={{ width: "300px", height: "300px" }}
-          ref={(videoRef) => {
-            if (videoRef && myVideo) {
-              videoRef.srcObject = myVideo.stream;
-            }
-          }}
-        ></video>
-        <Grid container>
-          <Grid item md={12}>
-            <Tooltip placement="top" title={audio ? "Turn off Microphone" : "Turn on Microphone"}>
-              <IconButton onClick={toggleAudio.current} color={audio ? "default" : "secondary"}>
-                {audio ? <MicIcon /> : <MicOffIcon />}
-              </IconButton>
-            </Tooltip>
-            <Tooltip placement="top" title={video ? "Turn off Camera" : "Turn on Camera"}>
-              <IconButton onClick={toggleVideo.current} color={video ? "default" : "secondary"}>
-                {video ? <VideocamIcon /> : <VideocamOffIcon />}
-              </IconButton>
-            </Tooltip>
-          </Grid>
-          <Grid item md={12}>
-            <Button color="primary" variant="contained" onClick={askToJoin} disabled={hasAskedToJoin}>
-              {!hasAskedToJoin ? "Ask To Join" : "Waiting for host"}
-            </Button>
-          </Grid>
-        </Grid>
+      <Box textAlign="center" px={8}>
+        <Typography variant="h2">WaitingRoom</Typography>
+        <Paper className={classes.paperStyle}>
+          <Box p={6}>
+            <video
+              muted
+              playsInline
+              autoPlay
+              style={{ width: "320px", height: "220px" }}
+              ref={(videoRef) => {
+                if (videoRef && myVideo) {
+                  videoRef.srcObject = myVideo.stream;
+                }
+              }}
+            ></video>
+            <Grid container>
+              <Grid item xs={12}>
+                <Box component="span" px={1}>
+                  <Tooltip placement="top" title={audio ? "Turn off Microphone" : "Turn on Microphone"}>
+                    <IconButton onClick={toggleAudio.current} color={audio ? "default" : "secondary"}>
+                      {audio ? <MicIcon className={classes.iconStyles} /> : <MicOffIcon className={classes.iconStyles} />}
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+                <Box component="span" px={1}>
+                  <Tooltip placement="top" title={video ? "Turn off Camera" : "Turn on Camera"}>
+                    <IconButton onClick={toggleVideo.current} color={video ? "default" : "secondary"}>
+                      {video ? <VideocamIcon className={classes.iconStyles} /> : <VideocamOffIcon className={classes.iconStyles} />}
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              </Grid>
+              <Grid item xs={12}>
+                <Button color="primary" variant="contained" onClick={askToJoin} disabled={hasAskedToJoin}>
+                  {!hasAskedToJoin ? "Ask To Join" : "Waiting for host"}
+                </Button>
+              </Grid>
+            </Grid>
+          </Box>
+        </Paper>
       </Box>
     </>
   );

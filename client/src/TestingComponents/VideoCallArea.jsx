@@ -3,7 +3,7 @@ import { useSocket } from "../utils/SocketProvider";
 import Peer from "peerjs";
 import { useHistory } from "react-router";
 import AlertDialog from "../components/DialogBox";
-import { Paper, makeStyles, IconButton, Box, Tooltip } from "@material-ui/core";
+import { Paper, makeStyles, IconButton, Box, Tooltip, Drawer, Typography, Divider, Grid } from "@material-ui/core";
 import CallEndIcon from "@material-ui/icons/CallEnd";
 import MicOffIcon from "@material-ui/icons/MicOff";
 import MicIcon from "@material-ui/icons/Mic";
@@ -13,6 +13,8 @@ import PresentToAllIcon from "@material-ui/icons/PresentToAll";
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import VolumeUpIcon from "@material-ui/icons/VolumeUp";
 import VolumeOffIcon from "@material-ui/icons/VolumeOff";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
+import RemoveCircleIcon from "@material-ui/icons/RemoveCircle";
 const useStyles = makeStyles({
   bottomBar: {
     width: "98%",
@@ -51,6 +53,7 @@ export default function VideoCallArea(props) {
   const [openDialogBox, setOpenDialogBox] = useState(false);
   const [nameOfPersonToJoin, setNameOfPersoToJoin] = useState({});
   const allowUser = useRef();
+  const [waitingRoomOpen, setWaitingRoomOpen] = useState(false);
   useEffect(() => {
     socket.on("req-to-join-room", (socketId, attemtingTo) => {
       if (attemtingTo === "join") {
@@ -419,27 +422,62 @@ export default function VideoCallArea(props) {
           </Tooltip>
         </Box>
       </Paper>
-      {askForPermission.map((request, key) => {
-        return (
-          <React.Fragment key={Math.floor(Math.random() * 10000)}>
-            <div>person is {request}</div>
-            <button
-              onClick={() => {
-                admitToMeeting({ socketId: request });
-              }}
-            >
-              accept
-            </button>
-            <button
-              onClick={() => {
-                denyMeeting({ socketId: request });
-              }}
-            >
-              remove from waiting area
-            </button>
-          </React.Fragment>
-        );
-      })}
+      <button
+        onClick={() => {
+          setWaitingRoomOpen(true);
+        }}
+      >
+        open waiting room
+      </button>
+      <Drawer
+        anchor="right"
+        open={waitingRoomOpen}
+        onClose={() => {
+          setWaitingRoomOpen(false);
+        }}
+      >
+        {" "}
+        <Typography variant="h5">Participants</Typography>
+        <Divider />
+        <Typography variant="h5">Waiting Room</Typography>
+        <Divider />
+        {/* <Typography variant="p">Following is a list of people currently in the waiting room</Typography> */}
+        {askForPermission.map((request, key) => {
+          return (
+            <React.Fragment key={Math.floor(Math.random() * 10000)}>
+              <Grid container>
+                <Grid item xs={8}>
+                  <Typography variant="p" style={{ overflowWrap: "break-word" }}>
+                    {request}
+                  </Typography>
+                </Grid>
+                <Grid item xs={2}>
+                  <Tooltip title="Add to the Meeting">
+                    <IconButton
+                      onClick={() => {
+                        admitToMeeting({ socketId: request });
+                      }}
+                    >
+                      <AddCircleIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
+                <Grid item xs={2}>
+                  <Tooltip title="Remove from Waiting Room">
+                    <IconButton
+                      onClick={() => {
+                        denyMeeting({ socketId: request });
+                      }}
+                    >
+                      <RemoveCircleIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
+              </Grid>
+            </React.Fragment>
+          );
+        })}
+      </Drawer>
     </div>
   );
 }

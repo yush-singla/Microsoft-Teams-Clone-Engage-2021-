@@ -1,6 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSocket } from "../utils/SocketProvider";
 import { Redirect } from "react-router";
+import { Box, Paper, IconButton, Button, Grid, Tooltip } from "@material-ui/core";
+import MicOffIcon from "@material-ui/icons/MicOff";
+import MicIcon from "@material-ui/icons/Mic";
+import VideocamOffIcon from "@material-ui/icons/VideocamOff";
+import VideocamIcon from "@material-ui/icons/Videocam";
 
 export default function WaitingRoom() {
   const socket = useSocket();
@@ -75,23 +80,39 @@ export default function WaitingRoom() {
   }
   return (
     <>
-      <div>WaitingRoom</div>
-      <video
-        muted
-        playsInline
-        autoPlay
-        style={{ width: "100px", height: "100px" }}
-        ref={(videoRef) => {
-          if (videoRef && myVideo) {
-            videoRef.srcObject = myVideo.stream;
-          }
-        }}
-      ></video>
-      <button onClick={toggleAudio.current}>{audio ? "Mute" : "UnMute"}</button>
-      <button onClick={toggleVideo.current}>{video ? "Hide Video" : "Show Video"}</button>
-      <button onClick={askToJoin} disabled={hasAskedToJoin}>
-        {!hasAskedToJoin ? "Ask To Join" : "Waiting for host to let you in"}
-      </button>
+      <Box textAlign="center">
+        <div>WaitingRoom</div>
+        <video
+          muted
+          playsInline
+          autoPlay
+          style={{ width: "300px", height: "300px" }}
+          ref={(videoRef) => {
+            if (videoRef && myVideo) {
+              videoRef.srcObject = myVideo.stream;
+            }
+          }}
+        ></video>
+        <Grid container>
+          <Grid item md={12}>
+            <Tooltip placement="top" title={audio ? "Turn off Microphone" : "Turn on Microphone"}>
+              <IconButton onClick={toggleAudio.current} color={audio ? "default" : "secondary"}>
+                {audio ? <MicIcon /> : <MicOffIcon />}
+              </IconButton>
+            </Tooltip>
+            <Tooltip placement="top" title={video ? "Turn off Camera" : "Turn on Camera"}>
+              <IconButton onClick={toggleVideo.current} color={video ? "default" : "secondary"}>
+                {video ? <VideocamIcon /> : <VideocamOffIcon />}
+              </IconButton>
+            </Tooltip>
+          </Grid>
+          <Grid item md={12}>
+            <Button color="primary" variant="contained" onClick={askToJoin} disabled={hasAskedToJoin}>
+              {!hasAskedToJoin ? "Ask To Join" : "Waiting for host"}
+            </Button>
+          </Grid>
+        </Grid>
+      </Box>
     </>
   );
 }

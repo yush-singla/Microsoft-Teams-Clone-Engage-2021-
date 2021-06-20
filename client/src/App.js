@@ -4,6 +4,7 @@ import Home from "./components/Home";
 import VideoCallArea from "./TestingComponents/VideoCallArea";
 import { BrowserRouter as Router, Switch, Route, useLocation, Redirect } from "react-router-dom";
 import WaitingRoom from "./TestingComponents/WaitingRoom";
+import Authenticate from "./components/Authenticate";
 
 function ProtectedRoute({ component: Component, ...rest }) {
   const { state } = useLocation();
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/waitingroom">
             <WaitingRoom />
           </Route>
+          <Route path="/auth" component={Authenticate}></Route>
           <Route path="/" component={Home} />
         </Switch>
       </Router>

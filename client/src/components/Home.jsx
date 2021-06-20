@@ -26,6 +26,9 @@ export default function Home() {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 1190);
   useEffect(() => {
     window.addEventListener("resize", updateIsDesktop);
+    axios.get("/authenticated").then((response) => {
+      console.log(response.data);
+    });
     return () => {
       window.removeEventListener("resize", updateIsDesktop);
     };

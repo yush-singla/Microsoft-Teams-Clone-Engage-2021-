@@ -24,6 +24,9 @@ app.use(
     cookie: { maxAge: 1800000 },
   })
 );
+app.use(passport.initialize());
+app.use(express.json());
+app.use(passport.session());
 // app.use(cookieParser(process.env.SECRET));
 
 mongoose.connect("mongodb+srv://yush:" + process.env.PASSWORD + "@cluster0.dgbfh.mongodb.net/microsoft_teams_clone?retryWrites=true&w=majority", {
@@ -38,8 +41,9 @@ const userSchema = new mongoose.Schema({
   googleId: String,
   facebookId: String,
   picurL: String,
+  name: String,
 });
-
+userSchema.plugin(findOrCreate);
 const User = new mongoose.model("User", userSchema);
 
 passport.serializeUser(function (user, done) {
@@ -57,16 +61,17 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "https://mighty-bastion-60878.herokuapp.com/auth/google/secrets",
+      callbackURL: "http://localhost:5000/auth/google/callback",
       userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
     },
     function (accessToken, refreshToken, profile, cb) {
+      console.log(profile);
       User.findOrCreate(
         {
-          email: profile.emails[0].value,
+          googleId: profile.id,
         },
         {
-          googleId: profile.id,
+          name: profile.displayName,
           picurL: profile.photos[0].value,
         },
         function (err, user) {
@@ -82,17 +87,18 @@ passport.use(
     {
       clientID: process.env.FACEBOOK_APP_ID,
       clientSecret: process.env.FACEBOOK_APP_SECRET,
-      callbackURL: "https://mighty-bastion-60878.herokuapp.com/auth/facebook/secrets",
+      callbackURL: "http://localhost:5000/auth/facebook/callback",
       profileFields: ["id", "emails", "name", "picture"],
     },
     function (accessToken, refreshToken, profile, cb) {
+      console.log({ accessToken, refreshToken });
       console.log(profile);
       User.findOrCreate(
         {
-          email: profile.emails[0].value,
+          facebookId: profile.id,
         },
         {
-          facebookId: profile.id,
+          name: profile._json.first_name + " " + profile._json.last_name,
           picurL: profile.photos[0].value,
         },
         function (err, user) {
@@ -116,7 +122,8 @@ app.get(
     failureRedirect: "/home",
   }),
   function (req, res) {
-    res.redirect("/");
+    console.log(req.user);
+    res.redirect("http://localhost:3000");
   }
 );
 
@@ -125,13 +132,23 @@ app.get("/auth/facebook", passport.authenticate("facebook"));
 app.get(
   "/auth/facebook/callback",
   passport.authenticate("facebook", {
+    scope: ["email"],
     failureRedirect: "/login",
   }),
   function (req, res) {
     console.log(req.user);
-    res.redirect("/");
+    res.redirect("http://localhost:3000");
   }
 );
+
+app.get("/authenticated", (req, res) => {
+  console.log(req.isAuthenticated());
+  if (req.isAuthenticated()) {
+    res.send(req.user);
+  } else {
+    res.send("unauthorised");
+  }
+});
 
 const { v4: uuidV4 } = require("uuid");
 

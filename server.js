@@ -15,6 +15,7 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const findOrCreate = require("mongoose-findorcreate");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
 app.use(
   session({
@@ -27,7 +28,7 @@ app.use(
 app.use(passport.initialize());
 app.use(express.json());
 app.use(passport.session());
-// app.use(cookieParser(process.env.SECRET));
+app.use(cookieParser(process.env.SECRET));
 
 mongoose.connect("mongodb+srv://yush:" + process.env.PASSWORD + "@cluster0.dgbfh.mongodb.net/microsoft_teams_clone?retryWrites=true&w=majority", {
   useNewUrlParser: true,
@@ -65,7 +66,7 @@ passport.use(
       userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
     },
     function (accessToken, refreshToken, profile, cb) {
-      console.log(profile);
+      // console.log(profile);
       User.findOrCreate(
         {
           googleId: profile.id,
@@ -91,8 +92,8 @@ passport.use(
       profileFields: ["id", "emails", "name", "picture"],
     },
     function (accessToken, refreshToken, profile, cb) {
-      console.log({ accessToken, refreshToken });
-      console.log(profile);
+      // console.log({ accessToken, refreshToken });
+      // console.log(profile);
       User.findOrCreate(
         {
           facebookId: profile.id,
@@ -109,11 +110,38 @@ passport.use(
   )
 );
 
+// app.get(
+//   "/auth/google",
+//   passport.authenticate("google", {
+//     scope: ["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email"],
+//   })
+// );
+
+// app.get(
+//   "/auth/google/callback",
+//   passport.authenticate("google", {
+//     failureRedirect: "/home",
+//   }),
+//   function (req, res) {
+//     console.log(req.user);
+//     res.redirect("http://localhost:3000");
+//   }
+// );
+
 app.get(
   "/auth/google",
-  passport.authenticate("google", {
-    scope: ["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email"],
-  })
+  (req, res, next) => {
+    // console.log(req.query);
+    next();
+  },
+  (req, res, next) => {
+    // console.log("before", req.session);
+    req.session.redirectDetails = { join: req.query.join, room: req.query.room, prev: req.query.prev };
+    // console.log("after", req.session);
+    passport.authenticate("google", {
+      scope: ["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email"],
+    })(req, res, next);
+  }
 );
 
 app.get(
@@ -122,12 +150,34 @@ app.get(
     failureRedirect: "/home",
   }),
   function (req, res) {
-    console.log(req.user);
-    res.redirect("http://localhost:3000");
+    console.log("redirect session", req.session.redirectDetails);
+    // console.log(req.session.redirectDetails.room);
+    if (req.session.redirectDetails && req.session.redirectDetails.join && req.session.redirectDetails.prev) {
+      console.log(`http://localhost:3000/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`, 1);
+      res.redirect(`http://localhost:3000/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
+    } else if (req.session.redirectDetails && req.session.redirectDetails.join) {
+      console.log(2);
+      res.redirect(`http://localhost:3000/join/${req.session.redirectDetails.room}`);
+    } else {
+      console.log(2);
+      res.redirect("http://localhost:3000");
+    }
   }
 );
 
-app.get("/auth/facebook", passport.authenticate("facebook"));
+app.get(
+  "/auth/facebook",
+  (req, res, next) => {
+    // console.log(req.query);
+    next();
+  },
+  (req, res, next) => {
+    console.log("before", req.session);
+    req.session.redirectDetails = { join: req.query.join, room: req.query.room, prev: req.query.prev };
+    console.log("after", req.session);
+    passport.authenticate("facebook")(req, res, next);
+  }
+);
 
 app.get(
   "/auth/facebook/callback",
@@ -136,8 +186,18 @@ app.get(
     failureRedirect: "/login",
   }),
   function (req, res) {
-    console.log(req.user);
-    res.redirect("http://localhost:3000");
+    console.log("redirect session", req.session.redirectDetails);
+    // console.log(req.session.redirectDetails.room);
+    if (req.session.redirectDetails && req.session.redirectDetails.join && req.session.redirectDetails.prev) {
+      console.log(`http://localhost:3000/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`, 1);
+      res.redirect(`http://localhost:3000/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
+    } else if (req.session.redirectDetails && req.session.redirectDetails.join) {
+      console.log(2);
+      res.redirect(`http://localhost:3000/join/${req.session.redirectDetails.room}`);
+    } else {
+      console.log(2);
+      res.redirect("http://localhost:3000");
+    }
   }
 );
 
@@ -232,6 +292,7 @@ io.on("connection", (socket) => {
 
 //for production build of react
 const path = require("path");
+const { log } = require("console");
 app.use(express.static(path.join(__dirname, "./client/build")));
 app.get("*", function (req, res) {
   console.log("came here");

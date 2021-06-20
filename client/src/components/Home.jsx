@@ -10,6 +10,7 @@ import GTranslateIcon from "@material-ui/icons/GTranslate";
 import FacebookIcon from "@material-ui/icons/Facebook";
 import GitHubIcon from "@material-ui/icons/GitHub";
 import { useLogin } from "../utils/LoginProvider";
+import handleSignIn from "../utils/handleSignIn";
 const useStyles = makeStyles({
   joinButtons: {
     overflow: "hidden",
@@ -52,7 +53,6 @@ export default function Home() {
   const [imgUrl, setImgUrl] = useState(null);
   const profileIconRef = useRef();
   useEffect(() => {
-    window.addEventListener("resize", updateIsDesktop);
     axios.get("/authenticated").then((response) => {
       console.log(response.data);
       if (response.data !== "unauthorised") {
@@ -62,9 +62,6 @@ export default function Home() {
       }
       // console.log(isLoggedIn);
     });
-    return () => {
-      window.removeEventListener("resize", updateIsDesktop);
-    };
   }, []);
   const UserIcon = ({ url }) => {
     console.log({ url });
@@ -85,13 +82,7 @@ export default function Home() {
       setIsLoggedIn(false);
     });
   }
-  function handleSignIn(service) {
-    window.open("http://localhost:5000/auth/" + service, "_self");
-  }
-  function updateIsDesktop() {
-    console.log(window.innerWidth);
-    setIsDesktop(window.innerWidth > 1190);
-  }
+
   function handleCreate() {
     axios
       .get("/api/join")

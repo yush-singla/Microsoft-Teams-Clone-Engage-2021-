@@ -6,13 +6,10 @@ import { BrowserRouter as Router, Switch, Route, useLocation, Redirect } from "r
 import WaitingRoom from "./TestingComponents/WaitingRoom";
 import Authenticate from "./components/Authenticate";
 import LoginProvider from "./utils/LoginProvider";
-
-function ProtectedRoute({ component: Component, ...rest }) {
-  const { state } = useLocation();
-  console.log(state);
-  if (state && state.from === "/") return <Route {...rest} render={(props) => <Component {...props} />}></Route>;
-  else return <Redirect to={`/waitingroom/${window.location.pathname.split("/")[2]}`} />;
-}
+import { useLogin } from "./utils/LoginProvider";
+import SignInFirst from "./components/SignInFirst";
+import axios from "axios";
+import ProtectedRoute from "./utils/ProtectedRoute";
 
 export default function App() {
   return (
@@ -25,6 +22,7 @@ export default function App() {
               <WaitingRoom />
             </Route>
             <Route path="/auth" component={Authenticate}></Route>
+            <Route path="/signinfirst" component={SignInFirst} />
             <Route path="/" component={Home} />
           </Switch>
         </Router>

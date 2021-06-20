@@ -109,6 +109,7 @@ export default function VideoCallArea(props) {
         return [...prev];
       });
     });
+    if (props.location.state === undefined) props.location.state = {};
     if (props.location.state.audio === undefined) {
       props.location.state.audio = true;
     }

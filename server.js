@@ -144,10 +144,15 @@ app.get(
 app.get("/authenticated", (req, res) => {
   console.log(req.isAuthenticated());
   if (req.isAuthenticated()) {
-    res.send(req.user);
+    res.send({ picurL: req.user.picurL, name: req.user.name });
   } else {
     res.send("unauthorised");
   }
+});
+
+app.get("/logout", (req, res) => {
+  req.logout();
+  res.send("logged out");
 });
 
 const { v4: uuidV4 } = require("uuid");

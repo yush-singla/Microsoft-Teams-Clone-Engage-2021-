@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Redirect } from "react-router-dom";
-import { Button, Box, Paper, makeStyles, TextField, Grid, IconButton, Typography } from "@material-ui/core";
+import { Icon, Menu, MenuItem, Button, Box, Paper, makeStyles, TextField, Grid, IconButton, Typography, Modal, AppBar, Toolbar, Divider } from "@material-ui/core";
 import { ArrowForward, VideoCall } from "@material-ui/icons";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import CarouselComponent from "./CarouselComponent";
-import Typewriter from "typewriter-effect";
-
+// import Typewriter from "typewriter-effect";
+import GTranslateIcon from "@material-ui/icons/GTranslate";
+import FacebookIcon from "@material-ui/icons/Facebook";
+import GitHubIcon from "@material-ui/icons/GitHub";
+import { useLogin } from "../utils/LoginProvider";
 const useStyles = makeStyles({
   joinButtons: {
     overflow: "hidden",
@@ -17,22 +20,56 @@ const useStyles = makeStyles({
   buttonPadding: {
     paddingTop: "12px",
   },
+  Modal: {
+    position: "absolute",
+    top: "35%",
+    left: "35%",
+    height: "30%",
+    width: "30%",
+    backgroundColor: "white",
+  },
+  signInButtons: {
+    width: "150px",
+  },
+  profileIcon: {
+    borderRadius: "100%",
+    height: "40px",
+    width: "40px",
+    "&:active": {
+      visibility: "visible",
+    },
+  },
 });
 
 export default function Home() {
+  const [isLoggedIn, setIsLoggedIn] = useLogin();
   const classes = useStyles();
   const [link, setLink] = useState(null);
   const [inputLink, setinputLink] = useState(null);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 1190);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [imgUrl, setImgUrl] = useState(null);
+  const profileIconRef = useRef();
   useEffect(() => {
     window.addEventListener("resize", updateIsDesktop);
     axios.get("/authenticated").then((response) => {
       console.log(response.data);
+      if (response.data !== "unauthorised") {
+        setImgUrl(response.data.picurL);
+        // console.log({ isLoggedIn, setIsLoggedIn });
+        setIsLoggedIn(true);
+      }
+      // console.log(isLoggedIn);
     });
     return () => {
       window.removeEventListener("resize", updateIsDesktop);
     };
   }, []);
+  const UserIcon = ({ url }) => {
+    console.log({ url });
+    return <img style={{ height: "40px", width: "40px", borderRadius: "100%" }} alt="edit" src={url} />;
+  };
   const SearchButton = () => (
     <IconButton
       onClick={() => {
@@ -42,6 +79,15 @@ export default function Home() {
       <ArrowForward />
     </IconButton>
   );
+  function handleLogOut() {
+    axios.get("/logout").then((response) => {
+      setImgUrl(null);
+      setIsLoggedIn(false);
+    });
+  }
+  function handleSignIn(service) {
+    window.open("http://localhost:5000/auth/" + service, "_self");
+  }
   function updateIsDesktop() {
     console.log(window.innerWidth);
     setIsDesktop(window.innerWidth > 1190);
@@ -86,16 +132,106 @@ export default function Home() {
     );
   }
   return (
-    <Box py={2} className={classes.joinButtons}>
-      <Grid container spacing={1} className={classes.joinButtons}>
-        <Grid item xs={12} md={8}>
-          <Box pt={isDesktop ? 7 : 1} ml={isDesktop && 5} mr={isDesktop ? 20 : 1} textAlign="center">
-            <Box pt={2} mx={4}>
-              <Typography variant="h2">Welcome To Microsoft Teams!</Typography>
-              <Box mt={4} mb={6}>
-                <Typography variant="h4">Typewriter Typing comes here</Typography>
-              </Box>
-              {/* <Typewriter
+    <>
+      {/* <Button
+        onClick={() => {
+          setModalOpen(true);
+        }}
+      >
+        Open Modal
+      </Button> */}
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" className={classes.title}>
+            Teams
+          </Typography>
+          <Box flexDirection="right" flexGrow={1}>
+            <Button
+              onClick={() => {
+                setModalOpen(true);
+              }}
+              color="inherit"
+            >
+              Login
+            </Button>
+          </Box>
+          {isLoggedIn && imgUrl && (
+            <>
+              <IconButton
+                onClick={() => {
+                  setMenuOpen(true);
+                }}
+                className={classes.profileIcon}
+                ref={profileIconRef}
+              >
+                <UserIcon url={imgUrl} />
+              </IconButton>
+              <Menu
+                keepMounted
+                anchorEl={profileIconRef.current}
+                open={menuOpen}
+                onClose={() => {
+                  setMenuOpen(false);
+                }}
+                getContentAnchorEl={null}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "center",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "center",
+                }}
+              >
+                <MenuItem onClick={handleLogOut}>Logout</MenuItem>
+              </Menu>
+            </>
+          )}
+        </Toolbar>
+      </AppBar>
+
+      <Modal
+        open={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+        }}
+      >
+        <Paper className={classes.Modal}>
+          <Box textAlign="center">
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Typography variant="h4">Sign In </Typography>
+                <Divider />
+              </Grid>
+              <Grid item xs={6}>
+                <Button className={classes.signInButtons} color="secondary" variant="contained" startIcon={<GTranslateIcon />} onClick={() => handleSignIn("google")}>
+                  Google
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button className={classes.signInButtons} color="primary" variant="contained" startIcon={<FacebookIcon />} onClick={() => handleSignIn("facebook")}>
+                  Facebook
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button className={classes.signInButtons} color="default" variant="contained" startIcon={<GitHubIcon />} onClick={() => handleSignIn("github")}>
+                  Github
+                </Button>
+              </Grid>
+            </Grid>
+          </Box>
+        </Paper>
+      </Modal>
+      <Box py={2} className={classes.joinButtons}>
+        <Grid container spacing={1} className={classes.joinButtons}>
+          <Grid item xs={12} md={8}>
+            <Box pt={isDesktop ? 7 : 1} ml={isDesktop && 5} mr={isDesktop ? 20 : 1} textAlign="center">
+              <Box pt={2} mx={4}>
+                <Typography variant="h2">Welcome To Microsoft Teams!</Typography>
+                <Box mt={4} mb={6}>
+                  <Typography variant="h4">Typewriter Typing comes here</Typography>
+                </Box>
+                {/* <Typewriter
                 options={{ loop: true }}
                 onInit={(typewriter) => {
                   typewriter
@@ -110,34 +246,35 @@ export default function Home() {
                     .start();
                 }}
               /> */}
-              <Typography>
-                Excepteur ut in minim cillum exercitation culpa. Ex fugiat est irure occaecat mollit velit sit occaecat laborum in. Ex exercitation elit ipsum anim id fugiat cupidatat magna.
-              </Typography>
-            </Box>
-            <Box px={isDesktop ? 2 : 0} overflow="hidden" textAlign="center">
-              <Grid container>
-                <Grid item xs={12} md={6} className={classes.buttonPadding}>
-                  <Button size="large" startIcon={<VideoCall />} variant="contained" color="primary" onClick={handleCreate}>
-                    Create New Meet
-                  </Button>
+                <Typography>
+                  Excepteur ut in minim cillum exercitation culpa. Ex fugiat est irure occaecat mollit velit sit occaecat laborum in. Ex exercitation elit ipsum anim id fugiat cupidatat magna.
+                </Typography>
+              </Box>
+              <Box px={isDesktop ? 2 : 0} overflow="hidden" textAlign="center">
+                <Grid container>
+                  <Grid item xs={12} md={6} className={classes.buttonPadding}>
+                    <Button size="large" startIcon={<VideoCall />} variant="contained" color="primary" onClick={handleCreate}>
+                      Create New Meet
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Box p={1}>
+                      <TextField onChange={(e) => setinputLink(e.target.value)} placeholder="Join with Link" InputProps={{ endAdornment: <SearchButton /> }} />
+                    </Box>
+                  </Grid>
+                  {/* <img style={{ borderRadius: "10%", margin: "auto" }} src="https://picsum.photos/490/240" alt=" is there" /> */}
                 </Grid>
-                <Grid item xs={12} md={6}>
-                  <Box p={1}>
-                    <TextField onChange={(e) => setinputLink(e.target.value)} placeholder="Join with Link" InputProps={{ endAdornment: <SearchButton /> }} />
-                  </Box>
-                </Grid>
-                {/* <img style={{ borderRadius: "10%", margin: "auto" }} src="https://picsum.photos/490/240" alt=" is there" /> */}
-              </Grid>
+              </Box>
             </Box>
-          </Box>
+          </Grid>
+          <Grid xs={12} md={4} item>
+            <Box textAlign="center" pt={8} pr={3}>
+              {/* <img src="https://picsum.photos/560/470" alt="yes" /> */}
+              <CarouselComponent />
+            </Box>
+          </Grid>
         </Grid>
-        <Grid xs={12} md={4} item>
-          <Box textAlign="center" pt={8} pr={3}>
-            {/* <img src="https://picsum.photos/560/470" alt="yes" /> */}
-            <CarouselComponent />
-          </Box>
-        </Grid>
-      </Grid>
-    </Box>
+      </Box>
+    </>
   );
 }

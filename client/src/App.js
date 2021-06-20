@@ -5,6 +5,7 @@ import VideoCallArea from "./TestingComponents/VideoCallArea";
 import { BrowserRouter as Router, Switch, Route, useLocation, Redirect } from "react-router-dom";
 import WaitingRoom from "./TestingComponents/WaitingRoom";
 import Authenticate from "./components/Authenticate";
+import LoginProvider from "./utils/LoginProvider";
 
 function ProtectedRoute({ component: Component, ...rest }) {
   const { state } = useLocation();
@@ -16,16 +17,18 @@ function ProtectedRoute({ component: Component, ...rest }) {
 export default function App() {
   return (
     <SocketProvider>
-      <Router>
-        <Switch>
-          <ProtectedRoute path="/join" component={VideoCallArea} />
-          <Route path="/waitingroom">
-            <WaitingRoom />
-          </Route>
-          <Route path="/auth" component={Authenticate}></Route>
-          <Route path="/" component={Home} />
-        </Switch>
-      </Router>
+      <LoginProvider>
+        <Router>
+          <Switch>
+            <ProtectedRoute path="/join" component={VideoCallArea} />
+            <Route path="/waitingroom">
+              <WaitingRoom />
+            </Route>
+            <Route path="/auth" component={Authenticate}></Route>
+            <Route path="/" component={Home} />
+          </Switch>
+        </Router>
+      </LoginProvider>
     </SocketProvider>
   );
 }

@@ -13,6 +13,7 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
+const GitHubStrategy = require("passport-github2").Strategy;
 const findOrCreate = require("mongoose-findorcreate");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -43,6 +44,7 @@ const userSchema = new mongoose.Schema({
   facebookId: String,
   picurL: String,
   name: String,
+  githubId: String,
 });
 userSchema.plugin(findOrCreate);
 const User = new mongoose.model("User", userSchema);
@@ -101,6 +103,31 @@ passport.use(
         {
           name: profile._json.first_name + " " + profile._json.last_name,
           picurL: profile.photos[0].value,
+        },
+        function (err, user) {
+          return cb(err, user);
+        }
+      );
+    }
+  )
+);
+
+passport.use(
+  new GitHubStrategy(
+    {
+      clientID: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      callbackURL: "http://localhost:5000/auth/github/callback",
+    },
+    function (accessToken, refreshToken, profile, cb) {
+      console.log(profile._json.avatar_url);
+      User.findOrCreate(
+        {
+          githubId: profile._json.id,
+        },
+        {
+          name: profile._json.name,
+          picurL: profile._json.avatar_url,
         },
         function (err, user) {
           return cb(err, user);
@@ -201,6 +228,42 @@ app.get(
   }
 );
 
+app.get(
+  "/auth/github",
+  (req, res, next) => {
+    // console.log(req.query);
+    next();
+  },
+  (req, res, next) => {
+    console.log("before", req.session);
+    req.session.redirectDetails = { join: req.query.join, room: req.query.room, prev: req.query.prev };
+    console.log("after", req.session);
+    passport.authenticate("github")(req, res, next);
+  }
+);
+
+app.get(
+  "/auth/github/callback",
+  passport.authenticate("github", {
+    scope: ["email", "username"],
+    failureRedirect: "/login",
+  }),
+  function (req, res) {
+    console.log("redirect session", req.session.redirectDetails);
+    // console.log(req.session.redirectDetails.room);
+    if (req.session.redirectDetails && req.session.redirectDetails.join && req.session.redirectDetails.prev) {
+      console.log(`http://localhost:3000/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`, 1);
+      res.redirect(`http://localhost:3000/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
+    } else if (req.session.redirectDetails && req.session.redirectDetails.join) {
+      console.log(2);
+      res.redirect(`http://localhost:3000/join/${req.session.redirectDetails.room}`);
+    } else {
+      console.log(2);
+      res.redirect("http://localhost:3000");
+    }
+  }
+);
+
 app.get("/authenticated", (req, res) => {
   console.log(req.isAuthenticated());
   if (req.isAuthenticated()) {
@@ -256,7 +319,7 @@ io.on("connection", (socket) => {
   socket.on("this-user-is-denied", (socketId) => {
     socket.to(socketId).emit("you-are-denied");
   });
-  socket.on("join-room", (roomId, userId, { audio, video }) => {
+  socket.on("join-room", (roomId, userId, { audio, video, picurL, name }) => {
     getUserIdBySocketId[socket.id] = userId;
     getSocketIdByUserId[userId] = socket.id;
     console.log("joined a room " + socket.id);
@@ -264,7 +327,7 @@ io.on("connection", (socket) => {
       waitingRooms[roomId] = socket.id;
     }
     socket.join(roomId);
-    socket.to(roomId).emit("user-connected", userId, socket.id, { audio, video });
+    socket.to(roomId).emit("user-connected", userId, socket.id, { audio, video, picurL, name });
     socket.on("disconnect", () => {
       console.log("disconected", userId);
       if (waitingRooms[roomId] === socket.id) {
@@ -273,10 +336,10 @@ io.on("connection", (socket) => {
       socket.to(roomId).emit("user-disconnected", userId, { audio, video });
     });
   });
-  socket.on("acknowledge-connected-user", ({ socketId, video, audio, userId, roomId }) => {
+  socket.on("acknowledge-connected-user", ({ socketId, video, audio, userId, roomId, picurL, name }) => {
     console.log({ audio, video, roomId });
     console.log("sending to roomid now");
-    socket.to(socketId).emit("update-audio-video-state", { audio, video, userId: getUserIdBySocketId[socket.id] });
+    socket.to(socketId).emit("update-audio-video-state", { name, picurL, audio, video, userId: getUserIdBySocketId[socket.id] });
   });
   socket.on("changed-audio-status", ({ status }) => {
     const roomId = Array.from(socket.rooms).pop();

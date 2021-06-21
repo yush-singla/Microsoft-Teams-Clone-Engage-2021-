@@ -124,29 +124,14 @@ export default function Home() {
   }
   return (
     <>
-      {/* <Button
-        onClick={() => {
-          setModalOpen(true);
-        }}
-      >
-        Open Modal
-      </Button> */}
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h6" className={classes.title}>
-            Teams
-          </Typography>
           <Box flexDirection="right" flexGrow={1}>
-            <Button
-              onClick={() => {
-                setModalOpen(true);
-              }}
-              color="inherit"
-            >
-              Login
-            </Button>
+            <Typography variant="h6" className={classes.title}>
+              Teams
+            </Typography>
           </Box>
-          {isLoggedIn && imgUrl && (
+          {isLoggedIn && imgUrl ? (
             <>
               <IconButton
                 onClick={() => {
@@ -177,6 +162,15 @@ export default function Home() {
                 <MenuItem onClick={handleLogOut}>Logout</MenuItem>
               </Menu>
             </>
+          ) : (
+            <Button
+              onClick={() => {
+                setModalOpen(true);
+              }}
+              color="inherit"
+            >
+              Login
+            </Button>
           )}
         </Toolbar>
       </AppBar>

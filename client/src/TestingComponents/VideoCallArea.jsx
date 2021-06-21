@@ -3,6 +3,7 @@ import { useSocket } from "../utils/SocketProvider";
 import Peer from "peerjs";
 import { useHistory } from "react-router";
 import AlertDialog from "../components/DialogBox";
+import axios from "axios";
 import { Paper, makeStyles, IconButton, Box, Tooltip, Drawer, Typography, Divider, Grid } from "@material-ui/core";
 import CallEndIcon from "@material-ui/icons/CallEnd";
 import MicOffIcon from "@material-ui/icons/MicOff";
@@ -15,6 +16,7 @@ import VolumeUpIcon from "@material-ui/icons/VolumeUp";
 import VolumeOffIcon from "@material-ui/icons/VolumeOff";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import RemoveCircleIcon from "@material-ui/icons/RemoveCircle";
+import { display } from "@material-ui/system";
 const useStyles = makeStyles({
   bottomBar: {
     width: "98%",
@@ -30,6 +32,11 @@ const useStyles = makeStyles({
   },
   iconBg: {
     backgroundColor: "grey",
+  },
+  videoAltImg: {
+    height: "100px",
+    width: "200px",
+    backgroundColor: "black",
   },
 });
 
@@ -54,69 +61,82 @@ export default function VideoCallArea(props) {
   const [nameOfPersonToJoin, setNameOfPersoToJoin] = useState({});
   const allowUser = useRef();
   const [waitingRoomOpen, setWaitingRoomOpen] = useState(false);
+  const [myName, setMyName] = useState(null);
+  const [myPic, setMyPic] = useState(null);
+  const myPicRef = useRef();
+  const myNameRef = useRef();
   useEffect(() => {
-    socket.on("req-to-join-room", (socketId, attemtingTo) => {
-      if (attemtingTo === "join") {
-        console.log(`called with ${socketId}`);
-        setAskForPermission((prev) => [...prev, socketId]);
-        setNameOfPersoToJoin({ name: socketId, id: socketId });
-        setOpenDialogBox(true);
-        allowUser.current = () => {
-          console.log("emitting the message");
-          socket.emit("this-user-is-allowed", socketId);
-        };
-      } else {
-        setAskForPermission((prev) => [...prev.filter((request) => request !== socketId)]);
+    axios.get("/authenticated").then((response) => {
+      setMyName(response.data.name);
+      setMyPic(response.data.picurL);
+      myPicRef.current = response.data.picurL;
+      myNameRef.current = response.data.name;
+      socket.on("req-to-join-room", (socketId, attemtingTo) => {
+        if (attemtingTo === "join") {
+          console.log(`called with ${socketId}`);
+          setAskForPermission((prev) => [...prev, socketId]);
+          setNameOfPersoToJoin({ name: socketId, id: socketId });
+          setOpenDialogBox(true);
+          allowUser.current = () => {
+            console.log("emitting the message");
+            socket.emit("this-user-is-allowed", socketId);
+          };
+        } else {
+          setAskForPermission((prev) => [...prev.filter((request) => request !== socketId)]);
+        }
+      });
+      socket.on("update-audio-video-state", ({ video: userVideo, audio: userAudio, userId, picurL: userPicUrl, name: userName }) => {
+        console.log("updated data", { userVideo, userAudio, userId });
+        setVideos((prev) => {
+          console.log(prev);
+          prev.map((vid, key) => {
+            if (vid.userId === userId) {
+              console.log({ userPicUrl });
+              vid.audio = userAudio;
+              vid.video = userVideo;
+              vid.picurL = userPicUrl;
+              vid.userName = userName;
+              console.log(vid);
+              console.log(prev[key]);
+            }
+          });
+          console.log(prev);
+          return [...prev];
+        });
+      });
+      socket.on("changed-audio-status-reply", ({ status, userId }) => {
+        setVideos((prev) => {
+          prev.forEach((video) => {
+            if (video.userId === userId) {
+              video.audio = status;
+            }
+          });
+          return [...prev];
+        });
+      });
+      socket.on("changed-video-status-reply", ({ status, userId }) => {
+        setVideos((prev) => {
+          console.log(prev);
+          prev.forEach((video) => {
+            if (video.userId === userId) {
+              console.log("status", status);
+              video.video = status;
+            }
+          });
+          console.log(prev);
+          return [...prev];
+        });
+      });
+      if (props.location.state === undefined) props.location.state = {};
+      if (props.location.state.audio === undefined) {
+        props.location.state.audio = true;
       }
+      if (props.location.state.video === undefined) {
+        props.location.state.video = false;
+      }
+      setCameraStreaming();
     });
-    socket.on("update-audio-video-state", ({ video: userVideo, audio: userAudio, userId }) => {
-      console.log("updated data", { userVideo, userAudio, userId });
-      setVideos((prev) => {
-        console.log(prev);
-        prev.map((vid, key) => {
-          if (vid.userId === userId) {
-            console.log(vid);
-            vid.audio = userAudio;
-            vid.video = userVideo;
-            console.log(vid);
-            console.log(prev[key]);
-          }
-        });
-        console.log(prev);
-        return [...prev];
-      });
-    });
-    socket.on("changed-audio-status-reply", ({ status, userId }) => {
-      setVideos((prev) => {
-        prev.forEach((video) => {
-          if (video.userId === userId) {
-            video.audio = status;
-          }
-        });
-        return [...prev];
-      });
-    });
-    socket.on("changed-video-status-reply", ({ status, userId }) => {
-      setVideos((prev) => {
-        console.log(prev);
-        prev.forEach((video) => {
-          if (video.userId === userId) {
-            console.log("status", status);
-            video.video = status;
-          }
-        });
-        console.log(prev);
-        return [...prev];
-      });
-    });
-    if (props.location.state === undefined) props.location.state = {};
-    if (props.location.state.audio === undefined) {
-      props.location.state.audio = true;
-    }
-    if (props.location.state.video === undefined) {
-      props.location.state.video = false;
-    }
-    setCameraStreaming();
+
     return () => {
       const events = ["changed-video-status-reply", "changed-audio-status-reply", "update-audio-video-state", "req-to-join-room"];
       events.forEach((event) => {
@@ -190,7 +210,7 @@ export default function VideoCallArea(props) {
         });
       };
       console.log("before", { audio, video });
-      setUpSocketsAndPeerEvents({ socket, myPeer, stream });
+      setUpSocketsAndPeerEvents({ socket, myPeer, stream, myPic });
     } catch (err) {
       console.log(err);
     }
@@ -246,24 +266,25 @@ export default function VideoCallArea(props) {
           console.log("disconnected the socket");
         });
       };
-      setUpSocketsAndPeerEvents({ socket, myPeer, stream });
+      setUpSocketsAndPeerEvents({ socket, myPeer, stream, myPic });
     } catch (err) {
       console.log(err);
     }
   }
 
-  function setUpSocketsAndPeerEvents({ socket, myPeer, stream }) {
+  function setUpSocketsAndPeerEvents({ socket, myPeer, stream, myPic }) {
     console.log("here", audioStatus.current, videoStatus.current);
     myPeer.on("open", (userId) => {
       setMyId(userId);
       console.log("setting in component", { audioStatus, videoStatus });
       setVideos((prev) => {
-        return [{ stream, userId, audio: audioStatus.current, video: videoStatus.current }];
+        console.log({ myPic });
+        return [{ stream, userId, audio: audioStatus.current, video: videoStatus.current, picurL: myPicRef.current, userName: myNameRef }];
       });
       const roomId = window.location.pathname.split("/")[2];
-      socket.emit("join-room", roomId, userId, { audio: audioStatus.current, video: videoStatus.current });
+      socket.emit("join-room", roomId, userId, { audio: audioStatus.current, video: videoStatus.current, picurL: myPicRef.current, name: myNameRef });
     });
-    socket.on("user-connected", (userId, socketId, { audio: userAudio, video: userVideo }) => {
+    socket.on("user-connected", (userId, socketId, { audio: userAudio, video: userVideo, picurL: userPicUrl, name: userName }) => {
       const call = myPeer.call(userId, stream);
       if (call === undefined) {
         console.log(socket);
@@ -275,7 +296,7 @@ export default function VideoCallArea(props) {
           return;
         }
         connectedPeers.current[call.peer] = call;
-        addVideoStream(userVideoStream, call.peer, { userAudio, userVideo });
+        addVideoStream(userVideoStream, call.peer, { userAudio, userVideo, userName, userPicUrl });
         // console.log("is it correct", { video, audio });
         const roomId = window.location.pathname.split("/")[2];
         setVideo((prev) => {
@@ -283,7 +304,7 @@ export default function VideoCallArea(props) {
           return prev;
         });
         // console.log("acknowledging connected users about the change", { video, audio });
-        socket.emit("acknowledge-connected-user", { video: videoStatus.current, audio: audioStatus.current, socketId, userId, roomId });
+        socket.emit("acknowledge-connected-user", { video: videoStatus.current, audio: audioStatus.current, socketId, userId, roomId, picurL: myPicRef.current, name: myNameRef.current });
       });
       call.on("close", () => {
         setVideos((prev) => {
@@ -325,9 +346,9 @@ export default function VideoCallArea(props) {
     });
   }
 
-  function addVideoStream(userStream, userId, { userAudio, userVideo }) {
+  function addVideoStream(userStream, userId, { userAudio, userVideo, userPicUrl, userName }) {
     setVideos((prev) => {
-      return [...prev, { userId, stream: userStream, audio: userAudio, video: userVideo }];
+      return [...prev, { userId, stream: userStream, audio: userAudio, video: userVideo, picurL: userPicUrl, userName }];
     });
   }
 
@@ -356,22 +377,33 @@ export default function VideoCallArea(props) {
         />
       )}
 
-      {videos.map((video, key) => {
+      {videos.map((videoStream, key) => {
         return (
           <>
             <video
-              muted={video.userId === myId || speakerToggle}
-              key={video.userId}
+              muted={videoStream.userId === myId || speakerToggle}
+              key={videoStream.userId}
               playsInline
               autoPlay
-              style={{ height: "100px", width: "200px" }}
+              style={
+                (videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)
+                  ? { height: "100px", width: "200px", display: "block" }
+                  : { height: "100px", width: "200px", display: "none" }
+              }
               ref={(videoRef) => {
-                if (videoRef) videoRef.srcObject = video.stream;
+                if (videoRef) videoRef.srcObject = videoStream.stream;
                 return videoRef;
               }}
             />
-            {!video.audio && video.userId !== myId && <p>muted</p>}
-            {!video.video && video.userId !== myId && <p>camOff</p>}
+            {!((videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)) && (
+              <Paper className={classes.videoAltImg}>
+                <Box px={8} py={2}>
+                  <img src={videoStream.picurL} style={{ borderRadius: "100%", height: "70px", width: "70px" }} alt={myName} />{" "}
+                </Box>
+              </Paper>
+            )}
+            {!videoStream.audio && videoStream.userId !== myId && <p>muted</p>}
+            {!videoStream.video && videoStream.userId !== myId && <p>camOff</p>}
           </>
         );
       })}

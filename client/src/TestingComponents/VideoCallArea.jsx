@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSocket } from "../utils/SocketProvider";
 import Peer from "peerjs";
+import IndividualVideo from "./IndividualVideo";
 import { useHistory } from "react-router";
 import AlertDialog from "../components/DialogBox";
 import axios from "axios";
@@ -32,11 +33,6 @@ const useStyles = makeStyles({
   },
   iconBg: {
     backgroundColor: "grey",
-  },
-  videoAltImg: {
-    height: "100px",
-    width: "200px",
-    backgroundColor: "black",
   },
 });
 
@@ -376,37 +372,11 @@ export default function VideoCallArea(props) {
           denyMeeting={denyMeeting}
         />
       )}
-
-      {videos.map((videoStream, key) => {
-        return (
-          <>
-            <video
-              muted={videoStream.userId === myId || speakerToggle}
-              key={videoStream.userId}
-              playsInline
-              autoPlay
-              style={
-                (videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)
-                  ? { height: "100px", width: "200px", display: "block" }
-                  : { height: "100px", width: "200px", display: "none" }
-              }
-              ref={(videoRef) => {
-                if (videoRef) videoRef.srcObject = videoStream.stream;
-                return videoRef;
-              }}
-            />
-            {!((videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)) && (
-              <Paper className={classes.videoAltImg}>
-                <Box px={8} py={2}>
-                  <img src={videoStream.picurL} style={{ borderRadius: "100%", height: "70px", width: "70px" }} alt={myName} />{" "}
-                </Box>
-              </Paper>
-            )}
-            {!videoStream.audio && videoStream.userId !== myId && <p>muted</p>}
-            {!videoStream.video && videoStream.userId !== myId && <p>camOff</p>}
-          </>
-        );
-      })}
+      <Grid container>
+        {videos.map((videoStream, key) => {
+          return <IndividualVideo size={videos.length} key={videoStream.userId} videoStream={videoStream} myId={myId} classes={classes} speakerToggle={speakerToggle} video={video} audio={audio} />;
+        })}
+      </Grid>
       <Paper className={classes.bottomBar}>
         <Box textAlign="center">
           <Tooltip title={audio ? "Turn off Microphone" : "Turn on Microphone"}>

@@ -425,7 +425,7 @@ export default function VideoCallArea(props) {
       )}
       <Box className={classes.videoContainer}>
         {videos.map((videoStream, key) => {
-          const currHeight = videos.length === 1 ? usableHeights[0] : videos.length === 2 ? usableHeights[1] : videos.length === 4 ? usableHeights[3] : usableHeights[2];
+          const currHeight = videos.length === 1 ? usableHeights[0] : videos.length === 2 ? usableHeights[1] : videos.length === 3 ? usableHeights[2] : usableHeights[3];
           return (
             <Box
               className={classes.videoContainerChild}

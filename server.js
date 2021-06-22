@@ -64,7 +64,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:5000/auth/google/callback",
+      callbackURL: process.env.NODE_ENV === "development" ? "http://localhost:5000/auth/google/callback" : "https://hidden-beyond-12562.herokuapp.com/auth/google/callback",
       userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
     },
     function (accessToken, refreshToken, profile, cb) {
@@ -90,7 +90,7 @@ passport.use(
     {
       clientID: process.env.FACEBOOK_APP_ID,
       clientSecret: process.env.FACEBOOK_APP_SECRET,
-      callbackURL: "http://localhost:5000/auth/facebook/callback",
+      callbackURL: process.env.NODE_ENV === "development" ? "http://localhost:5000/auth/facebook/callback" : "https://hidden-beyond-12562.herokuapp.com/auth/facebook/callback",
       profileFields: ["id", "emails", "name", "picture"],
     },
     function (accessToken, refreshToken, profile, cb) {
@@ -117,7 +117,7 @@ passport.use(
     {
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: "http://localhost:5000/auth/github/callback",
+      callbackURL: process.env.NODE_ENV === "development" ? "http://localhost:5000/auth/github/callback" : "https://hidden-beyond-12562.herokuapp.com/auth/github/callback",
     },
     function (accessToken, refreshToken, profile, cb) {
       console.log(profile._json.avatar_url);
@@ -181,13 +181,13 @@ app.get(
     // console.log(req.session.redirectDetails.room);
     if (req.session.redirectDetails && req.session.redirectDetails.join && req.session.redirectDetails.prev) {
       console.log(`http://localhost:3000/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`, 1);
-      res.redirect(`http://localhost:3000/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
+      res.redirect(`/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
     } else if (req.session.redirectDetails && req.session.redirectDetails.join) {
       console.log(2);
-      res.redirect(`http://localhost:3000/join/${req.session.redirectDetails.room}`);
+      res.redirect(`/join/${req.session.redirectDetails.room}`);
     } else {
       console.log(2);
-      res.redirect("http://localhost:3000");
+      res.redirect("/");
     }
   }
 );
@@ -216,14 +216,14 @@ app.get(
     console.log("redirect session", req.session.redirectDetails);
     // console.log(req.session.redirectDetails.room);
     if (req.session.redirectDetails && req.session.redirectDetails.join && req.session.redirectDetails.prev) {
-      console.log(`http://localhost:3000/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`, 1);
-      res.redirect(`http://localhost:3000/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
+      console.log(`/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`, 1);
+      res.redirect(`/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
     } else if (req.session.redirectDetails && req.session.redirectDetails.join) {
       console.log(2);
-      res.redirect(`http://localhost:3000/join/${req.session.redirectDetails.room}`);
+      res.redirect(`/join/${req.session.redirectDetails.room}`);
     } else {
       console.log(2);
-      res.redirect("http://localhost:3000");
+      res.redirect("");
     }
   }
 );
@@ -252,14 +252,14 @@ app.get(
     console.log("redirect session", req.session.redirectDetails);
     // console.log(req.session.redirectDetails.room);
     if (req.session.redirectDetails && req.session.redirectDetails.join && req.session.redirectDetails.prev) {
-      console.log(`http://localhost:3000/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`, 1);
-      res.redirect(`http://localhost:3000/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
+      console.log(`/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`, 1);
+      res.redirect(`/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
     } else if (req.session.redirectDetails && req.session.redirectDetails.join) {
       console.log(2);
-      res.redirect(`http://localhost:3000/join/${req.session.redirectDetails.room}`);
+      res.redirect(`/join/${req.session.redirectDetails.room}`);
     } else {
       console.log(2);
-      res.redirect("http://localhost:3000");
+      res.redirect("");
     }
   }
 );

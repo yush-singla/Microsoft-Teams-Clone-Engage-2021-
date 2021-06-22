@@ -243,8 +243,6 @@ export default function VideoCallArea(props) {
     }
   }
   async function setScreenShareStream(callback) {
-    setAudio(true);
-    audioStatus.current = true;
     console.log("got called screen share");
     try {
       let AudioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -252,6 +250,8 @@ export default function VideoCallArea(props) {
         video: true,
         audio: true,
       });
+      setAudio(true);
+      audioStatus.current = true;
       if (callback) callback();
       connectedPeers.current = {};
       let tracks = [];

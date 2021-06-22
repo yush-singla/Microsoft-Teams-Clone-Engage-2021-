@@ -187,7 +187,7 @@ app.get(
       res.redirect(`/join/${req.session.redirectDetails.room}`);
     } else {
       console.log(2);
-      res.redirect("/");
+      res.redirect(`1`);
     }
   }
 );
@@ -223,7 +223,7 @@ app.get(
       res.redirect(`/join/${req.session.redirectDetails.room}`);
     } else {
       console.log(2);
-      res.redirect("");
+      res.redirect(`1`);
     }
   }
 );
@@ -259,7 +259,7 @@ app.get(
       res.redirect(`/join/${req.session.redirectDetails.room}`);
     } else {
       console.log(2);
-      res.redirect("");
+      res.redirect(`/`);
     }
   }
 );

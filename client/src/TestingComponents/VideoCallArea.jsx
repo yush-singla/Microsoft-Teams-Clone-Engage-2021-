@@ -5,6 +5,7 @@ import IndividualVideo from "./IndividualVideo";
 import { useHistory } from "react-router";
 import AlertDialog from "../components/DialogBox";
 import axios from "axios";
+import GridLayout from "react-grid-layout";
 import { Paper, makeStyles, IconButton, Box, Tooltip, Drawer, Typography, Divider, Grid } from "@material-ui/core";
 import CallEndIcon from "@material-ui/icons/CallEnd";
 import MicOffIcon from "@material-ui/icons/MicOff";
@@ -17,7 +18,8 @@ import VolumeUpIcon from "@material-ui/icons/VolumeUp";
 import VolumeOffIcon from "@material-ui/icons/VolumeOff";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import RemoveCircleIcon from "@material-ui/icons/RemoveCircle";
-import { display } from "@material-ui/system";
+import { display, textAlign } from "@material-ui/system";
+import { use } from "passport";
 const useStyles = makeStyles({
   bottomBar: {
     width: "98%",
@@ -33,6 +35,25 @@ const useStyles = makeStyles({
   },
   iconBg: {
     backgroundColor: "grey",
+  },
+  videoContainer: {
+    display: "flex",
+    width: "auto",
+    height: "85vh",
+    justifyContent: "center",
+    alignItems: "center",
+    flexWrap: "wrap",
+  },
+  videoContainerChild: {
+    display: "flex",
+    flex: "1 0 auto",
+    // height: "90%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  videoContainerForFour: {
+    maxWidth: "100%",
+    maxHeight: "100%",
   },
 });
 
@@ -62,6 +83,11 @@ export default function VideoCallArea(props) {
   const myPicRef = useRef();
   const myNameRef = useRef();
   useEffect(() => {
+    const events = ["user-connected", "user-disconnected", "changed-video-status-reply", "changed-audio-status-reply", "update-audio-video-state", "req-to-join-room"];
+    events.forEach((event) => {
+      console.log("turnning off", event);
+      socket.off(event);
+    });
     axios.get("/authenticated").then((response) => {
       setMyName(response.data.name);
       setMyPic(response.data.picurL);
@@ -136,9 +162,11 @@ export default function VideoCallArea(props) {
     return () => {
       const events = ["user-connected", "user-disconnected", "changed-video-status-reply", "changed-audio-status-reply", "update-audio-video-state", "req-to-join-room"];
       events.forEach((event) => {
-        console.log("turnning off");
+        console.log("turnning off", event);
         socket.off(event);
       });
+      socket.disconnect();
+      // myPeer.disconnect();
     };
   }, []);
   async function setCameraStreaming(callback) {
@@ -363,9 +391,28 @@ export default function VideoCallArea(props) {
     socket.emit("this-user-is-denied", socketId);
     setAskForPermission((prev) => [...prev.filter((req) => req !== socketId)]);
   }
+  const layout = [
+    [{ i: "1", x: 1, y: 0, w: 10, h: 12, static: true }],
+    [
+      { i: "1", x: 0, y: 0, w: 6, h: 12 },
+      { i: "2", x: 8, y: 0, w: 6, h: 12 },
+    ],
+    [
+      { i: "1", x: 0, y: 3, w: 4, h: 9 },
+      { i: "2", x: 4, y: 3, w: 4, h: 9 },
+      { i: "3", x: 8, y: 3, w: 4, h: 9 },
+    ],
+    [
+      { i: "1", x: 1, y: 0, w: 4, h: 7 },
+      { i: "2", x: 7, y: 0, w: 4, h: 7 },
+      { i: "3", x: 1, y: 10, w: 4, h: 7 },
+      { i: "4", x: 7, y: 10, w: 4, h: 7 },
+    ],
+  ];
 
+  const usableHeights = ["90%", "75%", "60%", "40%"];
   return (
-    <div style={{ overflow: "hidden", paddingLeft: "35px", paddingRight: "35px" }}>
+    <div>
       {openDialogBox && (
         <AlertDialog
           openDialogBox={openDialogBox}
@@ -376,11 +423,20 @@ export default function VideoCallArea(props) {
           denyMeeting={denyMeeting}
         />
       )}
-      <Grid container spacing={3} style={videos.length === 3 ? { paddingTop: "18vh" } : null}>
+      <Box className={classes.videoContainer}>
         {videos.map((videoStream, key) => {
-          return <IndividualVideo size={videos.length} key={videoStream.userId} videoStream={videoStream} myId={myId} classes={classes} speakerToggle={speakerToggle} video={video} audio={audio} />;
+          const currHeight = videos.length === 1 ? usableHeights[0] : videos.length === 2 ? usableHeights[1] : videos.length === 4 ? usableHeights[3] : usableHeights[2];
+          return (
+            <Box
+              className={classes.videoContainerChild}
+              key={(key + 1).toString()}
+              style={{ backgroundColor: "black", textAlign: "center", margin: "0 1%", minWidth: videos.length === 4 ? "32%" : "30%", height: currHeight, flexGrow: videos.length === 4 ? 0 : 1 }}
+            >
+              <IndividualVideo size={videos.length} key={videoStream.userId} videoStream={videoStream} myId={myId} classes={classes} speakerToggle={speakerToggle} video={video} audio={audio} />;
+            </Box>
+          );
         })}
-      </Grid>
+      </Box>
       <Paper className={classes.bottomBar}>
         <Box textAlign="center">
           <Tooltip title={audio ? "Turn off Microphone" : "Turn on Microphone"}>
@@ -429,13 +485,13 @@ export default function VideoCallArea(props) {
           </Tooltip>
         </Box>
       </Paper>
-      <button
+      {/* <button
         onClick={() => {
           setWaitingRoomOpen(true);
         }}
       >
         open waiting room
-      </button>
+      </button> */}
       <Drawer
         anchor="right"
         open={waitingRoomOpen}

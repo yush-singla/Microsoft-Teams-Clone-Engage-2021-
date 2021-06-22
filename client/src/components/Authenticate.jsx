@@ -5,14 +5,14 @@ export default function Authenticate() {
     <div>
       <button
         onClick={() => {
-          window.open("http://localhost:5000/auth/google", "_self");
+          window.open("/auth/google", "_self");
         }}
       >
         sign in with google
       </button>
       <button
         onClick={() => {
-          window.open("http://localhost:5000/auth/facebook", "_self");
+          window.open("/auth/facebook", "_self");
         }}
       >
         facebook

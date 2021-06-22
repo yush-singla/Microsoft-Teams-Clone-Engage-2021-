@@ -134,8 +134,9 @@ export default function VideoCallArea(props) {
     });
 
     return () => {
-      const events = ["changed-video-status-reply", "changed-audio-status-reply", "update-audio-video-state", "req-to-join-room"];
+      const events = ["user-connected", "user-disconnected", "changed-video-status-reply", "changed-audio-status-reply", "update-audio-video-state", "req-to-join-room"];
       events.forEach((event) => {
+        console.log("turnning off");
         socket.off(event);
       });
     };
@@ -173,11 +174,13 @@ export default function VideoCallArea(props) {
       socket.connect();
       toggleAudio.current = () => {
         stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;
+        audioStatus.current = !audioStatus.current;
         setAudio((prev) => !prev);
         socket.emit("changed-audio-status", { status: stream.getAudioTracks()[0].enabled });
       };
       toggleVideo.current = () => {
         console.log(stream.getAudioTracks()[0].enabled);
+        videoStatus.current = !videoStatus.current;
         stream.getVideoTracks()[0].enabled = !stream.getVideoTracks()[0].enabled;
         setVideo((prev) => !prev);
         socket.emit("changed-video-status", { status: stream.getVideoTracks()[0].enabled });
@@ -229,6 +232,7 @@ export default function VideoCallArea(props) {
       let stream = new MediaStream(tracks);
       toggleAudio.current = () => {
         stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;
+        audioStatus.current = !audioStatus.current;
         setAudio((prev) => !prev);
         socket.emit("changed-audio-status", { status: stream.getAudioTracks()[0].enabled });
       };
@@ -361,7 +365,7 @@ export default function VideoCallArea(props) {
   }
 
   return (
-    <div style={{ overflow: "hidden" }}>
+    <div style={{ overflow: "hidden", paddingLeft: "35px", paddingRight: "35px" }}>
       {openDialogBox && (
         <AlertDialog
           openDialogBox={openDialogBox}
@@ -372,7 +376,7 @@ export default function VideoCallArea(props) {
           denyMeeting={denyMeeting}
         />
       )}
-      <Grid container>
+      <Grid container spacing={3} style={videos.length === 3 ? { paddingTop: "18vh" } : null}>
         {videos.map((videoStream, key) => {
           return <IndividualVideo size={videos.length} key={videoStream.userId} videoStream={videoStream} myId={myId} classes={classes} speakerToggle={speakerToggle} video={video} audio={audio} />;
         })}

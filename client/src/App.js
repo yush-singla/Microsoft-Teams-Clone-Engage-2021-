@@ -21,7 +21,6 @@ export default function App() {
             <Route path="/waitingroom">
               <WaitingRoom />
             </Route>
-            <Route path="/auth" component={Authenticate}></Route>
             <Route path="/signinfirst" component={SignInFirst} />
             <Route path="/" component={Home} />
           </Switch>

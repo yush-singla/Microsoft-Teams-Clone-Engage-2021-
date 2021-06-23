@@ -155,6 +155,8 @@ passport.use(
 //   }
 // );
 
+const useDomain = process.env.NODE_ENV === "development" ? "http://localhost:3000" : "";
+
 app.get(
   "/auth/google",
   (req, res, next) => {
@@ -180,14 +182,14 @@ app.get(
     console.log("redirect session", req.session.redirectDetails);
     // console.log(req.session.redirectDetails.room);
     if (req.session.redirectDetails && req.session.redirectDetails.join && req.session.redirectDetails.prev) {
-      console.log(`http://localhost:3000/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`, 1);
-      res.redirect(`/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
+      console.log(`${useDomain}/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`, 1);
+      res.redirect(`${useDomain}/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
     } else if (req.session.redirectDetails && req.session.redirectDetails.join) {
       console.log(2);
-      res.redirect(`/join/${req.session.redirectDetails.room}`);
+      res.redirect(`${useDomain}}/join/${req.session.redirectDetails.room}`);
     } else {
       console.log(2);
-      res.redirect(`1`);
+      res.redirect(`${useDomain}/`);
     }
   }
 );
@@ -216,14 +218,14 @@ app.get(
     console.log("redirect session", req.session.redirectDetails);
     // console.log(req.session.redirectDetails.room);
     if (req.session.redirectDetails && req.session.redirectDetails.join && req.session.redirectDetails.prev) {
-      console.log(`/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`, 1);
-      res.redirect(`/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
+      console.log(`${useDomain}/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`, 1);
+      res.redirect(`${useDomain}/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
     } else if (req.session.redirectDetails && req.session.redirectDetails.join) {
       console.log(2);
-      res.redirect(`/join/${req.session.redirectDetails.room}`);
+      res.redirect(`${useDomain}/join/${req.session.redirectDetails.room}`);
     } else {
       console.log(2);
-      res.redirect(`1`);
+      res.redirect(`${useDomain}/`);
     }
   }
 );
@@ -252,14 +254,14 @@ app.get(
     console.log("redirect session", req.session.redirectDetails);
     // console.log(req.session.redirectDetails.room);
     if (req.session.redirectDetails && req.session.redirectDetails.join && req.session.redirectDetails.prev) {
-      console.log(`/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`, 1);
-      res.redirect(`/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
+      console.log(`${useDomain}/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`, 1);
+      res.redirect(`${useDomain}/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
     } else if (req.session.redirectDetails && req.session.redirectDetails.join) {
       console.log(2);
-      res.redirect(`/join/${req.session.redirectDetails.room}`);
+      res.redirect(`${useDomain}/join/${req.session.redirectDetails.room}`);
     } else {
       console.log(2);
-      res.redirect(`/`);
+      res.redirect(`${useDomain}/`);
     }
   }
 );

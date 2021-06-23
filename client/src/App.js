@@ -22,7 +22,7 @@ export default function App() {
               <WaitingRoom />
             </Route>
             <Route path="/signinfirst" component={SignInFirst} />
-            <Route path="/" component={Home} />
+            <Route exact path="/" component={Home} />
           </Switch>
         </Router>
       </LoginProvider>

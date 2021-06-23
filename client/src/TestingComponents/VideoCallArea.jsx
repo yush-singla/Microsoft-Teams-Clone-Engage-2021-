@@ -7,18 +7,10 @@ import AlertDialog from "../components/DialogBox";
 import axios from "axios";
 import GridLayout from "react-grid-layout";
 import { Paper, makeStyles, IconButton, Box, Tooltip, Drawer, Typography, Divider, Grid } from "@material-ui/core";
-import CallEndIcon from "@material-ui/icons/CallEnd";
-import MicOffIcon from "@material-ui/icons/MicOff";
-import MicIcon from "@material-ui/icons/Mic";
-import VideocamOffIcon from "@material-ui/icons/VideocamOff";
-import VideocamIcon from "@material-ui/icons/Videocam";
-import PresentToAllIcon from "@material-ui/icons/PresentToAll";
-import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
-import VolumeUpIcon from "@material-ui/icons/VolumeUp";
-import VolumeOffIcon from "@material-ui/icons/VolumeOff";
+import Toolbar from "./Toolbar";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import RemoveCircleIcon from "@material-ui/icons/RemoveCircle";
-import PeopleIcon from "@material-ui/icons/People";
+
 import { display, textAlign } from "@material-ui/system";
 import { use } from "passport";
 const useStyles = makeStyles({
@@ -308,10 +300,10 @@ export default function VideoCallArea(props) {
       console.log("setting in component", { audioStatus, videoStatus });
       setVideos((prev) => {
         console.log({ myPic });
-        return [{ stream, userId, audio: audioStatus.current, video: videoStatus.current, picurL: myPicRef.current, userName: myNameRef }];
+        return [{ stream, userId, audio: audioStatus.current, video: videoStatus.current, picurL: myPicRef.current, userName: myNameRef.current }];
       });
       const roomId = window.location.pathname.split("/")[2];
-      socket.emit("join-room", roomId, userId, { audio: audioStatus.current, video: videoStatus.current, picurL: myPicRef.current, name: myNameRef });
+      socket.emit("join-room", roomId, userId, { audio: audioStatus.current, video: videoStatus.current, picurL: myPicRef.current, name: myNameRef.current });
     });
     socket.on("user-connected", (userId, socketId, { audio: userAudio, video: userVideo, picurL: userPicUrl, name: userName }) => {
       const call = myPeer.call(userId, stream);
@@ -411,6 +403,8 @@ export default function VideoCallArea(props) {
     ],
   ];
 
+  const toolbarProps = { audio, toggleAudio, classes, sharingScreen, toggleShareScreen, toggleVideo, video, speakerToggle, setSpeakerToggle, setWaitingRoomOpen };
+
   const usableHeights = ["90%", "75%", "60%", "40%"];
   return (
     <div>
@@ -438,70 +432,7 @@ export default function VideoCallArea(props) {
           );
         })}
       </Box>
-      <Paper className={classes.bottomBar}>
-        <Box textAlign="center">
-          <Tooltip title={audio ? "Turn off Microphone" : "Turn on Microphone"}>
-            <IconButton onClick={toggleAudio.current} color={!audio ? "secondary" : "default"}>
-              {audio ? <MicIcon /> : <MicOffIcon />}
-            </IconButton>
-          </Tooltip>
-          {!sharingScreen && (
-            <Tooltip title={video ? "Turn off Camera" : "Turn on Camera"}>
-              <IconButton id="toggleCamera" onClick={toggleVideo.current} color={!video ? "secondary" : "default"}>
-                {video ? <VideocamIcon /> : <VideocamOffIcon />}
-              </IconButton>
-            </Tooltip>
-          )}
-          <Tooltip title={!sharingScreen ? "Present Your Screen" : "Stop Presenting Screen"}>
-            <IconButton
-              onClick={() => {
-                if (!sharingScreen) toggleShareScreen.current.start();
-                else toggleShareScreen.current.stop();
-              }}
-              color={sharingScreen ? "secondary" : "default"}
-            >
-              {!sharingScreen ? <PresentToAllIcon /> : <CancelPresentationIcon />}
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Leave Meeting">
-            <IconButton
-              size="medium"
-              color="secondary"
-              onClick={() => {
-                socket.disconnect();
-                window.open("/", "_self");
-              }}
-            >
-              <CallEndIcon className={classes.largeIcon} />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={speakerToggle ? "Turn on Speaker" : "Turn off Speaker"}>
-            <IconButton
-              onClick={() => {
-                setSpeakerToggle((prev) => !prev);
-              }}
-            >
-              {speakerToggle ? <VolumeOffIcon /> : <VolumeUpIcon />}
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={"Open Waiting Room"}>
-            <IconButton
-              onClick={() => {
-                setWaitingRoomOpen(true);
-              }}
-            >
-              <PeopleIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      </Paper>
-      {/* <button
-        onClick={() => {
-          setWaitingRoomOpen(true);
-        }}
-      >
-        open waiting room
-      </button> */}
+      <Toolbar {...toolbarProps} />
       <Drawer
         anchor="right"
         open={waitingRoomOpen}
@@ -511,6 +442,16 @@ export default function VideoCallArea(props) {
       >
         {" "}
         <Typography variant="h5">Participants</Typography>
+        <Divider />
+        {videos.map((videoStream, key) => {
+          if (videoStream && videoStream.userName)
+            return (
+              <Typography key={videoStream.userId} variant="p" style={{ overflowWrap: "break-word" }}>
+                {videoStream.userName}
+              </Typography>
+            );
+          return null;
+        })}
         <Divider />
         <Typography variant="h5">Waiting Room</Typography>
         <Divider />

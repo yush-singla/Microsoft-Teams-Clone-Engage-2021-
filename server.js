@@ -186,9 +186,10 @@ app.get(
       res.redirect(`${useDomain}/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
     } else if (req.session.redirectDetails && req.session.redirectDetails.join) {
       console.log(2);
-      res.redirect(`${useDomain}}/join/${req.session.redirectDetails.room}`);
+      res.redirect(`${useDomain}/join/${req.session.redirectDetails.room}`);
     } else {
-      console.log(2);
+      console.log(3);
+      console.log(`redirecting to ${useDomain}`);
       res.redirect(`${useDomain}/`);
     }
   }

@@ -298,6 +298,7 @@ app.get("/production", (req, res) => {
 let waitingRooms = {};
 let getUserIdBySocketId = {};
 let getSocketIdByUserId = {};
+let getNameFromSocketId = {};
 
 //sockets coding
 io.on("connection", (socket) => {
@@ -308,11 +309,11 @@ io.on("connection", (socket) => {
       cb({ status: "invalid room" });
     }
   });
-  socket.on("req-join-room", (roomId, cb) => {
-    console.log("req for joining by " + socket.id);
-
+  socket.on("req-join-room", (roomId, name) => {
+    getNameFromSocketId[socket.id] = name;
+    console.log("req for joining by " + name);
     console.log("sending a message to the" + waitingRooms[roomId]);
-    socket.to(waitingRooms[roomId]).emit("req-to-join-room", socket.id, "join");
+    socket.to(waitingRooms[roomId]).emit("req-to-join-room", { socketId: socket.id, name }, "join");
 
     socket.on("disconnect", () => {
       console.log("disconnected in the waiting area itself");
@@ -321,6 +322,7 @@ io.on("connection", (socket) => {
   });
   socket.on("this-user-is-allowed", (socketId) => {
     console.log("got allowed");
+    console.log(socketId);
     socket.to(socketId).emit("you-are-admitted");
   });
   socket.on("this-user-is-denied", (socketId) => {
@@ -329,6 +331,7 @@ io.on("connection", (socket) => {
   socket.on("join-room", (roomId, userId, { audio, video, picurL, name }) => {
     getUserIdBySocketId[socket.id] = userId;
     getSocketIdByUserId[userId] = socket.id;
+    getNameFromSocketId[socket.id] = name;
     console.log("joined a room " + socket.id);
     if (waitingRooms[roomId] === undefined) {
       waitingRooms[roomId] = socket.id;

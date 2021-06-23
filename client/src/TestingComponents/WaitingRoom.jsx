@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSocket } from "../utils/SocketProvider";
 import { Redirect } from "react-router";
+import axios from "axios";
 import { Box, Paper, IconButton, Button, Grid, Tooltip, makeStyles, Typography } from "@material-ui/core";
 import MicOffIcon from "@material-ui/icons/MicOff";
 import MicIcon from "@material-ui/icons/Mic";
@@ -48,9 +49,16 @@ export default function WaitingRoom() {
     };
   }, []);
   function askToJoin() {
-    setHasAskedToJoin(true);
-    const roomId = window.location.pathname.split("/")[2];
-    socket.emit("req-join-room", roomId);
+    axios.get("/authenticated").then((response) => {
+      if (response.data !== "unauthorized") {
+        setHasAskedToJoin(true);
+        const roomId = window.location.pathname.split("/")[2];
+        socket.emit("req-join-room", roomId, response.data.name);
+      } else {
+        alert("you are not logged in");
+        setStatus("denied");
+      }
+    });
   }
   async function showUserVideo() {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });

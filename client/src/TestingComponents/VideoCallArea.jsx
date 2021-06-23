@@ -18,6 +18,7 @@ import VolumeUpIcon from "@material-ui/icons/VolumeUp";
 import VolumeOffIcon from "@material-ui/icons/VolumeOff";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import RemoveCircleIcon from "@material-ui/icons/RemoveCircle";
+import PeopleIcon from "@material-ui/icons/People";
 import { display, textAlign } from "@material-ui/system";
 import { use } from "passport";
 const useStyles = makeStyles({
@@ -93,18 +94,18 @@ export default function VideoCallArea(props) {
       setMyPic(response.data.picurL);
       myPicRef.current = response.data.picurL;
       myNameRef.current = response.data.name;
-      socket.on("req-to-join-room", (socketId, attemtingTo) => {
+      socket.on("req-to-join-room", ({ socketId, name }, attemtingTo) => {
         if (attemtingTo === "join") {
-          console.log(`called with ${socketId}`);
-          setAskForPermission((prev) => [...prev, socketId]);
-          setNameOfPersoToJoin({ name: socketId, id: socketId });
+          console.log(`called with ${socketId} & ${name}`);
+          setAskForPermission((prev) => [...prev, { socketId, name }]);
+          setNameOfPersoToJoin({ name: name, id: socketId });
           setOpenDialogBox(true);
           allowUser.current = () => {
             console.log("emitting the message");
             socket.emit("this-user-is-allowed", socketId);
           };
         } else {
-          setAskForPermission((prev) => [...prev.filter((request) => request !== socketId)]);
+          setAskForPermission((prev) => [...prev.filter((request) => request.socketId !== socketId)]);
         }
       });
       socket.on("update-audio-video-state", ({ video: userVideo, audio: userAudio, userId, picurL: userPicUrl, name: userName }) => {
@@ -383,13 +384,13 @@ export default function VideoCallArea(props) {
   function admitToMeeting({ socketId }) {
     console.log("admitiing to meeting", socketId);
     socket.emit("this-user-is-allowed", socketId);
-    setAskForPermission((prev) => [...prev.filter((req) => req !== socketId)]);
+    setAskForPermission((prev) => [...prev.filter((req) => req.socketId !== socketId)]);
   }
 
   function denyMeeting({ socketId }) {
     console.log("denyying to meeting", socketId);
     socket.emit("this-user-is-denied", socketId);
-    setAskForPermission((prev) => [...prev.filter((req) => req !== socketId)]);
+    setAskForPermission((prev) => [...prev.filter((req) => req.socketId !== socketId)]);
   }
   const layout = [
     [{ i: "1", x: 1, y: 0, w: 10, h: 12, static: true }],
@@ -483,6 +484,15 @@ export default function VideoCallArea(props) {
               {speakerToggle ? <VolumeOffIcon /> : <VolumeUpIcon />}
             </IconButton>
           </Tooltip>
+          <Tooltip title={"Open Waiting Room"}>
+            <IconButton
+              onClick={() => {
+                setWaitingRoomOpen(true);
+              }}
+            >
+              <PeopleIcon />
+            </IconButton>
+          </Tooltip>
         </Box>
       </Paper>
       {/* <button
@@ -511,14 +521,14 @@ export default function VideoCallArea(props) {
               <Grid container>
                 <Grid item xs={8}>
                   <Typography variant="p" style={{ overflowWrap: "break-word" }}>
-                    {request}
+                    {request.name}
                   </Typography>
                 </Grid>
                 <Grid item xs={2}>
                   <Tooltip title="Add to the Meeting">
                     <IconButton
                       onClick={() => {
-                        admitToMeeting({ socketId: request });
+                        admitToMeeting({ socketId: request.socketId });
                       }}
                     >
                       <AddCircleIcon />

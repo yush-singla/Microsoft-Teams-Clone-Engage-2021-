@@ -1,25 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSocket } from "../utils/SocketProvider";
 import Peer from "peerjs";
-import IndividualVideo from "./IndividualVideo";
 import { useHistory } from "react-router";
 import AlertDialog from "../components/DialogBox";
 import axios from "axios";
-import GridLayout from "react-grid-layout";
-import { Paper, makeStyles, IconButton, Box, Tooltip, Drawer, Typography, Divider, Grid } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core";
 import Toolbar from "./Toolbar";
-import AddCircleIcon from "@material-ui/icons/AddCircle";
-import RemoveCircleIcon from "@material-ui/icons/RemoveCircle";
-
-import { display, textAlign } from "@material-ui/system";
-import { use } from "passport";
+import ShowParticipantsDrawer from "./ShowParticipantsDrawer";
+import AllVideos from "./AllVideos";
 const useStyles = makeStyles({
   bottomBar: {
     width: "98%",
     height: "10vh",
     position: "fixed",
     bottom: "20px",
-    // overflow: "hidden",
     backgroundColor: "lightgrey",
   },
   largeIcon: {
@@ -384,28 +378,10 @@ export default function VideoCallArea(props) {
     socket.emit("this-user-is-denied", socketId);
     setAskForPermission((prev) => [...prev.filter((req) => req.socketId !== socketId)]);
   }
-  const layout = [
-    [{ i: "1", x: 1, y: 0, w: 10, h: 12, static: true }],
-    [
-      { i: "1", x: 0, y: 0, w: 6, h: 12 },
-      { i: "2", x: 8, y: 0, w: 6, h: 12 },
-    ],
-    [
-      { i: "1", x: 0, y: 3, w: 4, h: 9 },
-      { i: "2", x: 4, y: 3, w: 4, h: 9 },
-      { i: "3", x: 8, y: 3, w: 4, h: 9 },
-    ],
-    [
-      { i: "1", x: 1, y: 0, w: 4, h: 7 },
-      { i: "2", x: 7, y: 0, w: 4, h: 7 },
-      { i: "3", x: 1, y: 10, w: 4, h: 7 },
-      { i: "4", x: 7, y: 10, w: 4, h: 7 },
-    ],
-  ];
 
   const toolbarProps = { audio, toggleAudio, classes, sharingScreen, toggleShareScreen, toggleVideo, video, speakerToggle, setSpeakerToggle, setWaitingRoomOpen };
-
-  const usableHeights = ["90%", "75%", "60%", "40%"];
+  const participantDrawerProps = { waitingRoomOpen, setWaitingRoomOpen, videos, admitToMeeting, denyMeeting, askForPermission };
+  const allVideoProps = { videos, classes, myId, speakerToggle, video, audio };
   return (
     <div>
       {openDialogBox && (
@@ -418,80 +394,9 @@ export default function VideoCallArea(props) {
           denyMeeting={denyMeeting}
         />
       )}
-      <Box className={classes.videoContainer}>
-        {videos.map((videoStream, key) => {
-          const currHeight = videos.length === 1 ? usableHeights[0] : videos.length === 2 ? usableHeights[1] : videos.length === 3 ? usableHeights[2] : usableHeights[3];
-          return (
-            <Box
-              className={classes.videoContainerChild}
-              key={(key + 1).toString()}
-              style={{ backgroundColor: "black", textAlign: "center", margin: "0 1%", minWidth: videos.length === 4 ? "32%" : "30%", height: currHeight, flexGrow: videos.length === 4 ? 0 : 1 }}
-            >
-              <IndividualVideo size={videos.length} key={videoStream.userId} videoStream={videoStream} myId={myId} classes={classes} speakerToggle={speakerToggle} video={video} audio={audio} />;
-            </Box>
-          );
-        })}
-      </Box>
+      <AllVideos {...allVideoProps} />
       <Toolbar {...toolbarProps} />
-      <Drawer
-        anchor="right"
-        open={waitingRoomOpen}
-        onClose={() => {
-          setWaitingRoomOpen(false);
-        }}
-      >
-        {" "}
-        <Typography variant="h5">Participants</Typography>
-        <Divider />
-        {videos.map((videoStream, key) => {
-          if (videoStream && videoStream.userName)
-            return (
-              <Typography key={videoStream.userId} variant="p" style={{ overflowWrap: "break-word" }}>
-                {videoStream.userName}
-              </Typography>
-            );
-          return null;
-        })}
-        <Divider />
-        <Typography variant="h5">Waiting Room</Typography>
-        <Divider />
-        {/* <Typography variant="p">Following is a list of people currently in the waiting room</Typography> */}
-        {askForPermission.map((request, key) => {
-          return (
-            <React.Fragment key={Math.floor(Math.random() * 10000)}>
-              <Grid container>
-                <Grid item xs={8}>
-                  <Typography variant="p" style={{ overflowWrap: "break-word" }}>
-                    {request.name}
-                  </Typography>
-                </Grid>
-                <Grid item xs={2}>
-                  <Tooltip title="Add to the Meeting">
-                    <IconButton
-                      onClick={() => {
-                        admitToMeeting({ socketId: request.socketId });
-                      }}
-                    >
-                      <AddCircleIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Grid>
-                <Grid item xs={2}>
-                  <Tooltip title="Remove from Waiting Room">
-                    <IconButton
-                      onClick={() => {
-                        denyMeeting({ socketId: request });
-                      }}
-                    >
-                      <RemoveCircleIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Grid>
-              </Grid>
-            </React.Fragment>
-          );
-        })}
-      </Drawer>
+      <ShowParticipantsDrawer {...participantDrawerProps} />
     </div>
   );
 }

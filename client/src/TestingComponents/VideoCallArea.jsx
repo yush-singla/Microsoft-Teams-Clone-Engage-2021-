@@ -8,6 +8,7 @@ import { makeStyles } from "@material-ui/core";
 import Toolbar from "./Toolbar";
 import ShowParticipantsDrawer from "./ShowParticipantsDrawer";
 import AllVideos from "./AllVideos";
+import ChatDrawer from "./ChatDrawer";
 const useStyles = makeStyles({
   bottomBar: {
     width: "98%",
@@ -65,6 +66,7 @@ export default function VideoCallArea(props) {
   const [nameOfPersonToJoin, setNameOfPersoToJoin] = useState({});
   const allowUser = useRef();
   const [waitingRoomOpen, setWaitingRoomOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const [myName, setMyName] = useState(null);
   const [myPic, setMyPic] = useState(null);
   const myPicRef = useRef();
@@ -379,9 +381,10 @@ export default function VideoCallArea(props) {
     setAskForPermission((prev) => [...prev.filter((req) => req.socketId !== socketId)]);
   }
 
-  const toolbarProps = { audio, toggleAudio, classes, sharingScreen, toggleShareScreen, toggleVideo, video, speakerToggle, setSpeakerToggle, setWaitingRoomOpen };
+  const toolbarProps = { audio, toggleAudio, classes, sharingScreen, toggleShareScreen, toggleVideo, video, speakerToggle, setSpeakerToggle, setWaitingRoomOpen, setChatOpen };
   const participantDrawerProps = { waitingRoomOpen, setWaitingRoomOpen, videos, admitToMeeting, denyMeeting, askForPermission };
   const allVideoProps = { videos, classes, myId, speakerToggle, video, audio };
+  const chatProps = { chatOpen, setChatOpen, videos, myId, myNameRef };
   return (
     <div>
       {openDialogBox && (
@@ -397,6 +400,7 @@ export default function VideoCallArea(props) {
       <AllVideos {...allVideoProps} />
       <Toolbar {...toolbarProps} />
       <ShowParticipantsDrawer {...participantDrawerProps} />
+      <ChatDrawer {...chatProps} />
     </div>
   );
 }

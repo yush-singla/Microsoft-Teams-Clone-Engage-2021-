@@ -362,11 +362,24 @@ io.on("connection", (socket) => {
     console.log("change", roomId);
     socket.to(roomId).emit("changed-video-status-reply", { status, userId: getUserIdBySocketId[socket.id] });
   });
+  //chats handling
+  socket.on("send-chat", (chat) => {
+    console.log("recieved something cchatty");
+    console.log(chat);
+    if (chat.all === true && chat.to && chat.to.roomId) {
+      socket.to(chat.to.roomId).emit("recieved-chat", chat);
+    } else {
+      if (chat.to && chat.to.userId) {
+        socket.to(getSocketIdByUserId[chat.to.userId]).emit("recieved-chat", chat);
+      }
+    }
+  });
 });
 
 //for production build of react
 const path = require("path");
 const { log } = require("console");
+const { emit } = require("process");
 app.use(express.static(path.join(__dirname, "./client/build")));
 app.get("*", function (req, res) {
   console.log("came here");

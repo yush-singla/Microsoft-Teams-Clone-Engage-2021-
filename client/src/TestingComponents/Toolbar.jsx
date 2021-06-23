@@ -11,7 +11,8 @@ import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import VolumeUpIcon from "@material-ui/icons/VolumeUp";
 import VolumeOffIcon from "@material-ui/icons/VolumeOff";
 import { useSocket } from "../utils/SocketProvider";
-export default function Toolbar({ audio, toggleAudio, classes, sharingScreen, toggleShareScreen, toggleVideo, video, speakerToggle, setSpeakerToggle, setWaitingRoomOpen }) {
+import ChatIcon from "@material-ui/icons/Chat";
+export default function Toolbar({ audio, toggleAudio, classes, sharingScreen, toggleShareScreen, toggleVideo, video, speakerToggle, setSpeakerToggle, setWaitingRoomOpen, chatOpen, setChatOpen }) {
   const socket = useSocket();
   return (
     <Paper className={classes.bottomBar}>
@@ -67,6 +68,15 @@ export default function Toolbar({ audio, toggleAudio, classes, sharingScreen, to
             }}
           >
             <PeopleIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={"Chats"}>
+          <IconButton
+            onClick={() => {
+              setChatOpen(true);
+            }}
+          >
+            <ChatIcon />
           </IconButton>
         </Tooltip>
       </Box>

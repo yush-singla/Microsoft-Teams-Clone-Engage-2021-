@@ -23,14 +23,15 @@ const useStyles = makeStyles({
   },
   Modal: {
     position: "absolute",
-    top: "35%",
-    left: "35%",
-    height: "30%",
-    width: "30%",
+    top: "35vh",
+    left: "35vw",
+    right: "35vw",
+    minWidth: "30%",
     backgroundColor: "white",
+    paddingBottom: "2%",
   },
   signInButtons: {
-    width: "150px",
+    width: "88%",
   },
   profileIcon: {
     borderRadius: "100%",
@@ -188,17 +189,17 @@ export default function Home() {
                 <Typography variant="h4">Sign In </Typography>
                 <Divider />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12} md={6}>
                 <Button className={classes.signInButtons} color="secondary" variant="contained" startIcon={<GTranslateIcon />} onClick={() => handleSignIn("google")}>
                   Google
                 </Button>
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12} md={6}>
                 <Button className={classes.signInButtons} color="primary" variant="contained" startIcon={<FacebookIcon />} onClick={() => handleSignIn("facebook")}>
                   Facebook
                 </Button>
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12} md={6}>
                 <Button className={classes.signInButtons} color="default" variant="contained" startIcon={<GitHubIcon />} onClick={() => handleSignIn("github")}>
                   Github
                 </Button>

@@ -290,6 +290,11 @@ app.get("/api/join", (req, res) => {
   res.send({ link: uuidV4() });
 });
 
+app.get("/production", (req, res) => {
+  // console.log("status", process.env.NODE_ENV);
+  res.send(process.env.NODE_ENV);
+});
+
 let waitingRooms = {};
 let getUserIdBySocketId = {};
 let getSocketIdByUserId = {};

@@ -7,14 +7,15 @@ import handleSignIn from "../utils/handleSignIn";
 const useStyles = makeStyles({
   Modal: {
     position: "absolute",
-    top: "35%",
-    left: "35%",
-    height: "30%",
-    width: "30%",
+    top: "35vh",
+    left: "35vw",
+    right: "35vw",
+    minWidth: "30%",
     backgroundColor: "white",
+    paddingBottom: "2%",
   },
   signInButtons: {
-    width: "150px",
+    width: "88%",
   },
 });
 
@@ -28,7 +29,7 @@ export default function SignInFirst(props) {
             <Typography variant="h4">Sign In </Typography>
             <Divider />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} md={6}>
             <Button
               className={classes.signInButtons}
               color="secondary"
@@ -39,7 +40,7 @@ export default function SignInFirst(props) {
               Google
             </Button>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} md={6}>
             <Button
               className={classes.signInButtons}
               color="primary"
@@ -50,7 +51,7 @@ export default function SignInFirst(props) {
               Facebook
             </Button>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} md={6}>
             <Button
               className={classes.signInButtons}
               color="default"

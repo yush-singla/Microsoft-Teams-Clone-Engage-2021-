@@ -69,6 +69,7 @@ export default function VideoCallArea(props) {
   const [chatOpen, setChatOpen] = useState(false);
   const [myName, setMyName] = useState(null);
   const [myPic, setMyPic] = useState(null);
+  const [showChatPopUp, setShowChatPopUp] = useState(false);
   const myPicRef = useRef();
   const myNameRef = useRef();
   useEffect(() => {
@@ -381,10 +382,24 @@ export default function VideoCallArea(props) {
     setAskForPermission((prev) => [...prev.filter((req) => req.socketId !== socketId)]);
   }
 
-  const toolbarProps = { audio, toggleAudio, classes, sharingScreen, toggleShareScreen, toggleVideo, video, speakerToggle, setSpeakerToggle, setWaitingRoomOpen, setChatOpen };
+  const toolbarProps = {
+    audio,
+    toggleAudio,
+    classes,
+    sharingScreen,
+    toggleShareScreen,
+    toggleVideo,
+    video,
+    speakerToggle,
+    setSpeakerToggle,
+    setWaitingRoomOpen,
+    setChatOpen,
+    showChatPopUp,
+    setShowChatPopUp,
+  };
   const participantDrawerProps = { waitingRoomOpen, setWaitingRoomOpen, videos, admitToMeeting, denyMeeting, askForPermission };
   const allVideoProps = { videos, classes, myId, speakerToggle, video, audio };
-  const chatProps = { chatOpen, setChatOpen, videos, myId, myNameRef };
+  const chatProps = { chatOpen, setChatOpen, videos, myId, myNameRef, myPicRef, setShowChatPopUp };
   return (
     <div>
       {openDialogBox && (

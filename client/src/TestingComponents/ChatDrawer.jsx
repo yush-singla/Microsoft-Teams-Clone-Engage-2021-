@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Drawer, Typography, TextField, IconButton, makeStyles, Box, Divider, Select, MenuItem } from "@material-ui/core";
+import { Drawer, Typography, TextField, IconButton, makeStyles, Tooltip, Box, Divider, Select, MenuItem } from "@material-ui/core";
 import { useSocket } from "../utils/SocketProvider";
 import SendIcon from "@material-ui/icons/Send";
+import { minWidth } from "@material-ui/system";
 
 const useStyles = makeStyles({
   chatTextField: {
@@ -15,14 +16,41 @@ const useStyles = makeStyles({
   SelectForSendTo: {
     minWidth: "18vw",
   },
-  containerSendTo: {},
+  sendedMessageContainer: {
+    padding: "2%",
+    maxWidth: "20vw",
+  },
   chatBox: {
     height: "85vh",
     minWidth: "28vw",
+    overflowY: "scroll",
+  },
+  leftAlignedChat: {
+    borderRadius: "10px 19px 17px 0px",
+    textAlign: "left",
+    backgroundColor: "lightgrey",
+    padding: "3%",
+    paddingRight: "8%",
+    margin: "3%",
+    wordWrap: "break-word",
+    display: "inline-block",
+    minWidth: "10vw",
+    maxWidth: "14vw",
+  },
+  rightAlignedChat: {
+    borderRadius: "19px 10px 0px 17px",
+    textAlign: "right",
+    backgroundColor: "lightgrey",
+    padding: "3%",
+    paddingLeft: "8%",
+    margin: "3%",
+    wordWrap: "break-word",
+    display: "inline-block",
+    minWidth: "10vw",
   },
 });
 
-export default function ChatDrawer({ chatOpen, setChatOpen, videos, myId, myNameRef }) {
+export default function ChatDrawer({ chatOpen, setChatOpen, videos, myId, myNameRef, myPicRef, setShowChatPopUp }) {
   const classes = useStyles();
   const socket = useSocket();
   const [sendTo, setSendTo] = useState("all");
@@ -31,8 +59,12 @@ export default function ChatDrawer({ chatOpen, setChatOpen, videos, myId, myName
 
   useEffect(() => {
     socket.on("recieved-chat", (chat) => {
+      setShowChatPopUp(true);
       setChatMessagges((prev) => [...prev, chat]);
     });
+    return () => {
+      socket.off("recieved-chat");
+    };
   }, []);
 
   function sendChat() {
@@ -40,6 +72,7 @@ export default function ChatDrawer({ chatOpen, setChatOpen, videos, myId, myName
       from: {
         name: myNameRef.current,
         userId: myId,
+        picurL: myPicRef.current,
       },
       all: sendTo === "all",
       to: sendTo === "all" ? { roomId: window.location.pathname.split("/")[2] } : JSON.parse(sendTo),
@@ -53,6 +86,7 @@ export default function ChatDrawer({ chatOpen, setChatOpen, videos, myId, myName
   //   from:{
   //     name:,
   //     userId,
+  //     picurl,
   //   },
   //   all:Boolean
   //   ,
@@ -86,7 +120,18 @@ export default function ChatDrawer({ chatOpen, setChatOpen, videos, myId, myName
         {chatMessagges.map((chatMssg, key) => {
           return (
             <Box>
-              <Typography>{chatMssg.message}</Typography>
+              <Box className={classes.sendedMessageContainer} style={chatMssg.from.userId === myId ? { marginRight: "auto", textAlign: "left" } : { marginLeft: "auto", textAlign: "right" }}>
+                <Typography component="p" variant="p" className={chatMssg.from.userId === myId ? classes.leftAlignedChat : classes.rightAlignedChat}>
+                  {chatMssg.message}
+                </Typography>
+                {chatMssg.from.userId !== myId && (
+                  <Tooltip title={chatMssg.from.name}>
+                    <span style={{ lineHeight: "20%" }}>
+                      <img src={chatMssg.from.picurL} style={{ height: "2.5vw", width: "auto", borderRadius: "100%" }} alt={"pic"} />
+                    </span>
+                  </Tooltip>
+                )}
+              </Box>
             </Box>
           );
         })}

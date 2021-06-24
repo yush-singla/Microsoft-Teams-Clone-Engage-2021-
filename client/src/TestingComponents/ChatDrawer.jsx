@@ -25,9 +25,9 @@ const useStyles = makeStyles({
     overflowY: "scroll",
   },
   leftAlignedChat: {
-    borderRadius: "10px 19px 17px 0px",
+    borderRadius: "20px",
     textAlign: "left",
-    backgroundColor: "lightgrey",
+    backgroundColor: "white",
     padding: "3%",
     paddingRight: "8%",
     paddingLeft: "6%",
@@ -36,11 +36,12 @@ const useStyles = makeStyles({
     display: "inline-block",
     minWidth: "10vw",
     maxWidth: "14vw",
+    border: "1px solid lightgrey",
   },
   rightAlignedChat: {
-    borderRadius: "19px 10px 0px 17px",
+    borderRadius: "20px",
     textAlign: "right",
-    backgroundColor: "lightgrey",
+    backgroundColor: "#eee",
     padding: "3%",
     paddingRight: "5%",
     paddingLeft: "8%",
@@ -49,6 +50,7 @@ const useStyles = makeStyles({
     display: "inline-block",
     minWidth: "10vw",
     maxWidth: "14vw",
+    fontFamily: "sans-serif",
   },
 });
 
@@ -122,10 +124,7 @@ export default function ChatDrawer({ chatOpen, setChatOpen, videos, myId, myName
         {chatMessagges.map((chatMssg, key) => {
           return (
             <Box>
-              <Box className={classes.sendedMessageContainer} style={chatMssg.from.userId === myId ? { marginRight: "auto", textAlign: "left" } : { marginLeft: "auto", textAlign: "right" }}>
-                <Typography component="p" variant="p" className={chatMssg.from.userId === myId ? classes.leftAlignedChat : classes.rightAlignedChat}>
-                  {chatMssg.message}
-                </Typography>
+              <Box className={classes.sendedMessageContainer} style={chatMssg.from.userId !== myId ? { marginRight: "auto", textAlign: "left" } : { marginLeft: "auto", textAlign: "right" }}>
                 {chatMssg.from.userId !== myId && (
                   <Tooltip title={chatMssg.from.name}>
                     <span style={{ lineHeight: "20%" }}>
@@ -133,6 +132,9 @@ export default function ChatDrawer({ chatOpen, setChatOpen, videos, myId, myName
                     </span>
                   </Tooltip>
                 )}
+                <Typography component="p" variant="p" className={chatMssg.from.userId !== myId ? classes.leftAlignedChat : classes.rightAlignedChat}>
+                  {chatMssg.message}
+                </Typography>
               </Box>
             </Box>
           );

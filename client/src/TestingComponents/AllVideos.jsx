@@ -2,19 +2,9 @@ import React from "react";
 import IndividualVideo from "./IndividualVideo";
 import { Box } from "@material-ui/core";
 import MicIcon from "@material-ui/icons/Mic";
+import MicOffIcon from "@material-ui/icons/MicOff";
 const usableHeights = ["90%", "75%", "60%", "45%"];
 export default function AllVideos({ videos, classes, myId, speakerToggle, video, audio }) {
-  function titleCase(str) {
-    if (str === undefined) return "";
-    var splitStr = str.toLowerCase().split(" ");
-    for (var i = 0; i < splitStr.length; i++) {
-      // You do not need to check if i is larger than splitStr length, as your for does that for you
-      // Assign it back to the array
-      splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
-    }
-    // Directly return the joined string
-    return splitStr.join(" ");
-  }
   return (
     <Box className={classes.videoContainer}>
       {videos.map((videoStream, key) => {
@@ -43,12 +33,14 @@ export default function AllVideos({ videos, classes, myId, speakerToggle, video,
                   position: "absolute",
                   bottom: "0",
                   right: "0",
+                  backgroundColor: "rgba(0,0,0,0.5)",
                 }}
               >
                 <Box component="span" style={{ verticalAlign: "bottom" }}>
-                  {titleCase(videoStream.userName)}
+                  {videoStream.userId === myId ? "You" : videoStream.userName}
                 </Box>
-                <MicIcon style={{ marginLeft: "10px", verticalAlign: "bottom" }} />
+                {videoStream.userId !== myId &&
+                  (videoStream.audio ? <MicIcon style={{ marginLeft: "10px", verticalAlign: "bottom" }} /> : <MicOffIcon style={{ marginLeft: "10px", verticalAlign: "bottom" }} />)}
               </Box>
             </Box>
           </>

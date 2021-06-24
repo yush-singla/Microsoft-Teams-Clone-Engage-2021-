@@ -14,7 +14,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function ShowParticipantsDrawer({ waitingRoomOpen, setWaitingRoomOpen, videos, admitToMeeting, denyMeeting, askForPermission }) {
+export default function ShowParticipantsDrawer({ myId, waitingRoomOpen, setWaitingRoomOpen, videos, admitToMeeting, denyMeeting, askForPermission }) {
   const classes = useStyles();
   return (
     <Drawer
@@ -40,7 +40,7 @@ export default function ShowParticipantsDrawer({ waitingRoomOpen, setWaitingRoom
                     component="span"
                     style={{ marginLeft: "10px", fontSize: "1.3rem", overflowWrap: "break-word", display: "table-cell", verticalAlign: "middle", paddingLeft: "10px" }}
                   >
-                    {videoStream.userName}
+                    {videoStream.userId !== myId ? videoStream.userName : "You"}
                   </Typography>
                 </Box>
               );
@@ -76,7 +76,7 @@ export default function ShowParticipantsDrawer({ waitingRoomOpen, setWaitingRoom
                   <Tooltip title="Remove from Waiting Room">
                     <IconButton
                       onClick={() => {
-                        denyMeeting({ socketId: request });
+                        denyMeeting({ socketId: request.socketId });
                       }}
                     >
                       <RemoveCircleIcon />

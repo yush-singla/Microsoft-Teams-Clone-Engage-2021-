@@ -109,7 +109,7 @@ export default function VideoCallArea(props) {
               vid.audio = userAudio;
               vid.video = userVideo;
               vid.picurL = userPicUrl;
-              vid.userName = userName;
+              vid.userName = titleCase(userName);
               console.log(vid);
               console.log(prev[key]);
             }
@@ -161,6 +161,17 @@ export default function VideoCallArea(props) {
       // myPeer.disconnect();
     };
   }, []);
+  function titleCase(str) {
+    if (str === undefined) return "";
+    var splitStr = str.toLowerCase().split(" ");
+    for (var i = 0; i < splitStr.length; i++) {
+      // You do not need to check if i is larger than splitStr length, as your for does that for you
+      // Assign it back to the array
+      splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
+    }
+    // Directly return the joined string
+    return splitStr.join(" ");
+  }
   async function setCameraStreaming(callback) {
     try {
       let stream = await navigator.mediaDevices.getUserMedia({
@@ -299,7 +310,7 @@ export default function VideoCallArea(props) {
       console.log("setting in component", { audioStatus, videoStatus });
       setVideos((prev) => {
         console.log({ myPic });
-        return [{ stream, userId, audio: audioStatus.current, video: videoStatus.current, picurL: myPicRef.current, userName: myNameRef.current }];
+        return [{ stream, userId, audio: audioStatus.current, video: videoStatus.current, picurL: myPicRef.current, userName: titleCase(myNameRef.current) }];
       });
       const roomId = window.location.pathname.split("/")[2];
       socket.emit("join-room", roomId, userId, { audio: audioStatus.current, video: videoStatus.current, picurL: myPicRef.current, name: myNameRef.current });
@@ -345,7 +356,7 @@ export default function VideoCallArea(props) {
           return;
         }
         connectedPeers.current[call.peer] = call;
-        addVideoStream(userVideoStream, call.peer, { userAudio: false, userVideo: false });
+        addVideoStream(userVideoStream, call.peer, { useraudio: true, userVideo: false });
       });
       call.on("close", () => {
         setVideos((prev) => {
@@ -368,7 +379,7 @@ export default function VideoCallArea(props) {
 
   function addVideoStream(userStream, userId, { userAudio, userVideo, userPicUrl, userName }) {
     setVideos((prev) => {
-      return [...prev, { userId, stream: userStream, audio: userAudio, video: userVideo, picurL: userPicUrl, userName }];
+      return [...prev, { userId, stream: userStream, audio: userAudio, video: userVideo, picurL: userPicUrl, userName: titleCase(userName) }];
     });
   }
 
@@ -399,7 +410,7 @@ export default function VideoCallArea(props) {
     showChatPopUp,
     setShowChatPopUp,
   };
-  const participantDrawerProps = { waitingRoomOpen, setWaitingRoomOpen, videos, admitToMeeting, denyMeeting, askForPermission };
+  const participantDrawerProps = { waitingRoomOpen, setWaitingRoomOpen, videos, admitToMeeting, denyMeeting, askForPermission, myId };
   const allVideoProps = { videos, classes, myId, speakerToggle, video, audio };
   const chatProps = { chatOpen, setChatOpen, videos, myId, myNameRef, myPicRef, setShowChatPopUp };
   return (

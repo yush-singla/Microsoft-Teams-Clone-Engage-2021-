@@ -33,9 +33,11 @@ const useStyles = makeStyles({
     flexWrap: "wrap",
   },
   videoContainerChild: {
-    display: "flex",
     flex: "1 0 auto",
-    // height: "90%",
+  },
+  videoContainerGrandChild: {
+    display: "flex",
+    height: "100%",
     justifyContent: "center",
     alignItems: "center",
   },

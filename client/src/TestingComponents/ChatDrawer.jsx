@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Drawer, Typography, TextField, IconButton, makeStyles, Tooltip, Box, Divider, Select, MenuItem } from "@material-ui/core";
 import { useSocket } from "../utils/SocketProvider";
 import SendIcon from "@material-ui/icons/Send";
-import { minWidth } from "@material-ui/system";
 
 const useStyles = makeStyles({
   chatTextField: {
@@ -31,6 +30,7 @@ const useStyles = makeStyles({
     backgroundColor: "lightgrey",
     padding: "3%",
     paddingRight: "8%",
+    paddingLeft: "6%",
     margin: "3%",
     wordWrap: "break-word",
     display: "inline-block",
@@ -42,11 +42,13 @@ const useStyles = makeStyles({
     textAlign: "right",
     backgroundColor: "lightgrey",
     padding: "3%",
+    paddingRight: "5%",
     paddingLeft: "8%",
     margin: "3%",
     wordWrap: "break-word",
     display: "inline-block",
     minWidth: "10vw",
+    maxWidth: "14vw",
   },
 });
 
@@ -59,7 +61,7 @@ export default function ChatDrawer({ chatOpen, setChatOpen, videos, myId, myName
 
   useEffect(() => {
     socket.on("recieved-chat", (chat) => {
-      setShowChatPopUp(true);
+      if (chatOpen === false) setShowChatPopUp(true);
       setChatMessagges((prev) => [...prev, chat]);
     });
     return () => {
@@ -127,7 +129,7 @@ export default function ChatDrawer({ chatOpen, setChatOpen, videos, myId, myName
                 {chatMssg.from.userId !== myId && (
                   <Tooltip title={chatMssg.from.name}>
                     <span style={{ lineHeight: "20%" }}>
-                      <img src={chatMssg.from.picurL} style={{ height: "2.5vw", width: "auto", borderRadius: "100%" }} alt={"pic"} />
+                      <img src={chatMssg.from.picurL} style={{ height: "2.5vw", width: "auto", borderRadius: "100%", verticalAlign: "middle" }} alt={"pic"} />
                     </span>
                   </Tooltip>
                 )}

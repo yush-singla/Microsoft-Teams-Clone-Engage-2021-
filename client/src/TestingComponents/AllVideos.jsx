@@ -15,6 +15,7 @@ export default function AllVideos({ videos, classes, myId, speakerToggle, video,
             style={{ backgroundColor: "black", textAlign: "center", margin: "0 1%", minWidth: videos.length === 4 ? "32%" : "30%", height: currHeight, flexGrow: videos.length === 4 ? 0 : 1 }}
           >
             <IndividualVideo size={videos.length} key={videoStream.userId} videoStream={videoStream} myId={myId} classes={classes} speakerToggle={speakerToggle} video={video} audio={audio} />;
+            <Box style={{ color: "white", position: "absolute", top: "100%", left: "0%" }}>{videoStream.userName}</Box>
           </Box>
         );
       })}

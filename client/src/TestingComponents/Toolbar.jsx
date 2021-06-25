@@ -1,5 +1,5 @@
 import React from "react";
-import { Paper, Box, Tooltip, IconButton } from "@material-ui/core";
+import { Paper, Box, Tooltip, IconButton, Badge } from "@material-ui/core";
 import PeopleIcon from "@material-ui/icons/People";
 import CallEndIcon from "@material-ui/icons/CallEnd";
 import MicOffIcon from "@material-ui/icons/MicOff";
@@ -28,6 +28,7 @@ export default function Toolbar({
   setChatOpen,
   showChatPopUp,
   setShowChatPopUp,
+  chatOpenRef,
 }) {
   const socket = useSocket();
   return (
@@ -89,11 +90,21 @@ export default function Toolbar({
         <Tooltip title={showChatPopUp ? "you have unread messages in the chat" : "Chats"}>
           <IconButton
             onClick={() => {
-              setShowChatPopUp(false);
+              setShowChatPopUp(0);
               setChatOpen(true);
+              chatOpenRef.current = true;
             }}
           >
-            {showChatPopUp ? <AnnouncementIcon style={{ color: "orange" }} /> : <ChatIcon />}
+            {showChatPopUp > 0 ? (
+              <>
+                {console.log(showChatPopUp)}
+                <Badge color="primary" badgeContent={showChatPopUp}>
+                  <ChatIcon />
+                </Badge>
+              </>
+            ) : (
+              <ChatIcon />
+            )}
           </IconButton>
         </Tooltip>
       </Box>

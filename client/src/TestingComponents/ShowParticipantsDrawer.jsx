@@ -10,7 +10,7 @@ const useStyles = makeStyles({
   participants: {
     paddingLeft: "20%",
     height: "40vh",
-    overflowY: "sroll",
+    overflowY: "scroll",
   },
 });
 
@@ -52,41 +52,43 @@ export default function ShowParticipantsDrawer({ myId, waitingRoomOpen, setWaiti
           <Typography variant="h4">Waiting Room</Typography>
         </Box>
         <Divider />
-        {askForPermission.map((request, key) => {
-          return (
-            <React.Fragment key={Math.floor(Math.random() * 10000)}>
-              <Grid container>
-                <Grid item xs={8}>
-                  <Box textAlign="center" pt={1}>
-                    <Typography style={{ fontSize: "1.3rem", overflowWrap: "break-word" }}>{request.name}</Typography>
-                  </Box>
+        <Box style={{ overflowY: "scroll" }}>
+          {askForPermission.map((request, key) => {
+            return (
+              <React.Fragment key={Math.floor(Math.random() * 10000)}>
+                <Grid container>
+                  <Grid item xs={8}>
+                    <Box textAlign="center" pt={1}>
+                      <Typography style={{ fontSize: "1.3rem", overflowWrap: "break-word" }}>{request.name}</Typography>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Tooltip title="Add to the Meeting">
+                      <IconButton
+                        onClick={() => {
+                          admitToMeeting({ socketId: request.socketId });
+                        }}
+                      >
+                        <AddCircleIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Tooltip title="Remove from Waiting Room">
+                      <IconButton
+                        onClick={() => {
+                          denyMeeting({ socketId: request.socketId });
+                        }}
+                      >
+                        <RemoveCircleIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
                 </Grid>
-                <Grid item xs={2}>
-                  <Tooltip title="Add to the Meeting">
-                    <IconButton
-                      onClick={() => {
-                        admitToMeeting({ socketId: request.socketId });
-                      }}
-                    >
-                      <AddCircleIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Grid>
-                <Grid item xs={2}>
-                  <Tooltip title="Remove from Waiting Room">
-                    <IconButton
-                      onClick={() => {
-                        denyMeeting({ socketId: request.socketId });
-                      }}
-                    >
-                      <RemoveCircleIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Grid>
-              </Grid>
-            </React.Fragment>
-          );
-        })}
+              </React.Fragment>
+            );
+          })}
+        </Box>
       </Box>
     </Drawer>
   );

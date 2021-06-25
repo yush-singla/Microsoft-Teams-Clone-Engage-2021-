@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Drawer, Typography, TextField, IconButton, makeStyles, Tooltip, Box, Divider, Select, MenuItem } from "@material-ui/core";
+import { Drawer, Typography, TextField, IconButton, Link, makeStyles, Tooltip, Box, Divider, Select, MenuItem } from "@material-ui/core";
 import { useSocket } from "../utils/SocketProvider";
 import SendIcon from "@material-ui/icons/Send";
 
@@ -36,7 +36,7 @@ const useStyles = makeStyles({
     display: "inline-block",
     minWidth: "10vw",
     maxWidth: "14vw",
-    border: "1px solid lightgrey",
+    border: "1px solid grey",
   },
   rightAlignedChat: {
     borderRadius: "20px",
@@ -54,7 +54,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function ChatDrawer({ chatOpen, setChatOpen, videos, myId, myNameRef, myPicRef, setShowChatPopUp }) {
+export default function ChatDrawer({ chatOpen, setChatOpen, chatOpenRef, videos, myId, myNameRef, myPicRef, setShowChatPopUp }) {
   const classes = useStyles();
   const socket = useSocket();
   const [sendTo, setSendTo] = useState("all");
@@ -63,7 +63,8 @@ export default function ChatDrawer({ chatOpen, setChatOpen, videos, myId, myName
 
   useEffect(() => {
     socket.on("recieved-chat", (chat) => {
-      if (chatOpen === false) setShowChatPopUp(true);
+      if (chatOpenRef.current === false) setShowChatPopUp((prev) => prev + 1);
+      else setShowChatPopUp(0);
       setChatMessagges((prev) => [...prev, chat]);
     });
     return () => {
@@ -86,6 +87,29 @@ export default function ChatDrawer({ chatOpen, setChatOpen, videos, myId, myName
     setChatMessagges((prev) => [...prev, chat]);
     socket.emit("send-chat", chat);
   }
+  function isUrl(s) {
+    var regexp =
+      /((?:(http|https|Http|Https|rtsp|Rtsp):\/\/(?:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,64}(?:\:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,25})?\@)?)?((?:(?:[a-zA-Z0-9][a-zA-Z0-9\-]{0,64}\.)+(?:(?:aero|arpa|asia|a[cdefgilmnoqrstuwxz])|(?:biz|b[abdefghijmnorstvwyz])|(?:cat|com|coop|c[acdfghiklmnoruvxyz])|d[ejkmoz]|(?:edu|e[cegrstu])|f[ijkmor]|(?:gov|g[abdefghilmnpqrstuwy])|h[kmnrtu]|(?:info|int|i[delmnoqrst])|(?:jobs|j[emop])|k[eghimnrwyz]|l[abcikrstuvy]|(?:mil|mobi|museum|m[acdghklmnopqrstuvwxyz])|(?:name|net|n[acefgilopruz])|(?:org|om)|(?:pro|p[aefghklmnrstwy])|qa|r[eouw]|s[abcdeghijklmnortuvyz]|(?:tel|travel|t[cdfghjklmnoprtvwz])|u[agkmsyz]|v[aceginu]|w[fs]|y[etu]|z[amw]))|(?:(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[0-9])))(?:\:\d{1,5})?)(\/(?:(?:[a-zA-Z0-9\;\/\?\:\@\&\=\#\~\-\.\+\!\*\'\(\)\,\_])|(?:\%[a-fA-F0-9]{2}))*)?(?:\b|$)/gi;
+    return regexp.test(s);
+  }
+  function ShowChatMessage({ message }) {
+    const words = message.split(" ");
+    return (
+      <>
+        {words.map((word, key) => {
+          if (isUrl(word)) {
+            return (
+              <Link href={!word.match(/^[a-zA-Z]+:\/\//) ? "http://" + word : word} target="_blank">
+                {word + " "}
+              </Link>
+            );
+          }
+          return <Typography component="span">{word + " "}</Typography>;
+        })}
+      </>
+    );
+  }
+
   // {
   //   from:{
   //     name:,
@@ -114,6 +138,7 @@ export default function ChatDrawer({ chatOpen, setChatOpen, videos, myId, myName
       open={chatOpen}
       onClose={() => {
         setChatOpen(false);
+        chatOpenRef.current = false;
       }}
     >
       <Box className={classes.chatBox}>
@@ -133,7 +158,7 @@ export default function ChatDrawer({ chatOpen, setChatOpen, videos, myId, myName
                   </Tooltip>
                 )}
                 <Typography component="p" variant="p" className={chatMssg.from.userId !== myId ? classes.leftAlignedChat : classes.rightAlignedChat}>
-                  {chatMssg.message}
+                  <ShowChatMessage message={chatMssg.message} />
                 </Typography>
               </Box>
             </Box>
@@ -158,6 +183,7 @@ export default function ChatDrawer({ chatOpen, setChatOpen, videos, myId, myName
       <Box>
         <TextField
           className={classes.chatTextField}
+          placeholder="Enter Chat Messages"
           InputProps={{
             classes: {
               input: classes.chatText,

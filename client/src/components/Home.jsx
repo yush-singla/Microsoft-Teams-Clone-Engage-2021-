@@ -5,7 +5,7 @@ import { Icon, Menu, MenuItem, Button, Box, Paper, makeStyles, TextField, Grid, 
 import { ArrowForward, VideoCall } from "@material-ui/icons";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import CarouselComponent from "./CarouselComponent";
-// import Typewriter from "typewriter-effect";
+import Typewriter from "typewriter-effect";
 import GTranslateIcon from "@material-ui/icons/GTranslate";
 import FacebookIcon from "@material-ui/icons/Facebook";
 import GitHubIcon from "@material-ui/icons/GitHub";
@@ -214,24 +214,24 @@ export default function Home() {
             <Box pt={isDesktop ? 7 : 1} ml={isDesktop && 5} mr={isDesktop ? 20 : 1} textAlign="center">
               <Box pt={2} mx={4}>
                 <Typography variant="h2">Welcome To Microsoft Teams!</Typography>
-                <Box mt={4} mb={6}>
-                  <Typography variant="h4">Typewriter Typing comes here</Typography>
+                <Box mt={4} mb={6} style={{ fontSize: "1.6rem", fontWeight: "bolder" }}>
+                  {/* <Typography variant="h4">Typewriter Typing comes here</Typography> */}
+                  <Typewriter
+                    options={{ loop: true }}
+                    onInit={(typewriter) => {
+                      typewriter
+                        .typeString("<span>Just Create meeting!</span>")
+                        .pauseFor(1000)
+                        .deleteChars(15)
+                        .typeString("<span>Share the link!</span>")
+                        .pauseFor(1000)
+                        .deleteChars(15)
+                        .typeString("<span> Enjoy the meeting!</span>")
+                        .deleteChars(18)
+                        .start();
+                    }}
+                  />
                 </Box>
-                {/* <Typewriter
-                options={{ loop: true }}
-                onInit={(typewriter) => {
-                  typewriter
-                    .typeString("<span>Just Create meeting!</span>")
-                    .pauseFor(1000)
-                    .deleteChars(15)
-                    .typeString("<span>Share the link!</span>")
-                    .pauseFor(1000)
-                    .deleteChars(15)
-                    .typeString("<span> Enjoy the meeting!</span>")
-                    .deleteChars(18)
-                    .start();
-                }}
-              /> */}
                 <Typography>
                   Excepteur ut in minim cillum exercitation culpa. Ex fugiat est irure occaecat mollit velit sit occaecat laborum in. Ex exercitation elit ipsum anim id fugiat cupidatat magna.
                 </Typography>

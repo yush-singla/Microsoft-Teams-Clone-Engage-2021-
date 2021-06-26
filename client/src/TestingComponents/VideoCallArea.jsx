@@ -41,6 +41,7 @@ const useStyles = makeStyles({
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
+    position: "relative",
   },
   videoContainerForFour: {
     maxWidth: "100%",

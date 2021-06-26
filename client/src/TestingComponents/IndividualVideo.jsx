@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Paper, Box, makeStyles, Grid } from "@material-ui/core";
-import { grid, height, width } from "@material-ui/system";
-
+import * as faceapi from "face-api.js";
+// import joker from "../assets/images/CHAT_PNG.png";
 const useStyles = makeStyles({
   videoAltImg: {
     backgroundColor: "black",
@@ -11,8 +11,75 @@ const useStyles = makeStyles({
 const useAbleMaxWidths = ["85vw", "47vw", "30vw"];
 
 export default function IndividualVideo({ key, myId, speakerToggle, videoStream, video, audio, size }) {
-  const classes = useStyles();
+  const [modelsLoaded, setModelsLoaded] = useState(false);
+  const videoRefs = useRef({});
+  const interval = useRef();
+  const img = useRef();
+  const errCnt = useRef(0);
+  const loadModels = async () => {
+    Promise.all([
+      faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
+      faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
+      faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
+      faceapi.nets.faceExpressionNet.loadFromUri("/models"),
+    ])
+      .then(startVideo)
+      .catch((err) => console.log(err));
+  };
+  useEffect(() => {
+    loadModels();
+  }, []);
+  function startVideo() {
+    console.log("starting now");
+    setModelsLoaded(true);
+  }
+
+  async function startCanvasDrawing() {
+    const myId = videoStream.userId;
+    if (videoRefs.current[myId] === undefined) return;
+    console.log(videoRefs.current);
+    videoRefs.current[myId].canvasRef.innerHTML = await faceapi.createCanvasFromMedia(videoRefs.current[myId].videoRef);
+    const displaySize = videoRefs.current[myId].videoRef.getBoundingClientRect();
+    faceapi.matchDimensions(videoRefs.current[myId].canvasRef, displaySize);
+    console.log(displaySize);
+    // const ctx = canvasRef.current.getContext("2d");
+    // img.current = new Image();
+    // img.current.src = joker;
+    interval.current = setInterval(async () => {
+      try {
+        const detections = await faceapi.detectAllFaces(videoRefs.current[myId].videoRef, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
+        if (detections && detections.length > 0) {
+          errCnt.current = 0;
+          const resizedDetections = faceapi.resizeResults(detections, displaySize);
+          const noseCoods = resizedDetections[0].landmarks.getNose();
+          const headCoods = resizedDetections[0].landmarks.getLeftEyeBrow();
+          const jawCoods = resizedDetections[0].landmarks.getJawOutline();
+          // console.log(jawCoods);
+          // console.log(noseCoods);
+          videoRefs.current[myId].canvasRef.getContext("2d").clearRect(0, 0, videoRefs.current[myId].canvasRef.width, videoRefs.current[myId].canvasRef.height);
+          //       // console.log(headCoods);
+          // videoRefs.current[myId].canvasRef.getContext("2d").drawImage(img.current, jawCoods[4].x - 125, headCoods[4].y - 152);
+          faceapi.draw.drawDetections(videoRefs.current[myId].canvasRef, resizedDetections);
+          faceapi.draw.drawFaceLandmarks(videoRefs.current[myId].canvasRef, resizedDetections);
+        } else {
+          console.log(errCnt.current);
+          //       if (errCnt.current > 10) {
+          //         console.log("clearing now");
+          //         canvasRef.current.getContext("2d").clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+          //         errCnt.current = 0;
+        }
+        //       errCnt.current++;
+        //     }
+      } catch (err) {
+        console.log(err);
+      }
+    }, 100);
+  }
+
   const currMaxWidth = size === 1 ? useAbleMaxWidths[0] : size === 2 || size === 4 ? useAbleMaxWidths[1] : useAbleMaxWidths[2];
+  if (!modelsLoaded) {
+    return <div style={{ color: "white" }}>Loading</div>;
+  }
   return (
     <>
       <video
@@ -20,12 +87,33 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
         key={videoStream.userId}
         playsInline
         autoPlay
-        style={(videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video) ? { objectFit: "fill", maxWidth: currMaxWidth, maxHeight: "100%" } : { display: "none" }}
+        onPlaying={() => {
+          clearInterval(interval.current);
+          startCanvasDrawing();
+        }}
+        style={(videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video) ? { width: currMaxWidth, height: "100%", position: "absolute" } : { display: "none" }}
         ref={(videoRef) => {
+          if (videoRef) {
+            if (videoRefs.current[videoStream.userId] === undefined) videoRefs.current[videoStream.userId] = { videoRef };
+            else {
+              videoRefs.current[videoStream.userId].videoRef = videoRef;
+            }
+          }
           if (videoRef) videoRef.srcObject = videoStream.stream;
           return videoRef;
         }}
       />
+      <canvas
+        ref={(canvasRef) => {
+          if (canvasRef) {
+            if (videoRefs.current[videoStream.userId] === undefined) videoRefs.current[videoStream.userId] = { canvasRef };
+            else {
+              videoRefs.current[videoStream.userId].canvasRef = canvasRef;
+            }
+          }
+        }}
+        style={(videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video) ? { width: currMaxWidth, height: "100%", position: "absolute" } : { display: "none" }}
+      ></canvas>
       {!((videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)) && (
         <img src={videoStream.picurL} style={{ borderRadius: "100%", height: "auto", width: "25%", minWidth: "60px", maxWidth: "120px", display: "block" }} alt={videoStream.userName} />
       )}

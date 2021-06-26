@@ -53,6 +53,7 @@ export default function VideoCallArea(props) {
   let history = useHistory();
   const socket = useSocket();
   const [myId, setMyId] = useState(undefined);
+  const myIdRef = useRef();
   const connectedPeers = useRef({});
   const [videos, setVideos] = useState([]);
   const [audio, setAudio] = useState(true);
@@ -75,6 +76,7 @@ export default function VideoCallArea(props) {
   const [myPic, setMyPic] = useState(null);
   const [showChatPopUp, setShowChatPopUp] = useState(0);
   const [someOneSharingScreen, setSomeOneSharingScreen] = useState({ value: false, userId: null });
+  const someOneSharingScreenRef = useRef({ value: false, userId: null });
   const myPicRef = useRef();
   const myNameRef = useRef();
   useEffect(() => {
@@ -84,6 +86,7 @@ export default function VideoCallArea(props) {
       socket.off(event);
     });
     axios.get("/authenticated").then((response) => {
+      console.log("git to axios atleast");
       setMyName(response.data.name);
       setMyPic(response.data.picurL);
       myPicRef.current = response.data.picurL;
@@ -102,8 +105,13 @@ export default function VideoCallArea(props) {
           setAskForPermission((prev) => [...prev.filter((request) => request.socketId !== socketId)]);
         }
       });
-      socket.on("update-audio-video-state", ({ video: userVideo, audio: userAudio, userId, picurL: userPicUrl, name: userName }) => {
+      socket.on("update-audio-video-state", ({ video: userVideo, audio: userAudio, userId, picurL: userPicUrl, name: userName, screenShareStatus }) => {
         console.log("updated data", { userVideo, userAudio, userId });
+        console.log({ screenShareStatus });
+        if (someOneSharingScreenRef.current !== undefined && someOneSharingScreenRef.current.value === false) {
+          setSomeOneSharingScreen(screenShareStatus);
+          someOneSharingScreenRef.current = screenShareStatus;
+        }
         setVideos((prev) => {
           console.log(prev);
           prev.map((vid, key) => {
@@ -116,6 +124,7 @@ export default function VideoCallArea(props) {
               console.log(vid);
               console.log(prev[key]);
             }
+            return null;
           });
           console.log(prev);
           return [...prev];
@@ -144,6 +153,16 @@ export default function VideoCallArea(props) {
           return [...prev];
         });
       });
+      socket.on("starting-screen-share", (userId) => {
+        console.log("set true");
+        setSomeOneSharingScreen({ value: true, userId });
+        someOneSharingScreenRef.current = { value: true, userId };
+      });
+      socket.on("stopping-screen-share", () => {
+        console.log("seting false");
+        setSomeOneSharingScreen({ value: false, userId: null });
+        someOneSharingScreenRef.current = { value: false, userId: null };
+      });
       if (props.location.state === undefined) props.location.state = {};
       if (props.location.state.audio === undefined) {
         props.location.state.audio = true;
@@ -151,6 +170,7 @@ export default function VideoCallArea(props) {
       if (props.location.state.video === undefined) {
         props.location.state.video = false;
       }
+      console.log("exited axios properly");
       setCameraStreaming();
     });
 
@@ -179,19 +199,17 @@ export default function VideoCallArea(props) {
     try {
       let stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
-        video: {
-          width: { min: 1024, ideal: 1280, max: 1920 },
-          height: { min: 576, ideal: 720, max: 1080 },
-        },
+        video: true,
       });
       if (callback) {
         callback();
         setVideo(false);
-        setAudio(true);
-        audioStatus.current = true;
+        // setAudio(false);
+        // audioStatus.current = false;
         videoStatus.current = false;
-        console.log("setted audio video for this as true and false,respectively");
-        stream.getAudioTracks()[0].enabled = true;
+        console.log("setted audio video for this as false and false,respectively");
+        console.log(audioStatus.current);
+        stream.getAudioTracks()[0].enabled = audioStatus.current;
         stream.getVideoTracks()[0].enabled = false;
       } else {
         console.log("setted audio video for this as true and false,respectively");
@@ -227,6 +245,10 @@ export default function VideoCallArea(props) {
         // port: "3001",
       });
       toggleShareScreen.current.start = () => {
+        if (someOneSharingScreenRef.current.value === true) {
+          alert("Someone is already sharing their screen!");
+          return;
+        }
         console.log(videos);
         setScreenShareStream(() => {
           setSharingScreen(true);
@@ -243,8 +265,18 @@ export default function VideoCallArea(props) {
         });
       };
       console.log("before", { audio, video });
-      setUpSocketsAndPeerEvents({ socket, myPeer, stream, myPic });
+      setUpSocketsAndPeerEvents({ socket, myPeer, stream, myPic }, () => {
+        console.log("came here");
+        if (callback) {
+          console.log("sending stop screen share with userid", myIdRef.current);
+          const roomId = window.location.pathname.split("/")[2];
+          socket.emit("stopping-screen-share", { userId: myIdRef.current, roomId });
+          setSomeOneSharingScreen({ value: false, userId: null });
+          someOneSharingScreenRef.current = { value: false, userId: null };
+        }
+      });
     } catch (err) {
+      console.log("couldnt go to video streaming");
       console.log(err);
     }
   }
@@ -256,14 +288,17 @@ export default function VideoCallArea(props) {
         video: true,
         audio: true,
       });
-      setAudio(true);
-      audioStatus.current = true;
       if (callback) callback();
+      else {
+        setAudio(true);
+        audioStatus.current = true;
+      }
       connectedPeers.current = {};
       let tracks = [];
       tracks = tracks.concat(AudioStream.getAudioTracks());
       tracks = tracks.concat(ScreenShareStream.getVideoTracks());
       let stream = new MediaStream(tracks);
+      stream.isScreen = true;
       toggleAudio.current = () => {
         stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;
         audioStatus.current = !audioStatus.current;
@@ -300,17 +335,28 @@ export default function VideoCallArea(props) {
           console.log("disconnected the socket");
         });
       };
-      setUpSocketsAndPeerEvents({ socket, myPeer, stream, myPic });
+      setUpSocketsAndPeerEvents({ socket, myPeer, stream, myPic }, () => {
+        console.log("sending share screen from ", myIdRef.current);
+        const roomId = window.location.pathname.split("/")[2];
+        setSomeOneSharingScreen({ value: true, userId: myIdRef.current });
+        someOneSharingScreenRef.current = { value: true, userId: myIdRef.current };
+        socket.emit("starting-screen-share", { userId: myIdRef.current, roomId });
+      });
     } catch (err) {
       console.log(err);
     }
   }
 
-  function setUpSocketsAndPeerEvents({ socket, myPeer, stream, myPic }) {
+  function setUpSocketsAndPeerEvents({ socket, myPeer, stream, myPic }, cb) {
     console.log("here", audioStatus.current, videoStatus.current);
     myPeer.on("open", (userId) => {
+      console.log("changing from to", myIdRef.current, userId);
       setMyId(userId);
+      myIdRef.current = userId;
       console.log("setting in component", { audioStatus, videoStatus });
+      console.log("now cb is caled");
+      cb();
+      console.log("values after callback", someOneSharingScreenRef.current);
       setVideos((prev) => {
         console.log({ myPic });
         return [{ stream, userId, audio: audioStatus.current, video: videoStatus.current, picurL: myPicRef.current, userName: titleCase(myNameRef.current) }];
@@ -338,7 +384,16 @@ export default function VideoCallArea(props) {
           return prev;
         });
         // console.log("acknowledging connected users about the change", { video, audio });
-        socket.emit("acknowledge-connected-user", { video: videoStatus.current, audio: audioStatus.current, socketId, userId, roomId, picurL: myPicRef.current, name: myNameRef.current });
+        socket.emit("acknowledge-connected-user", {
+          video: videoStatus.current,
+          audio: audioStatus.current,
+          socketId,
+          userId,
+          roomId,
+          picurL: myPicRef.current,
+          name: myNameRef.current,
+          screenShareStatus: someOneSharingScreenRef.current,
+        });
       });
       call.on("close", () => {
         setVideos((prev) => {
@@ -348,8 +403,11 @@ export default function VideoCallArea(props) {
     });
     socket.on("user-disconnected", (userId) => {
       console.log("A user disconnected", userId);
-
       connectedPeers.current[userId].close();
+      if (someOneSharingScreenRef.current.userId === userId) {
+        setSomeOneSharingScreen({ value: false, userId: null });
+        someOneSharingScreenRef.current = { value: false, userId: null };
+      }
       delete connectedPeers[userId];
     });
     myPeer.on("call", (call) => {
@@ -415,7 +473,7 @@ export default function VideoCallArea(props) {
     setShowChatPopUp,
   };
   const participantDrawerProps = { waitingRoomOpen, setWaitingRoomOpen, videos, admitToMeeting, denyMeeting, askForPermission, myId };
-  const allVideoProps = { videos, classes, myId, speakerToggle, video, audio };
+  const allVideoProps = { someOneSharingScreen, videos, classes, myId, speakerToggle, video, audio };
   const chatProps = { chatOpen, setChatOpen, chatOpenRef, videos, myId, myNameRef, myPicRef, setShowChatPopUp };
   return (
     <div>
@@ -429,8 +487,8 @@ export default function VideoCallArea(props) {
           denyMeeting={denyMeeting}
         />
       )}
-      {/* <AllVideos {...allVideoProps} /> */}
-      <ScreenShare {...allVideoProps} />
+      {console.log(someOneSharingScreen)}
+      {someOneSharingScreen.value ? <ScreenShare {...allVideoProps} /> : <AllVideos {...allVideoProps} />}
       <Toolbar {...toolbarProps} />
       <ShowParticipantsDrawer {...participantDrawerProps} />
       <ChatDrawer {...chatProps} />

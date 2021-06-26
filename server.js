@@ -347,10 +347,11 @@ io.on("connection", (socket) => {
       socket.to(roomId).emit("user-disconnected", userId, { audio, video });
     });
   });
-  socket.on("acknowledge-connected-user", ({ socketId, video, audio, userId, roomId, picurL, name }) => {
+  socket.on("acknowledge-connected-user", ({ screenShareStatus, socketId, video, audio, userId, roomId, picurL, name }) => {
     console.log({ audio, video, roomId });
     console.log("sending to roomid now");
-    socket.to(socketId).emit("update-audio-video-state", { name, picurL, audio, video, userId: getUserIdBySocketId[socket.id] });
+    console.log({ screenShareStatus });
+    socket.to(socketId).emit("update-audio-video-state", { name, picurL, audio, video, userId: getUserIdBySocketId[socket.id], screenShareStatus });
   });
   socket.on("changed-audio-status", ({ status }) => {
     const roomId = Array.from(socket.rooms).pop();
@@ -373,6 +374,15 @@ io.on("connection", (socket) => {
         socket.to(getSocketIdByUserId[chat.to.userId]).emit("recieved-chat", chat);
       }
     }
+  });
+  //screen share start/stop
+  socket.on("stopping-screen-share", ({ userId, roomId }) => {
+    console.log({ userId, roomId });
+    socket.to(roomId).emit("stopping-screen-share", userId);
+  });
+  socket.on("starting-screen-share", ({ userId, roomId }) => {
+    console.log({ userId, roomId });
+    socket.to(roomId).emit("starting-screen-share", userId);
   });
 });
 

@@ -9,6 +9,7 @@ import Toolbar from "./Toolbar";
 import ShowParticipantsDrawer from "./ShowParticipantsDrawer";
 import AllVideos from "./AllVideos";
 import ChatDrawer from "./ChatDrawer";
+import ScreenShare from "./ScreenShare";
 const useStyles = makeStyles({
   bottomBar: {
     width: "98%",
@@ -73,6 +74,7 @@ export default function VideoCallArea(props) {
   const [myName, setMyName] = useState(null);
   const [myPic, setMyPic] = useState(null);
   const [showChatPopUp, setShowChatPopUp] = useState(0);
+  const [someOneSharingScreen, setSomeOneSharingScreen] = useState({ value: false, userId: null });
   const myPicRef = useRef();
   const myNameRef = useRef();
   useEffect(() => {
@@ -427,7 +429,8 @@ export default function VideoCallArea(props) {
           denyMeeting={denyMeeting}
         />
       )}
-      <AllVideos {...allVideoProps} />
+      {/* <AllVideos {...allVideoProps} /> */}
+      <ScreenShare {...allVideoProps} />
       <Toolbar {...toolbarProps} />
       <ShowParticipantsDrawer {...participantDrawerProps} />
       <ChatDrawer {...chatProps} />

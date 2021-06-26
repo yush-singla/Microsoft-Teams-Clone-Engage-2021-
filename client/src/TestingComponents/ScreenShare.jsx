@@ -11,7 +11,7 @@ export default function ScreenShare({ someOneSharingScreen, videos, classes, myI
             return (
               <video
                 autoPlay
-                muted
+                muted={videoStream === myId || speakerToggle}
                 style={{ maxHeight: "83vh", maxWidth: "100%", margin: "auto", display: "block" }}
                 ref={(videoRef) => {
                   if (videoRef) videoRef.srcObject = videoStream.stream;
@@ -20,6 +20,7 @@ export default function ScreenShare({ someOneSharingScreen, videos, classes, myI
               />
             );
           }
+          return null;
         })}
       </Grid>
       <Grid item xs={4}>
@@ -29,7 +30,7 @@ export default function ScreenShare({ someOneSharingScreen, videos, classes, myI
               return (
                 <video
                   autoPlay
-                  muted
+                  muted={myId === videoStream.userId || speakerToggle}
                   style={{ width: "100%" }}
                   ref={(videoRef) => {
                     if (videoRef) videoRef.srcObject = videoStream.stream;

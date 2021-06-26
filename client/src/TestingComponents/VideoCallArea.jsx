@@ -286,7 +286,6 @@ export default function VideoCallArea(props) {
       let AudioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       let ScreenShareStream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
-        audio: true,
       });
       if (callback) callback();
       else {
@@ -297,9 +296,13 @@ export default function VideoCallArea(props) {
       let tracks = [];
       tracks = tracks.concat(AudioStream.getAudioTracks());
       tracks = tracks.concat(ScreenShareStream.getVideoTracks());
-      let stream = new MediaStream(tracks);
-      stream.isScreen = true;
+      const stream = new MediaStream();
+      tracks.forEach((track) => {
+        stream.addTrack(track);
+      });
+      stream.getAudioTracks()[0].enabled = audioStatus.current;
       toggleAudio.current = () => {
+        console.log(stream.getAudioTracks()[0]);
         stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;
         audioStatus.current = !audioStatus.current;
         setAudio((prev) => !prev);
@@ -487,7 +490,6 @@ export default function VideoCallArea(props) {
           denyMeeting={denyMeeting}
         />
       )}
-      {console.log(someOneSharingScreen)}
       {someOneSharingScreen.value ? <ScreenShare {...allVideoProps} /> : <AllVideos {...allVideoProps} />}
       <Toolbar {...toolbarProps} />
       <ShowParticipantsDrawer {...participantDrawerProps} />

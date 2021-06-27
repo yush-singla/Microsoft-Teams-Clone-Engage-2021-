@@ -145,7 +145,7 @@ export default function Toolbar({
                           socket.emit("start-sticker", myId, roomId, key);
                         }}
                       >
-                        <img src={sticker} alt={"sticker"} style={{ width: "5vw" }} />
+                        <img src={sticker} alt={"sticker"} style={{ width: "5vw", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }} />
                       </IconButton>
                     </Grid>
                   </>

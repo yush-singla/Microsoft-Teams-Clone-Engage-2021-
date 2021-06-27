@@ -11,5 +11,6 @@ import glasses from "../assets/images/glasses.png";
 import jokernose from "../assets/images/jokernose.png";
 import joker from "../assets/images/joker.png";
 import beard from "../assets/images/beard.png";
-const allStickers = [blueMonster, clown, frankenstein, mummy, pumpkin, redMonster, skull, vampire, wereWolf, glasses, jokernose, joker, beard];
+import cigar from "../assets/images/cigar.png";
+const allStickers = [blueMonster, clown, frankenstein, mummy, pumpkin, redMonster, skull, vampire, wereWolf, glasses, jokernose, joker, beard, cigar];
 export default allStickers;

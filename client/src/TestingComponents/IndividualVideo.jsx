@@ -82,7 +82,7 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
             const noseCoods = resizedDetections[0].landmarks.getNose();
             const headCoods = resizedDetections[0].landmarks.getLeftEyeBrow();
             const jawCoods = resizedDetections[0].landmarks.getJawOutline();
-            console.log(jawCoods);
+            // console.log(jawCoods);
             // console.log(noseCoods);
             //       // console.log(headCoods);
             videoRefs.current[myId].canvasRef.getContext("2d").clearRect(0, 0, videoRefs.current[myId].canvasRef.width, videoRefs.current[myId].canvasRef.height);

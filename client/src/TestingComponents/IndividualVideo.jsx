@@ -93,8 +93,9 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
     stopInterval.current = () => {
       clearInterval(clearMe.current);
       setTimeout(() => {
+        console.log("stopped boooom");
         videoRefs.current[myId].canvasRef.getContext("2d").clearRect(0, 0, videoRefs.current[myId].canvasRef.width, videoRefs.current[myId].canvasRef.height);
-      }, 800);
+      }, 2000);
     };
     // startInterval.current();
   }

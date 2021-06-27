@@ -384,9 +384,9 @@ io.on("connection", (socket) => {
     // console.log({ userId, roomId });
     socket.to(roomId).emit("starting-screen-share", userId);
   });
-  socket.on("start-sticker", (userId, roomId) => {
+  socket.on("start-sticker", (userId, roomId, key) => {
     console.log({ userId, roomId });
-    io.in(roomId).emit("start-sticker", userId);
+    io.in(roomId).emit("start-sticker", userId, key);
   });
   socket.on("stop-sticker", (userId, roomId) => {
     console.log("stopping in this room");

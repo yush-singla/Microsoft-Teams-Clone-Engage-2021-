@@ -1,5 +1,5 @@
-import React from "react";
-import { Paper, Box, Tooltip, IconButton, Badge } from "@material-ui/core";
+import React, { useState } from "react";
+import { Paper, Box, Tooltip, IconButton, Badge, Modal, Grid, Typography } from "@material-ui/core";
 import PeopleIcon from "@material-ui/icons/People";
 import CallEndIcon from "@material-ui/icons/CallEnd";
 import MicOffIcon from "@material-ui/icons/MicOff";
@@ -13,6 +13,7 @@ import VolumeOffIcon from "@material-ui/icons/VolumeOff";
 import { useSocket } from "../utils/SocketProvider";
 import ChatIcon from "@material-ui/icons/Chat";
 import AnnouncementIcon from "@material-ui/icons/Announcement";
+import allStickers from "../utils/StickerProvider";
 // import { useSocketf } from "../utils/SocketProvider";
 export default function Toolbar({
   audio,
@@ -37,6 +38,7 @@ export default function Toolbar({
   myId,
 }) {
   const socket = useSocket();
+  const [openStickerModal, setOpenStickerModal] = useState(false);
   return (
     <Paper className={classes.bottomBar}>
       <Box textAlign="center">
@@ -114,13 +116,44 @@ export default function Toolbar({
           </IconButton>
         </Tooltip>
         <button
+          type="button"
           onClick={() => {
-            const roomId = window.location.pathname.split("/")[2];
-            socket.emit("start-sticker", myId, roomId);
+            setOpenStickerModal(true);
           }}
         >
-          Start sticker
+          Add Sticker
         </button>
+        <Modal
+          open={openStickerModal}
+          onClose={() => {
+            setOpenStickerModal(false);
+          }}
+        >
+          <div style={{ backgroundColor: "white", height: "60vh", width: "40vw", margin: "auto", marginTop: "18vh", overflowY: "scroll" }}>
+            <Grid container>
+              <Grid xs={12} item style={{ textAlign: "center" }}>
+                <Typography variant="h4">Choose your favourite stickers!</Typography>
+              </Grid>
+              {allStickers.map((sticker, key) => {
+                return (
+                  <>
+                    <Grid item xs={4} style={{ textAlign: "center" }}>
+                      <IconButton
+                        onClick={() => {
+                          setOpenStickerModal(false);
+                          const roomId = window.location.pathname.split("/")[2];
+                          socket.emit("start-sticker", myId, roomId, key);
+                        }}
+                      >
+                        <img src={sticker} alt={"sticker"} style={{ width: "5vw" }} />
+                      </IconButton>
+                    </Grid>
+                  </>
+                );
+              })}
+            </Grid>
+          </div>
+        </Modal>
         <button
           onClick={() => {
             const roomId = window.location.pathname.split("/")[2];

@@ -2,15 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Paper, Box, makeStyles, Grid, StylesProvider } from "@material-ui/core";
 import * as faceapi from "face-api.js";
 import { useSocket } from "../utils/SocketProvider";
-import blueMonster from "../assets/images/overlay-blue-monster.png";
-import clown from "../assets/images/overlay-clown.png";
-import frankenstein from "../assets/images/overlay-frankenstein.png";
-import mummy from "../assets/images/overlay-mummy.png";
-import pumpkin from "../assets/images/overlay-pumpkin.png";
-import redMonster from "../assets/images/overlay-red-monster.png";
-import skull from "../assets/images/overlay-skull.png";
-import vampire from "../assets/images/overlay-vampire.png";
-import wereWolf from "../assets/images/overlay-werewolf.png";
+import allStickers from "../utils/StickerProvider";
 
 // import joker from "../assets/images/CHAT_PNG.png";
 const useStyles = makeStyles({
@@ -33,16 +25,17 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
   useEffect(() => {
     startVideo();
     img.current = new Image();
-    img.current.src = skull;
   }, []);
   useEffect(() => {
     if (typeof stopInterval.current === "function") {
       stopInterval.current();
     }
-    socket.on("start-sticker", (userId) => {
+    socket.on("start-sticker", (userId, key) => {
       console.log("recieved");
       if (userId === videoStream.userId) {
-        startInterval.current();
+        if (typeof stopInterval.current === "function") stopInterval.current();
+        if (img.current) img.current.src = allStickers[key];
+        if (typeof startInterval.current === "function") startInterval.current();
       }
     });
     socket.on("stop-sticker", (userId) => {
@@ -151,7 +144,11 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
           // if (typeof stopInterval.current === "function") stopInterval.current();
           startCanvasDrawing();
         }}
-        style={(videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video) ? { width: currMaxWidth, height: "100%", position: "absolute" } : { display: "none" }}
+        style={
+          (videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)
+            ? { width: currMaxWidth, height: "100%", position: "absolute", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }
+            : { display: "none" }
+        }
         ref={(videoRef) => {
           if (videoRef) {
             if (videoRefs.current[videoStream.userId] === undefined) videoRefs.current[videoStream.userId] = { videoRef };
@@ -172,7 +169,11 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
             }
           }
         }}
-        style={(videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video) ? { width: currMaxWidth, height: "100%", position: "absolute" } : { display: "none" }}
+        style={
+          (videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)
+            ? { width: currMaxWidth, height: "100%", position: "absolute", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }
+            : { display: "none" }
+        }
       ></canvas>
       {!((videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)) && (
         <img src={videoStream.picurL} style={{ borderRadius: "100%", height: "auto", width: "25%", minWidth: "60px", maxWidth: "120px", display: "block" }} alt={videoStream.userName} />

@@ -13,6 +13,7 @@ import VolumeOffIcon from "@material-ui/icons/VolumeOff";
 import { useSocket } from "../utils/SocketProvider";
 import ChatIcon from "@material-ui/icons/Chat";
 import AnnouncementIcon from "@material-ui/icons/Announcement";
+// import { useSocketf } from "../utils/SocketProvider";
 export default function Toolbar({
   audio,
   toggleAudio,
@@ -29,6 +30,11 @@ export default function Toolbar({
   showChatPopUp,
   setShowChatPopUp,
   chatOpenRef,
+  startMaskSticker,
+  setStartMaskSticker,
+  startInterval,
+  stopInterval,
+  myId,
 }) {
   const socket = useSocket();
   return (
@@ -107,6 +113,22 @@ export default function Toolbar({
             )}
           </IconButton>
         </Tooltip>
+        <button
+          onClick={() => {
+            const roomId = window.location.pathname.split("/")[2];
+            socket.emit("start-sticker", myId, roomId);
+          }}
+        >
+          Start sticker
+        </button>
+        <button
+          onClick={() => {
+            const roomId = window.location.pathname.split("/")[2];
+            socket.emit("stop-sticker", myId, roomId);
+          }}
+        >
+          Stop Sticker
+        </button>
       </Box>
     </Paper>
   );

@@ -10,6 +10,7 @@ import ShowParticipantsDrawer from "./ShowParticipantsDrawer";
 import AllVideos from "./AllVideos";
 import ChatDrawer from "./ChatDrawer";
 import ScreenShare from "./ScreenShare";
+import * as faceapi from "face-api.js";
 const useStyles = makeStyles({
   bottomBar: {
     width: "98%",
@@ -78,9 +79,35 @@ export default function VideoCallArea(props) {
   const [showChatPopUp, setShowChatPopUp] = useState(0);
   const [someOneSharingScreen, setSomeOneSharingScreen] = useState({ value: false, userId: null });
   const someOneSharingScreenRef = useRef({ value: false, userId: null });
+  const [startMaskSticker, setStartMaskSticker] = useState(false);
+  const stopInterval = useRef();
+  const startInterval = useRef();
   const myPicRef = useRef();
   const myNameRef = useRef();
+  const loadModels = async () => {
+    Promise.all([
+      faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
+      faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
+      faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
+      faceapi.nets.faceExpressionNet.loadFromUri("/models"),
+    ])
+      .then(setUp)
+      .catch((err) => console.log(err));
+  };
   useEffect(() => {
+    loadModels();
+
+    return () => {
+      const events = ["user-connected", "user-disconnected", "changed-video-status-reply", "changed-audio-status-reply", "update-audio-video-state", "req-to-join-room"];
+      events.forEach((event) => {
+        console.log("turnning off", event);
+        socket.off(event);
+      });
+      socket.disconnect();
+      // myPeer.disconnect();
+    };
+  }, []);
+  const setUp = () => {
     const events = ["user-connected", "user-disconnected", "changed-video-status-reply", "changed-audio-status-reply", "update-audio-video-state", "req-to-join-room"];
     events.forEach((event) => {
       console.log("turnning off", event);
@@ -174,17 +201,7 @@ export default function VideoCallArea(props) {
       console.log("exited axios properly");
       setCameraStreaming();
     });
-
-    return () => {
-      const events = ["user-connected", "user-disconnected", "changed-video-status-reply", "changed-audio-status-reply", "update-audio-video-state", "req-to-join-room"];
-      events.forEach((event) => {
-        console.log("turnning off", event);
-        socket.off(event);
-      });
-      socket.disconnect();
-      // myPeer.disconnect();
-    };
-  }, []);
+  };
   function titleCase(str) {
     if (str === undefined) return "";
     var splitStr = str.toLowerCase().split(" ");
@@ -475,9 +492,14 @@ export default function VideoCallArea(props) {
     chatOpenRef,
     showChatPopUp,
     setShowChatPopUp,
+    setStartMaskSticker,
+    startMaskSticker,
+    startInterval,
+    stopInterval,
+    myId,
   };
   const participantDrawerProps = { waitingRoomOpen, setWaitingRoomOpen, videos, admitToMeeting, denyMeeting, askForPermission, myId };
-  const allVideoProps = { someOneSharingScreen, videos, classes, myId, speakerToggle, video, audio };
+  const allVideoProps = { startInterval, stopInterval, startMaskSticker, someOneSharingScreen, videos, classes, myId, speakerToggle, video, audio };
   const chatProps = { chatOpen, setChatOpen, chatOpenRef, videos, myId, myNameRef, myPicRef, setShowChatPopUp };
   return (
     <div>

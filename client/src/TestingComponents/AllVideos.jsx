@@ -4,11 +4,13 @@ import { Box } from "@material-ui/core";
 import MicIcon from "@material-ui/icons/Mic";
 import MicOffIcon from "@material-ui/icons/MicOff";
 const usableHeights = ["90%", "75%", "60%", "45%"];
-export default function AllVideos({ videos, classes, myId, speakerToggle, video, audio }) {
+const usableWidths = ["420vw,42vw,31vw,36vw"];
+export default function AllVideos({ startInterval, stopInterval, startMaskSticker, videos, classes, myId, speakerToggle, video, audio }) {
   return (
     <Box className={classes.videoContainer}>
       {videos.map((videoStream, key) => {
         const currHeight = videos.length === 1 ? usableHeights[0] : videos.length === 2 ? usableHeights[1] : videos.length === 3 ? usableHeights[2] : usableHeights[3];
+        const currentWidth = videos.length === 1 ? usableWidths[0] : videos.length === 2 ? usableWidths[1] : videos.length === 3 ? usableWidths[2] : usableWidths[3];
         return (
           <>
             <Box
@@ -17,7 +19,19 @@ export default function AllVideos({ videos, classes, myId, speakerToggle, video,
               style={{ backgroundColor: "black", textAlign: "center", margin: "0 1%", minWidth: videos.length === 4 ? "32%" : "30%", height: currHeight, position: "relative" }}
             >
               <Box className={classes.videoContainerGrandChild}>
-                <IndividualVideo size={videos.length} key={videoStream.userId} videoStream={videoStream} myId={myId} classes={classes} speakerToggle={speakerToggle} video={video} audio={audio} />
+                <IndividualVideo
+                  startMaskSticker={startMaskSticker}
+                  size={videos.length}
+                  key={videoStream.userId}
+                  videoStream={videoStream}
+                  myId={myId}
+                  classes={classes}
+                  speakerToggle={speakerToggle}
+                  video={video}
+                  audio={audio}
+                  startInterval={videoStream.userId === myId && startInterval}
+                  stopInterval={videoStream.userId === myId && stopInterval}
+                />
               </Box>
               <Box
                 style={{

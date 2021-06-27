@@ -377,12 +377,21 @@ io.on("connection", (socket) => {
   });
   //screen share start/stop
   socket.on("stopping-screen-share", ({ userId, roomId }) => {
-    console.log({ userId, roomId });
+    // console.log({ userId, roomId });
     socket.to(roomId).emit("stopping-screen-share", userId);
   });
   socket.on("starting-screen-share", ({ userId, roomId }) => {
-    console.log({ userId, roomId });
+    // console.log({ userId, roomId });
     socket.to(roomId).emit("starting-screen-share", userId);
+  });
+  socket.on("start-sticker", (userId, roomId) => {
+    console.log({ userId, roomId });
+    io.in(roomId).emit("start-sticker", userId);
+  });
+  socket.on("stop-sticker", (userId, roomId) => {
+    console.log("stopping in this room");
+    console.log({ userId, roomId });
+    io.in(roomId).emit("stop-sticker", userId);
   });
 });
 

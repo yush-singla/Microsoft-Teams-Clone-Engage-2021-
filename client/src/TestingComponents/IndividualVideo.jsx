@@ -1,7 +1,17 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Paper, Box, makeStyles, Grid } from "@material-ui/core";
+import { Paper, Box, makeStyles, Grid, StylesProvider } from "@material-ui/core";
 import * as faceapi from "face-api.js";
 import { useSocket } from "../utils/SocketProvider";
+import blueMonster from "../assets/images/overlay-blue-monster.png";
+import clown from "../assets/images/overlay-clown.png";
+import frankenstein from "../assets/images/overlay-frankenstein.png";
+import mummy from "../assets/images/overlay-mummy.png";
+import pumpkin from "../assets/images/overlay-pumpkin.png";
+import redMonster from "../assets/images/overlay-red-monster.png";
+import skull from "../assets/images/overlay-skull.png";
+import vampire from "../assets/images/overlay-vampire.png";
+import wereWolf from "../assets/images/overlay-werewolf.png";
+
 // import joker from "../assets/images/CHAT_PNG.png";
 const useStyles = makeStyles({
   videoAltImg: {
@@ -9,7 +19,7 @@ const useStyles = makeStyles({
   },
 });
 
-const useAbleMaxWidths = ["56vw", "43vw", "30vw"];
+const useAbleMaxWidths = ["49vw", "43vw", "30vw"];
 
 export default function IndividualVideo({ key, myId, speakerToggle, videoStream, video, audio, size }) {
   const [modelsLoaded, setModelsLoaded] = useState(false);
@@ -22,7 +32,15 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
   const socket = useSocket();
   useEffect(() => {
     startVideo();
+    img.current = new Image();
+    img.current.src = skull;
+  }, []);
+  useEffect(() => {
+    if (typeof stopInterval.current === "function") {
+      stopInterval.current();
+    }
     socket.on("start-sticker", (userId) => {
+      console.log("recieved");
       if (userId === videoStream.userId) {
         startInterval.current();
       }
@@ -33,13 +51,15 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
       }
     });
     return () => {
-      stopInterval.current();
+      console.log("stopping this sticker", videoStream.userId);
+      if (typeof stopInterval.current === "function") stopInterval.current();
       const turnOff = ["start-sticker", "stop-sticker"];
       turnOff.forEach((turn) => {
         socket.off(turn);
       });
     };
-  }, []);
+  }, [size]);
+
   function startVideo() {
     console.log("starting now");
     setModelsLoaded(true);
@@ -69,22 +89,30 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
             const noseCoods = resizedDetections[0].landmarks.getNose();
             const headCoods = resizedDetections[0].landmarks.getLeftEyeBrow();
             const jawCoods = resizedDetections[0].landmarks.getJawOutline();
-            // console.log(jawCoods);
+            console.log(jawCoods);
             // console.log(noseCoods);
             //       // console.log(headCoods);
             videoRefs.current[myId].canvasRef.getContext("2d").clearRect(0, 0, videoRefs.current[myId].canvasRef.width, videoRefs.current[myId].canvasRef.height);
-            // videoRefs.current[myId].canvasRef.getContext("2d").drawImage(img.current, jawCoods[4].x - 125, headCoods[4].y - 152);
-            faceapi.draw.drawDetections(videoRefs.current[myId].canvasRef, resizedDetections);
-            faceapi.draw.drawFaceLandmarks(videoRefs.current[myId].canvasRef, resizedDetections);
+            videoRefs.current[myId].canvasRef
+              .getContext("2d")
+              .drawImage(
+                img.current,
+                jawCoods[4].x - (jawCoods[16].x - jawCoods[0].x) * 0.48,
+                jawCoods[0].y - (jawCoods[8].y - headCoods[3].y) * 0.9,
+                (jawCoods[16].x - jawCoods[0].x) * 1.7,
+                (jawCoods[8].y - headCoods[3].y) * 1.8
+              );
+            // faceapi.draw.drawDetections(videoRefs.current[myId].canvasRef, resizedDetections);
+            // faceapi.draw.drawFaceLandmarks(videoRefs.current[myId].canvasRef, resizedDetections);
           } else {
             console.log(errCnt.current);
-            //       if (errCnt.current > 10) {
-            //         console.log("clearing now");
-            //         canvasRef.current.getContext("2d").clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-            //         errCnt.current = 0;
+            if (errCnt.current > 10) {
+              console.log("clearing now");
+              videoRefs.current[myId].canvasRef.getContext("2d").clearRect(0, 0, videoRefs.current[myId].canvasRef.width, videoRefs.current[myId].canvasRef.height);
+              errCnt.current = 0;
+            }
+            errCnt.current++;
           }
-          //       errCnt.current++;
-          //     }
         } catch (err) {
           console.log(err);
         }
@@ -95,7 +123,15 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
       setTimeout(() => {
         console.log("stopped boooom");
         videoRefs.current[myId].canvasRef.getContext("2d").clearRect(0, 0, videoRefs.current[myId].canvasRef.width, videoRefs.current[myId].canvasRef.height);
+      }, 800);
+      setTimeout(() => {
+        console.log("stopped boooom");
+        videoRefs.current[myId].canvasRef.getContext("2d").clearRect(0, 0, videoRefs.current[myId].canvasRef.width, videoRefs.current[myId].canvasRef.height);
       }, 2000);
+      setTimeout(() => {
+        console.log("stopped boooom");
+        videoRefs.current[myId].canvasRef.getContext("2d").clearRect(0, 0, videoRefs.current[myId].canvasRef.width, videoRefs.current[myId].canvasRef.height);
+      }, 2600);
     };
     // startInterval.current();
   }

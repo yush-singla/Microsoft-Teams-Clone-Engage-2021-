@@ -11,7 +11,7 @@ const useStyles = makeStyles({
   },
 });
 
-const useAbleMaxWidths = ["49vw", "43vw", "30vw"];
+const useAbleMaxWidths = ["49vw", "43vw", "29vw"];
 
 export default function IndividualVideo({ key, myId, speakerToggle, videoStream, video, audio, size }) {
   const [modelsLoaded, setModelsLoaded] = useState(false);
@@ -34,7 +34,14 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
       console.log("recieved");
       if (userId === videoStream.userId) {
         if (typeof stopInterval.current === "function") stopInterval.current();
-        if (img.current) img.current.src = allStickers[key];
+        if (img.current) {
+          const currImg = allStickers[key];
+          console.log(currImg);
+          const currImgName = Object.keys(currImg)[0];
+          console.log(currImgName);
+          img.current.src = currImg[currImgName];
+          console.log(img.current.src);
+        }
         if (typeof startInterval.current === "function") startInterval.current();
       }
     });

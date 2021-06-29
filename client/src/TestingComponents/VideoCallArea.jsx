@@ -4,13 +4,16 @@ import Peer from "peerjs";
 import { useHistory } from "react-router";
 import AlertDialog from "../components/DialogBox";
 import axios from "axios";
-import { makeStyles } from "@material-ui/core";
+import { makeStyles, Typography } from "@material-ui/core";
 import Toolbar from "./Toolbar";
 import ShowParticipantsDrawer from "./ShowParticipantsDrawer";
 import AllVideos from "./AllVideos";
 import ChatDrawer from "./ChatDrawer";
 import ScreenShare from "./ScreenShare";
 import * as faceapi from "face-api.js";
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
+import Loader from "react-loader-spinner";
+
 const useStyles = makeStyles({
   bottomBar: {
     width: "98%",
@@ -501,6 +504,19 @@ export default function VideoCallArea(props) {
   const participantDrawerProps = { waitingRoomOpen, setWaitingRoomOpen, videos, admitToMeeting, denyMeeting, askForPermission, myId };
   const allVideoProps = { startInterval, stopInterval, startMaskSticker, someOneSharingScreen, videos, classes, myId, speakerToggle, video, audio };
   const chatProps = { chatOpen, setChatOpen, chatOpenRef, videos, myId, myNameRef, myPicRef, setShowChatPopUp };
+  if (videos.length === 0)
+    return (
+      <div style={{ position: "absolute", top: "45vh", left: "40vw", textAlign: "center" }}>
+        <Loader
+          type="Puff"
+          color="#00BFFF"
+          height={100}
+          width={100}
+          timeout={3000} //3 secs
+        />
+        <Typography>Setting up the meet for You</Typography>
+      </div>
+    );
   return (
     <div>
       {openDialogBox && (

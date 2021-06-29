@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Paper, Box, Tooltip, IconButton, Badge, Modal, Grid, Typography } from "@material-ui/core";
+import React, { useState, useRef } from "react";
+import { Paper, Box, Tooltip, IconButton, Badge, Modal, Grid, Typography, Popover } from "@material-ui/core";
 import PeopleIcon from "@material-ui/icons/People";
 import CallEndIcon from "@material-ui/icons/CallEnd";
 import MicOffIcon from "@material-ui/icons/MicOff";
@@ -14,6 +14,8 @@ import { useSocket } from "../utils/SocketProvider";
 import ChatIcon from "@material-ui/icons/Chat";
 import AnnouncementIcon from "@material-ui/icons/Announcement";
 import allStickers from "../utils/StickerProvider";
+import KeyboardBackspaceIcon from "@material-ui/icons/KeyboardBackspace";
+import CameraFrontIcon from "@material-ui/icons/CameraFront";
 // import { useSocketf } from "../utils/SocketProvider";
 export default function Toolbar({
   audio,
@@ -39,6 +41,9 @@ export default function Toolbar({
 }) {
   const socket = useSocket();
   const [openStickerModal, setOpenStickerModal] = useState(false);
+  const [isStickerSet, setIsStickerSet] = useState(false);
+  const [openPopover, setOpenPopover] = useState(false);
+  const anchorForPopup = useRef();
   return (
     <Paper className={classes.bottomBar}>
       <Box textAlign="center">
@@ -115,14 +120,45 @@ export default function Toolbar({
             )}
           </IconButton>
         </Tooltip>
-        <button
-          type="button"
-          onClick={() => {
-            setOpenStickerModal(true);
-          }}
-        >
-          Add Sticker
-        </button>
+        {!sharingScreen && (
+          <>
+            <Tooltip title={"Add sticker and masks"}>
+              <IconButton
+                type="button"
+                ref={anchorForPopup}
+                onClick={() => {
+                  if (video) setOpenStickerModal(true);
+                  else {
+                    setOpenPopover(true);
+                    setTimeout(() => {
+                      setOpenPopover(false);
+                    }, 1000);
+                  }
+                }}
+              >
+                <CameraFrontIcon />
+              </IconButton>
+            </Tooltip>
+            <Popover
+              open={openPopover}
+              anchorEl={anchorForPopup.current}
+              onClose={() => {
+                setOpenPopover(false);
+              }}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "left",
+              }}
+              transformOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+            >
+              <Typography>Turn on the video first</Typography>
+            </Popover>
+          </>
+        )}
+
         <Modal
           open={openStickerModal}
           onClose={() => {
@@ -131,37 +167,53 @@ export default function Toolbar({
         >
           <div style={{ backgroundColor: "white", height: "60vh", width: "40vw", margin: "auto", marginTop: "18vh", overflowY: "scroll" }}>
             <Grid container>
-              <Grid xs={12} item style={{ textAlign: "center" }}>
-                <Typography variant="h4">Choose your favourite stickers!</Typography>
+              <Grid xs={12} item style={{ textAlign: "center", position: "relative" }}>
+                <Tooltip title="Go Back">
+                  <IconButton
+                    style={{ position: "absolute", top: "0", left: "0" }}
+                    onClick={() => {
+                      setOpenStickerModal(false);
+                    }}
+                  >
+                    <KeyboardBackspaceIcon />
+                  </IconButton>
+                </Tooltip>
+                <Typography variant="h5">Choose your favourite stickers!</Typography>
               </Grid>
               {allStickers.map((sticker, key) => {
+                //key here is the actual name of the variable/sticker
+                const nameOfSticker = Object.keys(sticker)[0];
                 return (
-                  <>
-                    <Grid item xs={4} style={{ textAlign: "center" }}>
+                  <Grid key={JSON.stringify(sticker)} item xs={4} style={{ textAlign: "center" }}>
+                    <Tooltip title={nameOfSticker}>
                       <IconButton
                         onClick={() => {
                           setOpenStickerModal(false);
+                          setIsStickerSet(true);
                           const roomId = window.location.pathname.split("/")[2];
                           socket.emit("start-sticker", myId, roomId, key);
                         }}
                       >
-                        <img src={sticker} alt={"sticker"} style={{ width: "5vw", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }} />
+                        <img src={sticker[nameOfSticker]} alt={"sticker"} style={{ width: "5vw", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }} />
                       </IconButton>
-                    </Grid>
-                  </>
+                    </Tooltip>
+                  </Grid>
                 );
               })}
             </Grid>
           </div>
         </Modal>
-        <button
-          onClick={() => {
-            const roomId = window.location.pathname.split("/")[2];
-            socket.emit("stop-sticker", myId, roomId);
-          }}
-        >
-          Stop Sticker
-        </button>
+        {isStickerSet && (
+          <button
+            onClick={() => {
+              setIsStickerSet(false);
+              const roomId = window.location.pathname.split("/")[2];
+              socket.emit("stop-sticker", myId, roomId);
+            }}
+          >
+            Stop Sticker
+          </button>
+        )}
       </Box>
     </Paper>
   );

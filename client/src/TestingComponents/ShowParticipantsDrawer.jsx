@@ -2,7 +2,7 @@ import React from "react";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import RemoveCircleIcon from "@material-ui/icons/RemoveCircle";
 import { Drawer, Typography, Divider, Tooltip, Grid, IconButton, Box, makeStyles } from "@material-ui/core";
-
+import KeyboardBackspaceIcon from "@material-ui/icons/KeyboardBackspace";
 const useStyles = makeStyles({
   mainBox: {
     minWidth: "25vw",
@@ -25,8 +25,20 @@ export default function ShowParticipantsDrawer({ myId, waitingRoomOpen, setWaiti
       }}
     >
       <Box className={classes.mainBox}>
-        <Box textAlign="center">
-          <Typography variant="h4">Participants</Typography>
+        <Box textAlign="center" position="relative">
+          <Tooltip title="Go Back">
+            <IconButton
+              style={{ position: "absolute", top: "0", left: "0" }}
+              onClick={() => {
+                setWaitingRoomOpen(false);
+              }}
+            >
+              <KeyboardBackspaceIcon />
+            </IconButton>
+          </Tooltip>
+          <Typography variant="h4" component="span">
+            Participants
+          </Typography>
         </Box>
         <Divider />
         <Box className={classes.participants}>

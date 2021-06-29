@@ -15,5 +15,22 @@ import cigar from "../assets/images/cigar.png";
 import hairband from "../assets/images/hairband.png";
 import mask from "../assets/images/mask.png";
 
-const allStickers = [blueMonster, clown, frankenstein, mummy, pumpkin, redMonster, skull, vampire, wereWolf, glasses, jokernose, joker, beard, cigar, hairband, mask];
+const allStickers = [
+  { blueMonster },
+  { clown },
+  { frankenstein },
+  { mummy },
+  { pumpkin },
+  { redMonster },
+  { skull },
+  { vampire },
+  { wereWolf },
+  { glasses },
+  { jokernose },
+  { joker },
+  { beard },
+  { cigar },
+  { hairband },
+  { mask },
+];
 export default allStickers;

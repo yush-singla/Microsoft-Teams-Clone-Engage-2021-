@@ -5,21 +5,19 @@ import { Icon, Menu, MenuItem, Button, Box, Paper, makeStyles, TextField, Grid, 
 import { ArrowForward, VideoCall } from "@material-ui/icons";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import CarouselComponent from "./CarouselComponent";
-import Typewriter from "typewriter-effect";
+// import Typewriter from "typewriter-effect";
 import GTranslateIcon from "@material-ui/icons/GTranslate";
 import FacebookIcon from "@material-ui/icons/Facebook";
 import GitHubIcon from "@material-ui/icons/GitHub";
 import { useLogin } from "../utils/LoginProvider";
 import handleSignIn from "../utils/handleSignIn";
+import chartImg from "../assets/images/chart.png";
 const useStyles = makeStyles({
   joinButtons: {
     overflow: "hidden",
   },
   alignButtons: {
     flexDirection: "column-reverse",
-  },
-  buttonPadding: {
-    paddingTop: "12px",
   },
   Modal: {
     position: "absolute",
@@ -210,53 +208,57 @@ export default function Home() {
       </Modal>
       <Box py={2} className={classes.joinButtons}>
         <Grid container spacing={1} className={classes.joinButtons}>
-          <Grid item xs={12} md={8}>
-            <Box pt={isDesktop ? 7 : 1} ml={isDesktop && 5} mr={isDesktop ? 20 : 1} textAlign="center">
-              <Box pt={2} mx={4}>
-                <Typography variant="h2">Welcome To Microsoft Teams!</Typography>
+          <Grid item xs={12} md={6}>
+            <Box pt={isDesktop ? 5 : 1} ml={isDesktop && 5} mr={isDesktop ? 3 : 1} textAlign="left">
+              <Box pt={2} pl={3}>
+                <Typography variant="h2">Welcome To Microsoft Teams</Typography>
                 <Box mt={4} mb={6} style={{ fontSize: "1.6rem", fontWeight: "bolder" }}>
-                  {/* <Typography variant="h4">Typewriter Typing comes here</Typography> */}
-                  <Typewriter
+                  <Typography variant="h4">Keeping You Connected</Typography>
+                  {/* <Typewriter
                     options={{ loop: true }}
                     onInit={(typewriter) => {
                       typewriter
-                        .typeString("<span>Just Create meeting!</span>")
+                        .typeString("<span>Create new Meet!</span>")
                         .pauseFor(1000)
-                        .deleteChars(15)
+                        .deleteChars(16)
                         .typeString("<span>Share the link!</span>")
                         .pauseFor(1000)
                         .deleteChars(15)
                         .typeString("<span> Enjoy the meeting!</span>")
                         .deleteChars(18)
+                        // .typeString("<span>Share your screen</span>")
+                        // .deleteChars(17)
+                        // .typeString("<span>Built in Chat!</span>")
+                        // .deleteChars(14)
+                        // .typeString("<span>Cool Stickers</span>")
+                        // .deleteChars(13)
                         .start();
                     }}
-                  />
+                  /> */}
                 </Box>
                 <Typography>
-                  Excepteur ut in minim cillum exercitation culpa. Ex fugiat est irure occaecat mollit velit sit occaecat laborum in. Ex exercitation elit ipsum anim id fugiat cupidatat magna.
+                  Whether it’s chat, calls, or video, anyone can engage at any time, bringing everyone closer. So rest assured your next video call is a slam dunk with a lot of fun.
                 </Typography>
               </Box>
-              <Box px={isDesktop ? 2 : 0} overflow="hidden" textAlign="center">
-                <Grid container>
-                  <Grid item xs={12} md={6} className={classes.buttonPadding}>
+              <Box px={isDesktop ? 2 : 0} mt={1} overflow="hidden" textAlign="center">
+                <Grid container style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Grid item xs={12} md={6} className={classes.buttonPadding} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <Button size="large" startIcon={<VideoCall />} variant="contained" color="primary" onClick={handleCreate}>
                       Create New Meet
                     </Button>
                   </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Box p={1}>
-                      <TextField onChange={(e) => setinputLink(e.target.value)} placeholder="Join with Link" InputProps={{ endAdornment: <SearchButton /> }} />
-                    </Box>
+                  <Grid item xs={12} md={6} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <TextField onChange={(e) => setinputLink(e.target.value)} placeholder="Join with Link" InputProps={{ endAdornment: <SearchButton /> }} />
                   </Grid>
                   {/* <img style={{ borderRadius: "10%", margin: "auto" }} src="https://picsum.photos/490/240" alt=" is there" /> */}
                 </Grid>
               </Box>
             </Box>
           </Grid>
-          <Grid xs={12} md={4} item>
-            <Box textAlign="center" pt={8} pr={3}>
-              {/* <img src="https://picsum.photos/560/470" alt="yes" /> */}
-              <CarouselComponent />
+          <Grid xs={12} md={6} item style={{ display: "flex", alignItems: "center" }}>
+            <Box textAlign="center" pr={3}>
+              <img src={chartImg} style={{ width: "98%" }} alt="yes" />
+              {/* <CarouselComponent /> */}
             </Box>
           </Grid>
         </Grid>

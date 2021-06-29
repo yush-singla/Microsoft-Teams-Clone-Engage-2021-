@@ -37,7 +37,6 @@ export default function WaitingRoom() {
     });
     socket.on("you-are-admitted", () => {
       setStatus("allowed");
-      alert("allowed");
     });
     socket.on("you-are-denied", () => {
       setStatus("denied");

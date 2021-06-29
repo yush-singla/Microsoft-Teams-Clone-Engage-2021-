@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Drawer, Typography, TextField, IconButton, Link, makeStyles, Tooltip, Box, Divider, Select, MenuItem } from "@material-ui/core";
 import { useSocket } from "../utils/SocketProvider";
 import SendIcon from "@material-ui/icons/Send";
+import KeyboardBackspaceIcon from "@material-ui/icons/KeyboardBackspace";
 
 const useStyles = makeStyles({
   chatTextField: {
@@ -141,8 +142,18 @@ export default function ChatDrawer({ chatOpen, setChatOpen, chatOpenRef, videos,
         chatOpenRef.current = false;
       }}
     >
-      <Box className={classes.chatBox}>
+      <Box className={classes.chatBox} position="relative">
         <Box textAlign="center">
+          <Tooltip title="Go Back">
+            <IconButton
+              style={{ position: "absolute", top: "0", left: "0" }}
+              onClick={() => {
+                setChatOpen(false);
+              }}
+            >
+              <KeyboardBackspaceIcon />
+            </IconButton>
+          </Tooltip>
           <Typography variant="h3">Chats</Typography>
         </Box>
         <Divider />

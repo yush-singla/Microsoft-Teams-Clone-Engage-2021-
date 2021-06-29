@@ -1,6 +1,5 @@
 import React from "react";
 import { Grid, Box } from "@material-ui/core";
-import { display } from "@material-ui/system";
 
 export default function ScreenShare({ someOneSharingScreen, videos, classes, myId, speakerToggle, video, audio }) {
   return (

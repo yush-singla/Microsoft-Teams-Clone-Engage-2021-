@@ -7,6 +7,8 @@ const useAbleMaxWidths = ["49vw", "43vw", "29vw"];
 
 export default function IndividualVideo({ key, myId, speakerToggle, videoStream, video, audio, size }) {
   const [modelsLoaded, setModelsLoaded] = useState(false);
+  //we are using this single variable to store both the refs to canvas as well as video in a map
+  //linked to them by their userid
   const videoRefs = useRef({});
   const clearMe = useRef();
   const startInterval = useRef();
@@ -23,16 +25,12 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
       stopInterval.current();
     }
     socket.on("start-sticker", (userId, key) => {
-      console.log("recieved");
       if (userId === videoStream.userId) {
         if (typeof stopInterval.current === "function") stopInterval.current();
         if (img.current) {
           const currImg = allStickers[key];
-          console.log(currImg);
           const currImgName = Object.keys(currImg)[0];
-          console.log(currImgName);
           img.current.src = currImg[currImgName];
-          console.log(img.current.src);
         }
         if (typeof startInterval.current === "function") startInterval.current();
       }
@@ -43,7 +41,6 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
       }
     });
     return () => {
-      console.log("stopping this sticker", videoStream.userId);
       if (typeof stopInterval.current === "function") stopInterval.current();
       const turnOff = ["start-sticker", "stop-sticker"];
       turnOff.forEach((turn) => {
@@ -53,24 +50,15 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
   }, [size]);
 
   function startVideo() {
-    console.log("starting now");
     setModelsLoaded(true);
   }
 
   async function startCanvasDrawing() {
     const myId = videoStream.userId;
     if (videoRefs.current[myId] === undefined) return;
-    console.log(videoRefs.current);
     videoRefs.current[myId].canvasRef.innerHTML = await faceapi.createCanvasFromMedia(videoRefs.current[myId].videoRef);
     const displaySize = videoRefs.current[myId].videoRef.getBoundingClientRect();
-    // const displaySize={
-    //   height:
-    // }
     faceapi.matchDimensions(videoRefs.current[myId].canvasRef, displaySize);
-    console.log(displaySize);
-    // const ctx = canvasRef.current.getContext("2d");
-    // img.current = new Image();
-    // img.current.src = joker;
     startInterval.current = () => {
       clearMe.current = setInterval(async () => {
         try {
@@ -78,12 +66,8 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
           if (detections && detections.length > 0) {
             errCnt.current = 0;
             const resizedDetections = faceapi.resizeResults(detections, displaySize);
-            const noseCoods = resizedDetections[0].landmarks.getNose();
             const headCoods = resizedDetections[0].landmarks.getLeftEyeBrow();
             const jawCoods = resizedDetections[0].landmarks.getJawOutline();
-            // console.log(jawCoods);
-            // console.log(noseCoods);
-            //       // console.log(headCoods);
             videoRefs.current[myId].canvasRef.getContext("2d").clearRect(0, 0, videoRefs.current[myId].canvasRef.width, videoRefs.current[myId].canvasRef.height);
             videoRefs.current[myId].canvasRef
               .getContext("2d")
@@ -97,9 +81,7 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
             // faceapi.draw.drawDetections(videoRefs.current[myId].canvasRef, resizedDetections);
             // faceapi.draw.drawFaceLandmarks(videoRefs.current[myId].canvasRef, resizedDetections);
           } else {
-            console.log(errCnt.current);
             if (errCnt.current > 10) {
-              console.log("clearing now");
               videoRefs.current[myId].canvasRef.getContext("2d").clearRect(0, 0, videoRefs.current[myId].canvasRef.width, videoRefs.current[myId].canvasRef.height);
               errCnt.current = 0;
             }
@@ -113,19 +95,15 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
     stopInterval.current = () => {
       clearInterval(clearMe.current);
       setTimeout(() => {
-        console.log("stopped boooom");
         videoRefs.current[myId].canvasRef.getContext("2d").clearRect(0, 0, videoRefs.current[myId].canvasRef.width, videoRefs.current[myId].canvasRef.height);
       }, 800);
       setTimeout(() => {
-        console.log("stopped boooom");
         videoRefs.current[myId].canvasRef.getContext("2d").clearRect(0, 0, videoRefs.current[myId].canvasRef.width, videoRefs.current[myId].canvasRef.height);
       }, 2000);
       setTimeout(() => {
-        console.log("stopped boooom");
         videoRefs.current[myId].canvasRef.getContext("2d").clearRect(0, 0, videoRefs.current[myId].canvasRef.width, videoRefs.current[myId].canvasRef.height);
       }, 2600);
     };
-    // startInterval.current();
   }
 
   const currMaxWidth = size === 1 ? useAbleMaxWidths[0] : size === 2 || size === 4 ? useAbleMaxWidths[1] : useAbleMaxWidths[2];
@@ -140,7 +118,6 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
         playsInline
         autoPlay
         onPlaying={() => {
-          // if (typeof stopInterval.current === "function") stopInterval.current();
           startCanvasDrawing();
         }}
         style={
@@ -177,8 +154,6 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
       {!((videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)) && (
         <img src={videoStream.picurL} style={{ borderRadius: "100%", height: "auto", width: "25%", minWidth: "60px", maxWidth: "120px", display: "block" }} alt={videoStream.userName} />
       )}
-      {/* {!videoStream.audio && videoStream.userId !== myId && <p>muted</p>}
-        {!videoStream.video && videoStream.userId !== myId && <p>camOff</p>} */}
     </>
   );
 }

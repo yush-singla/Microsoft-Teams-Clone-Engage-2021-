@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSocket } from "../utils/SocketProvider";
 import Peer from "peerjs";
-import { useHistory } from "react-router";
 import AlertDialog from "./VideoCallComponents/DialogBox";
 import axios from "axios";
 import { makeStyles, Typography } from "@material-ui/core";
@@ -14,6 +13,7 @@ import * as faceapi from "face-api.js";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import Loader from "react-loader-spinner";
 import { Modal } from "@material-ui/core";
+import LoadingModal from "./VideoCallComponents/LoadingModal";
 
 const useStyles = makeStyles({
   bottomBar: {
@@ -443,12 +443,7 @@ export default function VideoCallArea(props) {
     );
   return (
     <div>
-      <Modal open={loadingScreen}>
-        <div style={{ position: "absolute", top: "35vh", left: "43vw", textAlign: "center" }}>
-          <Loader type="Puff" color="#00BFFF" height={100} width={100} timeout={100000} />
-          <Typography style={{ color: "white" }}>Admitting new Participant</Typography>
-        </div>
-      </Modal>
+      <LoadingModal loadingScreen={loadingScreen} />
       {openDialogBox && (
         <AlertDialog
           openDialogBox={openDialogBox}

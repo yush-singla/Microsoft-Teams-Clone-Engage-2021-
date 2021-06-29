@@ -118,7 +118,6 @@ passport.use(
       callbackURL: process.env.NODE_ENV === "development" ? "http://localhost:5000/auth/github/callback" : "https://hidden-beyond-12562.herokuapp.com/auth/github/callback",
     },
     function (accessToken, refreshToken, profile, cb) {
-      console.log(profile._json.avatar_url);
       User.findOrCreate(
         {
           githubId: profile._json.id,
@@ -205,7 +204,6 @@ app.get(
 );
 
 app.get("/authenticated", (req, res) => {
-  console.log(req.isAuthenticated());
   if (req.isAuthenticated()) {
     res.send({ picurL: req.user.picurL, name: req.user.name });
   } else {
@@ -296,8 +294,6 @@ io.on("connection", (socket) => {
   });
   //chats handling
   socket.on("send-chat", (chat) => {
-    console.log("recieved something cchatty");
-    console.log(chat);
     if (chat.all === true && chat.to && chat.to.roomId) {
       socket.to(chat.to.roomId).emit("recieved-chat", chat);
     } else {
@@ -328,7 +324,6 @@ io.on("connection", (socket) => {
 const path = require("path");
 app.use(express.static(path.join(__dirname, "./client/build")));
 app.get("*", function (req, res) {
-  console.log("came here");
   res.sendFile(path.join(__dirname, "./client", "build", "index.html"));
 });
 

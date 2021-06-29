@@ -1,16 +1,17 @@
 import React from "react";
 import IndividualVideo from "./IndividualVideo";
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import MicIcon from "@material-ui/icons/Mic";
 import MicOffIcon from "@material-ui/icons/MicOff";
+
+//these are heights for video components to be used for different no of people to keep the ui
+//beautiful all the time
 const usableHeights = ["90%", "75%", "60%", "45%"];
-const usableWidths = ["420vw,42vw,31vw,36vw"];
 export default function AllVideos({ startInterval, stopInterval, startMaskSticker, videos, classes, myId, speakerToggle, video, audio }) {
   return (
     <Box className={classes.videoContainer}>
       {videos.map((videoStream, key) => {
         const currHeight = videos.length === 1 ? usableHeights[0] : videos.length === 2 ? usableHeights[1] : videos.length === 3 ? usableHeights[2] : usableHeights[3];
-        const currentWidth = videos.length === 1 ? usableWidths[0] : videos.length === 2 ? usableWidths[1] : videos.length === 3 ? usableWidths[2] : usableWidths[3];
         return (
           <Box
             className={classes.videoContainerChild}

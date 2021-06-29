@@ -3,13 +3,12 @@ import axios from "axios";
 import { Redirect } from "react-router-dom";
 import { Menu, MenuItem, Button, Box, Paper, makeStyles, TextField, Grid, IconButton, Typography, Modal, AppBar, Toolbar, Divider } from "@material-ui/core";
 import { ArrowForward, VideoCall } from "@material-ui/icons";
-import "react-responsive-carousel/lib/styles/carousel.min.css";
 import GTranslateIcon from "@material-ui/icons/GTranslate";
 import FacebookIcon from "@material-ui/icons/Facebook";
 import GitHubIcon from "@material-ui/icons/GitHub";
-import { useLogin } from "../utils/LoginProvider";
-import handleSignIn from "../utils/handleSignIn";
-import chartImg from "../assets/images/chart.png";
+import { useLogin } from "../../utils/LoginProvider";
+import handleSignIn from "../../utils/handleSignIn";
+import chartImg from "../../assets/images/chart.png";
 const useStyles = makeStyles({
   joinButtons: {
     overflow: "hidden",

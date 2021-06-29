@@ -3,7 +3,7 @@ import { Paper, Grid, Box, Typography, Divider, Button, makeStyles } from "@mate
 import GTranslateIcon from "@material-ui/icons/GTranslate";
 import FacebookIcon from "@material-ui/icons/Facebook";
 import GitHubIcon from "@material-ui/icons/GitHub";
-import handleSignIn from "../utils/handleSignIn";
+import handleSignIn from "../../utils/handleSignIn";
 const useStyles = makeStyles({
   Modal: {
     position: "absolute",

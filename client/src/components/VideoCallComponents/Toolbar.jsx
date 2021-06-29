@@ -1,5 +1,9 @@
 import React, { useState, useRef } from "react";
 import { Paper, Box, Tooltip, IconButton, Badge, Modal, Grid, Typography, Popover } from "@material-ui/core";
+import allStickers from "../../utils/StickerProvider";
+import { useSocket } from "../../utils/SocketProvider";
+
+//material icons are being imported
 import PeopleIcon from "@material-ui/icons/People";
 import CallEndIcon from "@material-ui/icons/CallEnd";
 import MicOffIcon from "@material-ui/icons/MicOff";
@@ -10,14 +14,12 @@ import PresentToAllIcon from "@material-ui/icons/PresentToAll";
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import VolumeUpIcon from "@material-ui/icons/VolumeUp";
 import VolumeOffIcon from "@material-ui/icons/VolumeOff";
-import { useSocket } from "../utils/SocketProvider";
 import ChatIcon from "@material-ui/icons/Chat";
-import AnnouncementIcon from "@material-ui/icons/Announcement";
-import allStickers from "../utils/StickerProvider";
 import KeyboardBackspaceIcon from "@material-ui/icons/KeyboardBackspace";
 import FaceIcon from "@material-ui/icons/Face";
 import ClearIcon from "@material-ui/icons/Clear";
-// import { useSocketf } from "../utils/SocketProvider";
+//end  of material ui icons import
+
 export default function Toolbar({
   audio,
   toggleAudio,
@@ -46,6 +48,7 @@ export default function Toolbar({
   const [isStickerSet, setIsStickerSet] = useState(false);
   const [openPopover, setOpenPopover] = useState(false);
   const anchorForPopup = useRef();
+
   return (
     <Paper className={classes.bottomBar}>
       <Box textAlign="center">
@@ -54,6 +57,7 @@ export default function Toolbar({
             {audio ? <MicIcon /> : <MicOffIcon />}
           </IconButton>
         </Tooltip>
+
         {!sharingScreen && (
           <Tooltip title={video ? "Turn off Camera" : "Turn on Camera"}>
             <IconButton id="toggleCamera" onClick={toggleVideo.current} color={!video ? "secondary" : "default"}>
@@ -61,6 +65,7 @@ export default function Toolbar({
             </IconButton>
           </Tooltip>
         )}
+
         <Tooltip title={!sharingScreen ? "Present Your Screen" : "Stop Presenting Screen"}>
           <IconButton
             onClick={() => {
@@ -72,6 +77,7 @@ export default function Toolbar({
             {!sharingScreen ? <PresentToAllIcon /> : <CancelPresentationIcon />}
           </IconButton>
         </Tooltip>
+
         <Tooltip title="Leave Meeting">
           <IconButton
             size="medium"
@@ -84,6 +90,7 @@ export default function Toolbar({
             <CallEndIcon className={classes.largeIcon} />
           </IconButton>
         </Tooltip>
+
         <Tooltip title={speakerToggle ? "Turn on Speaker" : "Turn off Speaker"}>
           <IconButton
             onClick={() => {
@@ -93,6 +100,7 @@ export default function Toolbar({
             {speakerToggle ? <VolumeOffIcon /> : <VolumeUpIcon />}
           </IconButton>
         </Tooltip>
+
         <Tooltip title={"Participants and Waiting room"}>
           <IconButton
             onClick={() => {
@@ -102,6 +110,7 @@ export default function Toolbar({
             <PeopleIcon />
           </IconButton>
         </Tooltip>
+
         <Tooltip title={showChatPopUp ? "you have unread messages in the chat" : "Chats"}>
           <IconButton
             onClick={() => {
@@ -122,6 +131,7 @@ export default function Toolbar({
             )}
           </IconButton>
         </Tooltip>
+
         {!sharingScreen && !someOneSharingScreen.value && (
           <>
             <Tooltip title={"Add sticker and masks"}>
@@ -169,7 +179,7 @@ export default function Toolbar({
             setOpenStickerModal(false);
           }}
         >
-          <div style={{ backgroundColor: "white", height: "60vh", width: "40vw", margin: "auto", marginTop: "18vh", overflowY: "scroll" }}>
+          <Box style={{ backgroundColor: "white", height: "60vh", width: "40vw", margin: "auto", marginTop: "18vh", overflowY: "scroll" }}>
             <Grid container>
               <Grid xs={12} item style={{ textAlign: "center", position: "relative" }}>
                 <Tooltip title="Go Back">
@@ -184,19 +194,7 @@ export default function Toolbar({
                 </Tooltip>
                 <Typography variant="h5">Choose your favourite stickers!</Typography>
               </Grid>
-              {/* <Grid item xs={4} style={{ textAlign: "center" }}>
-                <Tooltip title="None">
-                  <IconButton
-                    onClick={() => {
-                      setIsStickerSet(false);
-                      const roomId = window.location.pathname.split("/")[2];
-                      socket.emit("stop-sticker", myId, roomId);
-                    }}
-                  >
-                    <ClearIcon />
-                  </IconButton>
-                </Tooltip>
-              </Grid> */}
+
               {allStickers.map((sticker, key) => {
                 //key here is the actual name of the variable/sticker
                 const nameOfSticker = Object.keys(sticker)[0];
@@ -218,8 +216,9 @@ export default function Toolbar({
                 );
               })}
             </Grid>
-          </div>
+          </Box>
         </Modal>
+
         {isStickerSet && (
           <Tooltip title="stop sticker">
             <IconButton

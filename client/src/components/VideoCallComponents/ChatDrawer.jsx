@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Drawer, Typography, TextField, IconButton, Link, makeStyles, Tooltip, Box, Divider, Select, MenuItem } from "@material-ui/core";
-import { useSocket } from "../utils/SocketProvider";
+import { useSocket } from "../../utils/SocketProvider";
 import SendIcon from "@material-ui/icons/Send";
 import KeyboardBackspaceIcon from "@material-ui/icons/KeyboardBackspace";
 
@@ -103,11 +103,15 @@ export default function ChatDrawer({ chatOpen, setChatOpen, chatOpenRef, videos,
     setChatMessagges((prev) => [...prev, chat]);
     socket.emit("send-chat", chat);
   }
+
   function isUrl(s) {
     var regexp =
       /((?:(http|https|Http|Https|rtsp|Rtsp):\/\/(?:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,64}(?:\:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,25})?\@)?)?((?:(?:[a-zA-Z0-9][a-zA-Z0-9\-]{0,64}\.)+(?:(?:aero|arpa|asia|a[cdefgilmnoqrstuwxz])|(?:biz|b[abdefghijmnorstvwyz])|(?:cat|com|coop|c[acdfghiklmnoruvxyz])|d[ejkmoz]|(?:edu|e[cegrstu])|f[ijkmor]|(?:gov|g[abdefghilmnpqrstuwy])|h[kmnrtu]|(?:info|int|i[delmnoqrst])|(?:jobs|j[emop])|k[eghimnrwyz]|l[abcikrstuvy]|(?:mil|mobi|museum|m[acdghklmnopqrstuvwxyz])|(?:name|net|n[acefgilopruz])|(?:org|om)|(?:pro|p[aefghklmnrstwy])|qa|r[eouw]|s[abcdeghijklmnortuvyz]|(?:tel|travel|t[cdfghjklmnoprtvwz])|u[agkmsyz]|v[aceginu]|w[fs]|y[etu]|z[amw]))|(?:(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[0-9])))(?:\:\d{1,5})?)(\/(?:(?:[a-zA-Z0-9\;\/\?\:\@\&\=\#\~\-\.\+\!\*\'\(\)\,\_])|(?:\%[a-fA-F0-9]{2}))*)?(?:\b|$)/gi;
     return regexp.test(s);
   }
+
+  //this is just a utiltiy function that iterates over the chat word by word searches for url
+  //and makes then clickable by wrapping in an anchor tab
   function ShowChatMessage({ message }) {
     const words = message.split(" ");
     return (
@@ -126,21 +130,6 @@ export default function ChatDrawer({ chatOpen, setChatOpen, chatOpenRef, videos,
     );
   }
 
-  // {
-  //   from:{
-  //     name:,
-  //     userId,
-  //     picurl,
-  //   },
-  //   all:Boolean
-  //   ,
-  //   to:{
-  //  roomId:roomId
-  //     name:,
-  //     userId:,
-  //   },
-  //   message:"",
-  // }
   function SendMessageButton() {
     return (
       <IconButton onClick={sendChat}>
@@ -148,6 +137,7 @@ export default function ChatDrawer({ chatOpen, setChatOpen, chatOpenRef, videos,
       </IconButton>
     );
   }
+
   return (
     <Drawer
       anchor="right"
@@ -172,6 +162,7 @@ export default function ChatDrawer({ chatOpen, setChatOpen, chatOpenRef, videos,
           <Typography variant="h3">Chats</Typography>
         </Box>
         <Divider />
+
         {chatMessagges.map((chatMssg, key) => {
           return (
             <Box>

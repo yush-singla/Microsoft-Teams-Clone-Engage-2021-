@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Drawer, Typography, TextField, IconButton, Link, makeStyles, Tooltip, Box, Divider, Select, MenuItem } from "@material-ui/core";
 import { useSocket } from "../utils/SocketProvider";
 import SendIcon from "@material-ui/icons/Send";
@@ -61,6 +61,21 @@ export default function ChatDrawer({ chatOpen, setChatOpen, chatOpenRef, videos,
   const [sendTo, setSendTo] = useState("all");
   const [chatMessage, setChatMessage] = useState("");
   const [chatMessagges, setChatMessagges] = useState([]);
+  const prevId = useRef();
+
+  useEffect(() => {
+    //since the user id of the user changes when he shares the screen, we  also change the
+    //userid for the chats so it doesn't think they are from  someone else!
+    setChatMessagges((prev) => {
+      prev.forEach((chat) => {
+        if (chat.from.userId === prevId.current) {
+          chat.from.userId = myId;
+        }
+      });
+      return [...prev];
+    });
+    prevId.current = myId;
+  }, [myId]);
 
   useEffect(() => {
     socket.on("recieved-chat", (chat) => {

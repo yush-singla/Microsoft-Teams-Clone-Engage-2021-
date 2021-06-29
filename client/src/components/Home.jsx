@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Redirect } from "react-router-dom";
-import { Icon, Menu, MenuItem, Button, Box, Paper, makeStyles, TextField, Grid, IconButton, Typography, Modal, AppBar, Toolbar, Divider } from "@material-ui/core";
+import { Menu, MenuItem, Button, Box, Paper, makeStyles, TextField, Grid, IconButton, Typography, Modal, AppBar, Toolbar, Divider } from "@material-ui/core";
 import { ArrowForward, VideoCall } from "@material-ui/icons";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
-import CarouselComponent from "./CarouselComponent";
-// import Typewriter from "typewriter-effect";
 import GTranslateIcon from "@material-ui/icons/GTranslate";
 import FacebookIcon from "@material-ui/icons/Facebook";
 import GitHubIcon from "@material-ui/icons/GitHub";
@@ -107,9 +105,8 @@ export default function Home() {
       setLink({ to: url.pathname, created: false });
     } else {
       alert("the link is invalid");
+      setinputLink("");
     }
-    // console.log(inputLink);
-    console.log(link);
   }
   if (link) {
     return (
@@ -214,27 +211,6 @@ export default function Home() {
                 <Typography variant="h2">Welcome To Microsoft Teams</Typography>
                 <Box mt={4} mb={6} style={{ fontSize: "1.6rem", fontWeight: "bolder" }}>
                   <Typography variant="h4">Keeping You Connected</Typography>
-                  {/* <Typewriter
-                    options={{ loop: true }}
-                    onInit={(typewriter) => {
-                      typewriter
-                        .typeString("<span>Create new Meet!</span>")
-                        .pauseFor(1000)
-                        .deleteChars(16)
-                        .typeString("<span>Share the link!</span>")
-                        .pauseFor(1000)
-                        .deleteChars(15)
-                        .typeString("<span> Enjoy the meeting!</span>")
-                        .deleteChars(18)
-                        // .typeString("<span>Share your screen</span>")
-                        // .deleteChars(17)
-                        // .typeString("<span>Built in Chat!</span>")
-                        // .deleteChars(14)
-                        // .typeString("<span>Cool Stickers</span>")
-                        // .deleteChars(13)
-                        .start();
-                    }}
-                  /> */}
                 </Box>
                 <Typography>
                   Whether it’s chat, calls, or video, anyone can engage at any time, bringing everyone closer. So rest assured your next video call is a slam dunk with a lot of fun.
@@ -248,7 +224,15 @@ export default function Home() {
                     </Button>
                   </Grid>
                   <Grid item xs={12} md={6} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <TextField onChange={(e) => setinputLink(e.target.value)} placeholder="Join with Link" InputProps={{ endAdornment: <SearchButton /> }} />
+                    <TextField
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleJoin(inputLink);
+                      }}
+                      value={inputLink}
+                      onChange={(e) => setinputLink(e.target.value)}
+                      placeholder="Join with Link"
+                      InputProps={{ endAdornment: <SearchButton /> }}
+                    />
                   </Grid>
                   {/* <img style={{ borderRadius: "10%", margin: "auto" }} src="https://picsum.photos/490/240" alt=" is there" /> */}
                 </Grid>

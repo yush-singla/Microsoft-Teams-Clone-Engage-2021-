@@ -15,7 +15,8 @@ import ChatIcon from "@material-ui/icons/Chat";
 import AnnouncementIcon from "@material-ui/icons/Announcement";
 import allStickers from "../utils/StickerProvider";
 import KeyboardBackspaceIcon from "@material-ui/icons/KeyboardBackspace";
-import CameraFrontIcon from "@material-ui/icons/CameraFront";
+import FaceIcon from "@material-ui/icons/Face";
+import ClearIcon from "@material-ui/icons/Clear";
 // import { useSocketf } from "../utils/SocketProvider";
 export default function Toolbar({
   audio,
@@ -38,6 +39,7 @@ export default function Toolbar({
   startInterval,
   stopInterval,
   myId,
+  someOneSharingScreen,
 }) {
   const socket = useSocket();
   const [openStickerModal, setOpenStickerModal] = useState(false);
@@ -120,7 +122,7 @@ export default function Toolbar({
             )}
           </IconButton>
         </Tooltip>
-        {!sharingScreen && (
+        {!sharingScreen && !someOneSharingScreen.value && (
           <>
             <Tooltip title={"Add sticker and masks"}>
               <IconButton
@@ -132,11 +134,11 @@ export default function Toolbar({
                     setOpenPopover(true);
                     setTimeout(() => {
                       setOpenPopover(false);
-                    }, 1000);
+                    }, 800);
                   }
                 }}
               >
-                <CameraFrontIcon />
+                <FaceIcon />
               </IconButton>
             </Tooltip>
             <Popover
@@ -147,14 +149,16 @@ export default function Toolbar({
               }}
               anchorOrigin={{
                 vertical: "top",
-                horizontal: "left",
+                horizontal: "center",
               }}
               transformOrigin={{
                 vertical: "bottom",
-                horizontal: "left",
+                horizontal: "center",
               }}
             >
-              <Typography>Turn on the video first</Typography>
+              <Box m={1} style={{ backgroundColor: "transparent", color: "red", fontWeight: "1.5rem" }}>
+                <Typography style={{ backgroundColor: "transparent" }}>Turn on the video first</Typography>
+              </Box>
             </Popover>
           </>
         )}
@@ -180,6 +184,19 @@ export default function Toolbar({
                 </Tooltip>
                 <Typography variant="h5">Choose your favourite stickers!</Typography>
               </Grid>
+              {/* <Grid item xs={4} style={{ textAlign: "center" }}>
+                <Tooltip title="None">
+                  <IconButton
+                    onClick={() => {
+                      setIsStickerSet(false);
+                      const roomId = window.location.pathname.split("/")[2];
+                      socket.emit("stop-sticker", myId, roomId);
+                    }}
+                  >
+                    <ClearIcon />
+                  </IconButton>
+                </Tooltip>
+              </Grid> */}
               {allStickers.map((sticker, key) => {
                 //key here is the actual name of the variable/sticker
                 const nameOfSticker = Object.keys(sticker)[0];
@@ -204,15 +221,17 @@ export default function Toolbar({
           </div>
         </Modal>
         {isStickerSet && (
-          <button
-            onClick={() => {
-              setIsStickerSet(false);
-              const roomId = window.location.pathname.split("/")[2];
-              socket.emit("stop-sticker", myId, roomId);
-            }}
-          >
-            Stop Sticker
-          </button>
+          <Tooltip title="stop sticker">
+            <IconButton
+              onClick={() => {
+                setIsStickerSet(false);
+                const roomId = window.location.pathname.split("/")[2];
+                socket.emit("stop-sticker", myId, roomId);
+              }}
+            >
+              <ClearIcon />
+            </IconButton>
+          </Tooltip>
         )}
       </Box>
     </Paper>

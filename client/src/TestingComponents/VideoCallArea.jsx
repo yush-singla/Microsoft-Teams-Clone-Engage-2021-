@@ -500,6 +500,7 @@ export default function VideoCallArea(props) {
     startInterval,
     stopInterval,
     myId,
+    someOneSharingScreen,
   };
   const participantDrawerProps = { waitingRoomOpen, setWaitingRoomOpen, videos, admitToMeeting, denyMeeting, askForPermission, myId };
   const allVideoProps = { startInterval, stopInterval, startMaskSticker, someOneSharingScreen, videos, classes, myId, speakerToggle, video, audio };

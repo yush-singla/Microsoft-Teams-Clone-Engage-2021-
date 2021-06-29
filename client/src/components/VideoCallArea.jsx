@@ -13,6 +13,7 @@ import ScreenShare from "./VideoCallComponents/ScreenShare";
 import * as faceapi from "face-api.js";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import Loader from "react-loader-spinner";
+import { Modal } from "@material-ui/core";
 
 const useStyles = makeStyles({
   bottomBar: {
@@ -55,7 +56,7 @@ const useStyles = makeStyles({
 
 export default function VideoCallArea(props) {
   const classes = useStyles();
-  let history = useHistory();
+  const [loadingScreen, setLoadingScreen] = useState(false);
   const socket = useSocket();
   const [myId, setMyId] = useState(undefined);
   const myIdRef = useRef();
@@ -333,6 +334,7 @@ export default function VideoCallArea(props) {
     });
     socket.on("user-connected", (userId, socketId, { audio: userAudio, video: userVideo, picurL: userPicUrl, name: userName }) => {
       const call = myPeer.call(userId, stream);
+      setLoadingScreen(true);
       if (call === undefined) {
         return;
       }
@@ -393,11 +395,13 @@ export default function VideoCallArea(props) {
     setVideos((prev) => {
       return [...prev, { userId, stream: userStream, audio: userAudio, video: userVideo, picurL: userPicUrl, userName: titleCase(userName) }];
     });
+    setLoadingScreen(false);
   }
 
   function admitToMeeting({ socketId }) {
     socket.emit("this-user-is-allowed", socketId);
     setAskForPermission((prev) => [...prev.filter((req) => req.socketId !== socketId)]);
+    setLoadingScreen(true);
   }
 
   function denyMeeting({ socketId }) {
@@ -433,18 +437,18 @@ export default function VideoCallArea(props) {
   if (videos.length === 0)
     return (
       <div style={{ position: "absolute", top: "45vh", left: "40vw", textAlign: "center" }}>
-        <Loader
-          type="Puff"
-          color="#00BFFF"
-          height={100}
-          width={100}
-          timeout={100000} //3 secs
-        />
+        <Loader type="Puff" color="#00BFFF" height={100} width={100} timeout={100000} />
         <Typography>Setting up the meet for You</Typography>
       </div>
     );
   return (
     <div>
+      <Modal open={loadingScreen}>
+        <div style={{ position: "absolute", top: "35vh", left: "43vw", textAlign: "center" }}>
+          <Loader type="Puff" color="#00BFFF" height={100} width={100} timeout={100000} />
+          <Typography style={{ color: "white" }}>Admitting new Participant</Typography>
+        </div>
+      </Modal>
       {openDialogBox && (
         <AlertDialog
           openDialogBox={openDialogBox}

@@ -236,7 +236,6 @@ export default function VideoCallArea(props) {
           alert("Someone is already sharing their screen!");
           return;
         }
-        console.log(videos);
         setScreenShareStream(() => {
           setSharingScreen(true);
           stream.getTracks().forEach((track) => {
@@ -251,11 +250,8 @@ export default function VideoCallArea(props) {
           socket.disconnect();
         });
       };
-      console.log("before", { audio, video });
       setUpSocketsAndPeerEvents({ socket, myPeer, stream, myPic }, () => {
-        console.log("came here");
         if (callback) {
-          console.log("sending stop screen share with userid", myIdRef.current);
           const roomId = window.location.pathname.split("/")[2];
           socket.emit("stopping-screen-share", { userId: myIdRef.current, roomId });
           setSomeOneSharingScreen({ value: false, userId: null });
@@ -263,12 +259,10 @@ export default function VideoCallArea(props) {
         }
       });
     } catch (err) {
-      console.log("couldnt go to video streaming");
       console.log(err);
     }
   }
   async function setScreenShareStream(callback) {
-    console.log("got called screen share");
     try {
       let AudioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       let ScreenShareStream = await navigator.mediaDevices.getDisplayMedia({
@@ -289,7 +283,6 @@ export default function VideoCallArea(props) {
       });
       stream.getAudioTracks()[0].enabled = audioStatus.current;
       toggleAudio.current = () => {
-        console.log(stream.getAudioTracks()[0]);
         stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;
         audioStatus.current = !audioStatus.current;
         setAudio((prev) => !prev);
@@ -299,15 +292,7 @@ export default function VideoCallArea(props) {
         setSharingScreen(false);
         toggleShareScreen.current.stop();
       };
-      console.log(stream);
-      console.log(tracks);
-      const myPeer = new Peer(undefined, {
-        // host: "peerjs-server.herokuapp.com",
-        // secure: true,
-        // port: 443,
-        // host: "/",
-        // port: "3001",
-      });
+      const myPeer = new Peer(undefined);
       socket.connect();
       toggleShareScreen.current.stop = () => {
         setCameraStreaming(() => {
@@ -322,11 +307,9 @@ export default function VideoCallArea(props) {
             socket.off(event);
           });
           socket.disconnect();
-          console.log("disconnected the socket");
         });
       };
       setUpSocketsAndPeerEvents({ socket, myPeer, stream, myPic }, () => {
-        console.log("sending share screen from ", myIdRef.current);
         const roomId = window.location.pathname.split("/")[2];
         setSomeOneSharingScreen({ value: true, userId: myIdRef.current });
         someOneSharingScreenRef.current = { value: true, userId: myIdRef.current };
@@ -338,17 +321,11 @@ export default function VideoCallArea(props) {
   }
 
   function setUpSocketsAndPeerEvents({ socket, myPeer, stream, myPic }, cb) {
-    console.log("here", audioStatus.current, videoStatus.current);
     myPeer.on("open", (userId) => {
-      console.log("changing from to", myIdRef.current, userId);
       setMyId(userId);
       myIdRef.current = userId;
-      console.log("setting in component", { audioStatus, videoStatus });
-      console.log("now cb is caled");
       cb();
-      console.log("values after callback", someOneSharingScreenRef.current);
       setVideos((prev) => {
-        console.log({ myPic });
         return [{ stream, userId, audio: audioStatus.current, video: videoStatus.current, picurL: myPicRef.current, userName: titleCase(myNameRef.current) }];
       });
       const roomId = window.location.pathname.split("/")[2];
@@ -357,8 +334,6 @@ export default function VideoCallArea(props) {
     socket.on("user-connected", (userId, socketId, { audio: userAudio, video: userVideo, picurL: userPicUrl, name: userName }) => {
       const call = myPeer.call(userId, stream);
       if (call === undefined) {
-        console.log(socket);
-        console.log("call is undefined");
         return;
       }
       call.on("stream", (userVideoStream) => {
@@ -367,13 +342,11 @@ export default function VideoCallArea(props) {
         }
         connectedPeers.current[call.peer] = call;
         addVideoStream(userVideoStream, call.peer, { userAudio, userVideo, userName, userPicUrl });
-        // console.log("is it correct", { video, audio });
         const roomId = window.location.pathname.split("/")[2];
         setVideo((prev) => {
           console.log("the state of video is", prev);
           return prev;
         });
-        // console.log("acknowledging connected users about the change", { video, audio });
         socket.emit("acknowledge-connected-user", {
           video: videoStatus.current,
           audio: audioStatus.current,
@@ -392,7 +365,6 @@ export default function VideoCallArea(props) {
       });
     });
     socket.on("user-disconnected", (userId) => {
-      console.log("A user disconnected", userId);
       connectedPeers.current[userId].close();
       if (someOneSharingScreenRef.current.userId === userId) {
         setSomeOneSharingScreen({ value: false, userId: null });
@@ -415,17 +387,6 @@ export default function VideoCallArea(props) {
         });
       });
     });
-    history.listen(() => {
-      if (history.action === "POP") {
-        stream.getTracks().forEach((track) => {
-          track.stop();
-        });
-        console.log(history);
-
-        myPeer.disconnect();
-        socket.disconnect();
-      }
-    });
   }
 
   function addVideoStream(userStream, userId, { userAudio, userVideo, userPicUrl, userName }) {
@@ -435,13 +396,11 @@ export default function VideoCallArea(props) {
   }
 
   function admitToMeeting({ socketId }) {
-    console.log("admitiing to meeting", socketId);
     socket.emit("this-user-is-allowed", socketId);
     setAskForPermission((prev) => [...prev.filter((req) => req.socketId !== socketId)]);
   }
 
   function denyMeeting({ socketId }) {
-    console.log("denyying to meeting", socketId);
     socket.emit("this-user-is-denied", socketId);
     setAskForPermission((prev) => [...prev.filter((req) => req.socketId !== socketId)]);
   }

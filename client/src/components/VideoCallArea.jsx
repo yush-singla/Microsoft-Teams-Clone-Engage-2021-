@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSocket } from "../utils/SocketProvider";
 import Peer from "peerjs";
 import { useHistory } from "react-router";
-import AlertDialog from "../components/DialogBox";
+import AlertDialog from "./DialogBox";
 import axios from "axios";
 import { makeStyles, Typography } from "@material-ui/core";
 import Toolbar from "./Toolbar";

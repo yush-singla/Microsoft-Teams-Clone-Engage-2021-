@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import Loader from "react-loader-spinner";
+
 export default function ProtectedRoute({ component: Component, ...rest }) {
   const [isLoggedIn, setIsLoggedIn] = useLogin();
   const { state } = useLocation();
   const [verifiedFromServer, setVerifiedFromServer] = useState(false);
-  console.log("rest", rest.location.pathname);
+
   useEffect(() => {
     axios.get("/authenticated").then((response) => {
       console.log(response.data);
@@ -20,6 +21,7 @@ export default function ProtectedRoute({ component: Component, ...rest }) {
       setVerifiedFromServer(true);
     });
   }, []);
+
   if (!verifiedFromServer)
     return (
       <div style={{ position: "absolute", top: "45vh", left: "44vw", textAlign: "center" }}>
@@ -32,6 +34,7 @@ export default function ProtectedRoute({ component: Component, ...rest }) {
         />
       </div>
     );
+
   let url = window.location.pathname;
   const allow = url.split("/").length === 4;
   url = url = url.slice(0, url.lastIndexOf("/"));

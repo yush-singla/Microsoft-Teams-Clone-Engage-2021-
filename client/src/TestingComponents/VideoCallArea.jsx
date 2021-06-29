@@ -512,7 +512,7 @@ export default function VideoCallArea(props) {
           color="#00BFFF"
           height={100}
           width={100}
-          timeout={3000} //3 secs
+          timeout={100000} //3 secs
         />
         <Typography>Setting up the meet for You</Typography>
       </div>

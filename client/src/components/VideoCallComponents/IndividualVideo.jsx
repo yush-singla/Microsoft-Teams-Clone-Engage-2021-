@@ -1,15 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Paper, Box, makeStyles, Grid, StylesProvider } from "@material-ui/core";
 import * as faceapi from "face-api.js";
 import { useSocket } from "../../utils/SocketProvider";
 import allStickers from "../../utils/StickerProvider";
-
-// import joker from "../assets/images/CHAT_PNG.png";
-const useStyles = makeStyles({
-  videoAltImg: {
-    backgroundColor: "black",
-  },
-});
 
 const useAbleMaxWidths = ["49vw", "43vw", "29vw"];
 

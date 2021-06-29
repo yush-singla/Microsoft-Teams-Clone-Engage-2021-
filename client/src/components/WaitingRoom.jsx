@@ -23,10 +23,8 @@ export default function WaitingRoom() {
   const [audio, setAudio] = useState(true);
   const [video, setVideo] = useState(true);
   const [hasAskedToJoin, setHasAskedToJoin] = useState(false);
-  console.log("socket is used", socket);
   const [status, setStatus] = useState(null);
   useEffect(() => {
-    console.log("requesting access");
     showUserVideo();
     const roomId = window.location.pathname.split("/")[2];
     socket.emit("check-valid-room", roomId, ({ status }) => {
@@ -69,9 +67,6 @@ export default function WaitingRoom() {
       stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;
       setAudio((prev) => !prev);
     };
-    // console.log(stream.getVideoTracks(), stream.getAudioTracks());
-    // console.log(stream);
-    // console.log(myVideo);
     setMyVideo({ stream });
   }
 

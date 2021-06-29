@@ -29,8 +29,6 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
       {!((videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)) && (
         <img src={videoStream.picurL} style={{ borderRadius: "100%", height: "auto", width: "25%", minWidth: "60px", maxWidth: "120px", display: "block" }} alt={videoStream.userName} />
       )}
-      {/* {!videoStream.audio && videoStream.userId !== myId && <p>muted</p>}
-        {!videoStream.video && videoStream.userId !== myId && <p>camOff</p>} */}
     </>
   );
 }

@@ -3,12 +3,15 @@ import axios from "axios";
 import { Redirect } from "react-router-dom";
 import { Menu, MenuItem, Button, Box, Paper, makeStyles, TextField, Grid, IconButton, Typography, Modal, AppBar, Toolbar, Divider } from "@material-ui/core";
 import { ArrowForward, VideoCall } from "@material-ui/icons";
-import GTranslateIcon from "@material-ui/icons/GTranslate";
-import FacebookIcon from "@material-ui/icons/Facebook";
-import GitHubIcon from "@material-ui/icons/GitHub";
 import { useLogin } from "../../utils/LoginProvider";
 import handleSignIn from "../../utils/handleSignIn";
 import chartImg from "../../assets/images/chart.png";
+
+//material ui icons
+import GTranslateIcon from "@material-ui/icons/GTranslate";
+import FacebookIcon from "@material-ui/icons/Facebook";
+import GitHubIcon from "@material-ui/icons/GitHub";
+
 const useStyles = makeStyles({
   joinButtons: {
     overflow: "hidden",
@@ -53,10 +56,8 @@ export default function Home() {
       console.log(response.data);
       if (response.data !== "unauthorised") {
         setImgUrl(response.data.picurL);
-        // console.log({ isLoggedIn, setIsLoggedIn });
         setIsLoggedIn(true);
       }
-      // console.log(isLoggedIn);
     });
   }, []);
   const UserIcon = ({ url }) => {
@@ -72,6 +73,8 @@ export default function Home() {
       <ArrowForward />
     </IconButton>
   );
+
+  //requests the server to logout the person
   function handleLogOut() {
     axios.get("/logout").then((response) => {
       setImgUrl(null);
@@ -79,6 +82,7 @@ export default function Home() {
     });
   }
 
+  //requests the server to create a new meeting for the client
   function handleCreate() {
     axios
       .get("/api/join")
@@ -87,6 +91,7 @@ export default function Home() {
       })
       .catch((error) => console.log(error));
   }
+
   function isValidHttpUrl(string) {
     let url;
 
@@ -98,6 +103,8 @@ export default function Home() {
 
     return url.protocol === "http:" || url.protocol === "https:";
   }
+
+  //handles when user joins through links
   function handleJoin(url) {
     if (isValidHttpUrl(url)) {
       url = new URL(url);
@@ -107,6 +114,8 @@ export default function Home() {
       setinputLink("");
     }
   }
+
+  //this is the link to the meeting, the user is redirected to it, when he creates the meeting
   if (link) {
     return (
       <Redirect
@@ -233,7 +242,6 @@ export default function Home() {
                       InputProps={{ endAdornment: <SearchButton /> }}
                     />
                   </Grid>
-                  {/* <img style={{ borderRadius: "10%", margin: "auto" }} src="https://picsum.photos/490/240" alt=" is there" /> */}
                 </Grid>
               </Box>
             </Box>
@@ -241,7 +249,6 @@ export default function Home() {
           <Grid xs={12} md={6} item style={{ display: "flex", alignItems: "center" }}>
             <Box textAlign="center" pr={3}>
               <img src={chartImg} style={{ width: "98%" }} alt="yes" />
-              {/* <CarouselComponent /> */}
             </Box>
           </Grid>
         </Grid>

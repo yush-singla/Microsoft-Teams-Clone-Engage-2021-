@@ -77,7 +77,6 @@ export default function VideoCallArea(props) {
   const [waitingRoomOpen, setWaitingRoomOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const chatOpenRef = useRef(false);
-  const [myName, setMyName] = useState(null);
   const [myPic, setMyPic] = useState(null);
   const [showChatPopUp, setShowChatPopUp] = useState(0);
   const [someOneSharingScreen, setSomeOneSharingScreen] = useState({ value: false, userId: null });
@@ -94,42 +93,38 @@ export default function VideoCallArea(props) {
       faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
       faceapi.nets.faceExpressionNet.loadFromUri("/models"),
     ])
-      .then(setUp)
+      .then(setUpWebRTC)
       .catch((err) => console.log(err));
   };
   useEffect(() => {
     loadModels();
 
+    //turning off all the events when the component unmounts so that there is no accumulation
     return () => {
       const events = ["user-connected", "user-disconnected", "changed-video-status-reply", "changed-audio-status-reply", "update-audio-video-state", "req-to-join-room"];
       events.forEach((event) => {
-        console.log("turnning off", event);
         socket.off(event);
       });
       socket.disconnect();
-      // myPeer.disconnect();
     };
   }, []);
-  const setUp = () => {
+
+  //here we set up the socket basic events to detect if someone mutes audio video,etc
+  const setUpWebRTC = () => {
     const events = ["user-connected", "user-disconnected", "changed-video-status-reply", "changed-audio-status-reply", "update-audio-video-state", "req-to-join-room"];
     events.forEach((event) => {
-      console.log("turnning off", event);
       socket.off(event);
     });
     axios.get("/authenticated").then((response) => {
-      console.log("git to axios atleast");
-      setMyName(response.data.name);
       setMyPic(response.data.picurL);
       myPicRef.current = response.data.picurL;
       myNameRef.current = response.data.name;
       socket.on("req-to-join-room", ({ socketId, name }, attemtingTo) => {
         if (attemtingTo === "join") {
-          console.log(`called with ${socketId} & ${name}`);
           setAskForPermission((prev) => [...prev, { socketId, name }]);
           setNameOfPersoToJoin({ name: name, id: socketId });
           setOpenDialogBox(true);
           allowUser.current = () => {
-            console.log("emitting the message");
             socket.emit("this-user-is-allowed", socketId);
           };
         } else {
@@ -137,27 +132,20 @@ export default function VideoCallArea(props) {
         }
       });
       socket.on("update-audio-video-state", ({ video: userVideo, audio: userAudio, userId, picurL: userPicUrl, name: userName, screenShareStatus }) => {
-        console.log("updated data", { userVideo, userAudio, userId });
-        console.log({ screenShareStatus });
         if (someOneSharingScreenRef.current !== undefined && someOneSharingScreenRef.current.value === false) {
           setSomeOneSharingScreen(screenShareStatus);
           someOneSharingScreenRef.current = screenShareStatus;
         }
         setVideos((prev) => {
-          console.log(prev);
           prev.map((vid, key) => {
             if (vid.userId === userId) {
-              console.log({ userPicUrl });
               vid.audio = userAudio;
               vid.video = userVideo;
               vid.picurL = userPicUrl;
               vid.userName = titleCase(userName);
-              console.log(vid);
-              console.log(prev[key]);
             }
             return null;
           });
-          console.log(prev);
           return [...prev];
         });
       });
@@ -173,24 +161,19 @@ export default function VideoCallArea(props) {
       });
       socket.on("changed-video-status-reply", ({ status, userId }) => {
         setVideos((prev) => {
-          console.log(prev);
           prev.forEach((video) => {
             if (video.userId === userId) {
-              console.log("status", status);
               video.video = status;
             }
           });
-          console.log(prev);
           return [...prev];
         });
       });
       socket.on("starting-screen-share", (userId) => {
-        console.log("set true");
         setSomeOneSharingScreen({ value: true, userId });
         someOneSharingScreenRef.current = { value: true, userId };
       });
       socket.on("stopping-screen-share", () => {
-        console.log("seting false");
         setSomeOneSharingScreen({ value: false, userId: null });
         someOneSharingScreenRef.current = { value: false, userId: null };
       });
@@ -201,7 +184,6 @@ export default function VideoCallArea(props) {
       if (props.location.state.video === undefined) {
         props.location.state.video = false;
       }
-      console.log("exited axios properly");
       setCameraStreaming();
     });
   };
@@ -209,8 +191,6 @@ export default function VideoCallArea(props) {
     if (str === undefined) return "";
     var splitStr = str.toLowerCase().split(" ");
     for (var i = 0; i < splitStr.length; i++) {
-      // You do not need to check if i is larger than splitStr length, as your for does that for you
-      // Assign it back to the array
       splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
     }
     // Directly return the joined string
@@ -225,21 +205,14 @@ export default function VideoCallArea(props) {
       if (callback) {
         callback();
         setVideo(false);
-        // setAudio(false);
-        // audioStatus.current = false;
         videoStatus.current = false;
-        console.log("setted audio video for this as false and false,respectively");
-        console.log(audioStatus.current);
         stream.getAudioTracks()[0].enabled = audioStatus.current;
         stream.getVideoTracks()[0].enabled = false;
       } else {
-        console.log("setted audio video for this as true and false,respectively");
         setVideo(props.location.state.video);
         setAudio(props.location.state.audio);
         audioStatus.current = props.location.state.audio;
         videoStatus.current = props.location.state.video;
-        console.log(props.location.state);
-        console.log("here see this", { audioStatus, videoStatus });
         stream.getAudioTracks()[0].enabled = props.location.state.audio;
         stream.getVideoTracks()[0].enabled = props.location.state.video;
       }
@@ -252,19 +225,12 @@ export default function VideoCallArea(props) {
         socket.emit("changed-audio-status", { status: stream.getAudioTracks()[0].enabled });
       };
       toggleVideo.current = () => {
-        console.log(stream.getAudioTracks()[0].enabled);
         videoStatus.current = !videoStatus.current;
         stream.getVideoTracks()[0].enabled = !stream.getVideoTracks()[0].enabled;
         setVideo((prev) => !prev);
         socket.emit("changed-video-status", { status: stream.getVideoTracks()[0].enabled });
       };
-      const myPeer = new Peer(undefined, {
-        // host: "peerjs-server.herokuapp.com",
-        // secure: true,
-        // port: 443,
-        // host: "/",
-        // port: "3001",
-      });
+      const myPeer = new Peer(undefined);
       toggleShareScreen.current.start = () => {
         if (someOneSharingScreenRef.current.value === true) {
           alert("Someone is already sharing their screen!");

@@ -35,15 +35,15 @@ export default function ProtectedRoute({ component: Component, ...rest }) {
       </div>
     );
 
+  //since the url has an extra parameter when it comes from the server,after verification we take care
+  //of that here
   let url = window.location.pathname;
   const allow = url.split("/").length === 4;
   url = url = url.slice(0, url.lastIndexOf("/"));
   if (allow) {
-    console.log(url);
     window.history.replaceState({}, "", url);
   }
   if (isLoggedIn === false) {
-    console.log("going to sign in with state from as ", rest.location.pathname);
     return <Redirect to={{ pathname: "/signinfirst", state: { from: rest.location.pathname, prevFrom: state && state.from === "/" ? "home" : null } }} />;
   } else if (allow || (state && state.from === "/")) return <Route {...rest} render={(props) => <Component {...props} />}></Route>;
   else return <Redirect to={`/waitingroom/${window.location.pathname.split("/")[2]}`} />;

@@ -18,10 +18,13 @@ const findOrCreate = require("mongoose-findorcreate");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { v4: uuidV4 } = require("uuid");
-
+const MemoryStore = require("memorystore")(session);
 app.use(
   session({
     secret: process.env.SECRET,
+    store: new MemoryStore({
+      checkPeriod: 86400000, // prune expired entries every 24h
+    }),
     resave: true,
     saveUninitialized: true,
     cookie: { maxAge: 1800000 },

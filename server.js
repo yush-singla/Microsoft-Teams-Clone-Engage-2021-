@@ -250,7 +250,7 @@ io.on("connection", (socket) => {
     socket.to(waitingRooms[roomId]).emit("req-to-join-room", { socketId: socket.id, name }, "join");
     socket.on("disconnect", () => {
       if (getUserIdBySocketId[socket.id] === undefined) {
-        socket.to(waitingRooms[roomId]).emit("req-to-join-room", socket.id, "leave");
+        socket.to(waitingRooms[roomId]).emit("req-to-join-room", { socketId: socket.id }, "leave");
         delete getNameFromSocketId[socket.id];
       }
     });

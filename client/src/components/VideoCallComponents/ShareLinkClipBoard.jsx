@@ -1,7 +1,6 @@
 import React from "react";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
@@ -16,7 +15,7 @@ function PaperComponent(props) {
   );
 }
 
-export default function ShareLinkClipBoard() {
+export default function ShareLinkClipBoard({ openShareLink, setOpenShareLink }) {
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -30,7 +29,7 @@ export default function ShareLinkClipBoard() {
   return (
     <div>
       <Button variant="outlined" color="primary" onClick={handleClickOpen}>
-        Open form dialog
+        Open form dialog plz
       </Button>
       <Dialog open={open} onClose={handleClose} PaperComponent={PaperComponent} aria-labelledby="draggable-dialog-title">
         <DialogTitle style={{ cursor: "move" }} id="draggable-dialog-title">

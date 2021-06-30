@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSocket } from "../utils/SocketProvider";
 import Peer from "peerjs";
 import AlertDialog from "./VideoCallComponents/DialogBox";
-import { makeStyles, Typography } from "@material-ui/core";
+import { makeStyles, Typography, Snackbar } from "@material-ui/core";
 import Toolbar from "./VideoCallComponents/Toolbar";
 import ShowParticipantsDrawer from "./VideoCallComponents/ShowParticipantsDrawer";
 import AllVideos from "./VideoCallComponents/AllVideos";
@@ -16,6 +16,7 @@ import { setUpWebRTC } from "../functions/setUpWebRTC";
 import { titleCase } from "../functions/titleCase";
 import { setCameraStreaming } from "../functions/setCameraStreaming";
 import { setScreenShareStream } from "../functions/setScreenStream";
+import ShareLinkClipBoard from "./VideoCallComponents/ShareLinkClipBoard";
 
 const useStyles = makeStyles({
   bottomBar: {
@@ -81,6 +82,7 @@ export default function VideoCallArea(props) {
   const [chatOpen, setChatOpen] = useState(false);
   const chatOpenRef = useRef(false);
   const [myPic, setMyPic] = useState(null);
+  const [openSnackBar, setOpenSnackBar] = useState({ value: false });
   const [showChatPopUp, setShowChatPopUp] = useState(0);
   const [someOneSharingScreen, setSomeOneSharingScreen] = useState({ value: false, userId: null });
   const someOneSharingScreenRef = useRef({ value: false, userId: null });
@@ -89,6 +91,7 @@ export default function VideoCallArea(props) {
   const startInterval = useRef();
   const myPicRef = useRef();
   const myNameRef = useRef();
+  const [shareLinkBox, setShareLinkBox] = useState(true);
   const loadModels = async () => {
     Promise.all([
       faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
@@ -238,8 +241,9 @@ export default function VideoCallArea(props) {
         });
       });
     });
-    socket.on("user-disconnected", (userId) => {
+    socket.on("user-disconnected", ({ userId, name }) => {
       connectedPeers.current[userId].close();
+      setOpenSnackBar({ value: true, name });
       if (someOneSharingScreenRef.current.userId === userId) {
         setSomeOneSharingScreen({ value: false, userId: null });
         someOneSharingScreenRef.current = { value: false, userId: null };
@@ -327,9 +331,19 @@ export default function VideoCallArea(props) {
         />
       )}
       {someOneSharingScreen.value ? <ScreenShare {...allVideoProps} /> : <AllVideos {...allVideoProps} />}
+
       <Toolbar {...toolbarProps} />
       <ShowParticipantsDrawer {...participantDrawerProps} />
       <ChatDrawer {...chatProps} />
+      {console.log(openSnackBar)}
+      <Snackbar
+        open={openSnackBar.value}
+        autoHideDuration={2500}
+        onClose={() => {
+          setOpenSnackBar({ value: false, name: null });
+        }}
+        message={`${openSnackBar.name} has left the meeting`}
+      />
     </div>
   );
 }

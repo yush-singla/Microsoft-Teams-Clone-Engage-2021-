@@ -249,10 +249,10 @@ io.on("connection", (socket) => {
     getNameFromSocketId[socket.id] = name;
     socket.to(waitingRooms[roomId]).emit("req-to-join-room", { socketId: socket.id, name }, "join");
     socket.on("disconnect", () => {
-      delete waitingRooms[socket.id];
-      delete getUserIdBySocketId[socket.id];
-      delete getNameFromSocketId[socket.id];
-      socket.to(waitingRooms[roomId]).emit("req-to-join-room", socket.id, "leave");
+      if (getUserIdBySocketId[socket.id] === undefined) {
+        socket.to(waitingRooms[roomId]).emit("req-to-join-room", socket.id, "leave");
+        delete getNameFromSocketId[socket.id];
+      }
     });
   });
 
@@ -277,10 +277,10 @@ io.on("connection", (socket) => {
       if (waitingRooms[roomId] === socket.id) {
         delete waitingRooms[roomId];
       }
+      socket.to(roomId).emit("user-disconnected", { userId, name: getNameFromSocketId[socket.id], audio, video });
       delete getSocketIdByUserId[getUserIdBySocketId[socket.id]];
       delete getUserIdBySocketId[socket.id];
       delete getNameFromSocketId[socket.id];
-      socket.to(roomId).emit("user-disconnected", userId, { audio, video });
     });
   });
 

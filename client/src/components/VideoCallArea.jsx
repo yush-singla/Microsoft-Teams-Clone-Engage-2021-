@@ -12,7 +12,7 @@ import * as faceapi from "face-api.js";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import Loader from "react-loader-spinner";
 import LoadingModal from "./VideoCallComponents/LoadingModal";
-import { setUpWebRTC } from "../functions/setUpWebRTC";
+import axios from "axios";
 import { titleCase } from "../functions/titleCase";
 import { setCameraStreaming } from "../functions/setCameraStreaming";
 import { setScreenShareStream } from "../functions/setScreenStream";
@@ -116,23 +116,81 @@ export default function VideoCallArea(props) {
   }, []);
 
   const setUp = () => {
-    setUpWebRTC({
-      socket,
-      setMyPic,
-      myPicRef,
-      myNameRef,
-      setAskForPermission,
-      setNameOfPersoToJoin,
-      setOpenDialogBox,
-      allowUser,
-      setSomeOneSharingScreen,
-      someOneSharingScreenRef,
-      setVideos,
-      props,
-      titleCase,
-    }).then(() => {
-      setCameraStreamingOn();
+    const events = ["user-connected", "user-disconnected", "changed-video-status-reply", "changed-audio-status-reply", "update-audio-video-state", "req-to-join-room"];
+    events.forEach((event) => {
+      socket.off(event);
     });
+    axios.get("/authenticated").then((response) => {
+      setMyPic(response.data.picurL);
+      myPicRef.current = response.data.picurL;
+      myNameRef.current = response.data.name;
+      socket.on("req-to-join-room", ({ socketId, name }, attemtingTo) => {
+        if (attemtingTo === "join") {
+          setAskForPermission((prev) => [...prev, { socketId, name }]);
+          setNameOfPersoToJoin({ name: name, id: socketId });
+          setOpenDialogBox(true);
+          allowUser.current = () => {
+            socket.emit("this-user-is-allowed", socketId);
+          };
+        } else {
+          setAskForPermission((prev) => [...prev.filter((permission) => permission.socketId !== socketId)]);
+        }
+      });
+      socket.on("update-audio-video-state", ({ video: userVideo, audio: userAudio, userId, picurL: userPicUrl, name: userName, screenShareStatus }) => {
+        if (someOneSharingScreenRef.current !== undefined && someOneSharingScreenRef.current.value === false) {
+          setSomeOneSharingScreen(screenShareStatus);
+          someOneSharingScreenRef.current = screenShareStatus;
+        }
+        setVideos((prev) => {
+          prev.map((vid, key) => {
+            if (vid.userId === userId) {
+              vid.audio = userAudio;
+              vid.video = userVideo;
+              vid.picurL = userPicUrl;
+              vid.userName = titleCase(userName);
+            }
+            return null;
+          });
+          return [...prev];
+        });
+      });
+      socket.on("changed-audio-status-reply", ({ status, userId }) => {
+        setVideos((prev) => {
+          prev.forEach((video) => {
+            if (video.userId === userId) {
+              video.audio = status;
+            }
+          });
+          return [...prev];
+        });
+      });
+      socket.on("changed-video-status-reply", ({ status, userId }) => {
+        setVideos((prev) => {
+          prev.forEach((video) => {
+            if (video.userId === userId) {
+              video.video = status;
+            }
+          });
+          return [...prev];
+        });
+      });
+      socket.on("starting-screen-share", (userId) => {
+        setSomeOneSharingScreen({ value: true, userId });
+        someOneSharingScreenRef.current = { value: true, userId };
+      });
+      socket.on("stopping-screen-share", () => {
+        setSomeOneSharingScreen({ value: false, userId: null });
+        someOneSharingScreenRef.current = { value: false, userId: null };
+      });
+      if (props.location.state === undefined) props.location.state = {};
+      if (props.location.state.audio === undefined) {
+        props.location.state.audio = true;
+      }
+      if (props.location.state.video === undefined) {
+        props.location.state.video = false;
+      }
+    });
+    setCameraStreamingOn();
   };
 
   async function setCameraStreamingOn(callback) {
@@ -202,6 +260,7 @@ export default function VideoCallArea(props) {
       myIdRef.current = userId;
       cb();
       setVideos((prev) => {
+        setOpenShareLink(true);
         return [{ stream, userId, audio: audioStatus.current, video: videoStatus.current, picurL: myPicRef.current, userName: titleCase(myNameRef.current) }];
       });
       const roomId = window.location.pathname.split("/")[2];
@@ -272,6 +331,7 @@ export default function VideoCallArea(props) {
       return [...prev, { userId, stream: userStream, audio: userAudio, video: userVideo, picurL: userPicUrl, userName: titleCase(userName) }];
     });
     setLoadingScreen(false);
+    setOpenShareLink(false);
   }
 
   function admitToMeeting({ socketId }) {

@@ -6,6 +6,8 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Paper from "@material-ui/core/Paper";
 import Draggable from "react-draggable";
+import { DialogActions } from "@material-ui/core";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 
 function PaperComponent(props) {
   return (
@@ -16,27 +18,31 @@ function PaperComponent(props) {
 }
 
 export default function ShareLinkClipBoard({ openShareLink, setOpenShareLink }) {
-  const [open, setOpen] = React.useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
   return (
     <div>
-      <Button variant="outlined" color="primary" onClick={handleClickOpen}>
-        Open form dialog plz
-      </Button>
-      <Dialog open={open} onClose={handleClose} PaperComponent={PaperComponent} aria-labelledby="draggable-dialog-title">
+      <Dialog
+        open={openShareLink}
+        onClose={() => {
+          setOpenShareLink(false);
+        }}
+        PaperComponent={PaperComponent}
+        aria-labelledby="draggable-dialog-title"
+      >
         <DialogTitle style={{ cursor: "move" }} id="draggable-dialog-title">
           Invite Others!!
         </DialogTitle>
         <DialogContent>
           <DialogContentText>Invite others to join the meet just by copying this link.</DialogContentText>
+          <DialogContentText>
+            <CopyToClipboard
+              text={window.location.href}
+              onCopy={() => {
+                setOpenShareLink(false);
+              }}
+            >
+              <Button>Copy Meeting Link</Button>
+            </CopyToClipboard>
+          </DialogContentText>
         </DialogContent>
       </Dialog>
     </div>

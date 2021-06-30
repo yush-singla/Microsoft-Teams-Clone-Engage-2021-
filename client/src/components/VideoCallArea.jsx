@@ -91,7 +91,7 @@ export default function VideoCallArea(props) {
   const startInterval = useRef();
   const myPicRef = useRef();
   const myNameRef = useRef();
-  const [shareLinkBox, setShareLinkBox] = useState(true);
+  const [openShareLink, setOpenShareLink] = useState(true);
   const loadModels = async () => {
     Promise.all([
       faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
@@ -331,7 +331,7 @@ export default function VideoCallArea(props) {
         />
       )}
       {someOneSharingScreen.value ? <ScreenShare {...allVideoProps} /> : <AllVideos {...allVideoProps} />}
-
+      <ShareLinkClipBoard openShareLink={openShareLink} setOpenShareLink={setOpenShareLink} />
       <Toolbar {...toolbarProps} />
       <ShowParticipantsDrawer {...participantDrawerProps} />
       <ChatDrawer {...chatProps} />

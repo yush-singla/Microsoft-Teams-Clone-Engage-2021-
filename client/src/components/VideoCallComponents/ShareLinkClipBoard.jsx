@@ -40,9 +40,18 @@ export default function ShareLinkClipBoard({ openShareLink, setOpenShareLink }) 
                 setOpenShareLink(false);
               }}
             >
-              <Button>Copy Meeting Link</Button>
+              <Button color="primary">Copy Meeting Link</Button>
             </CopyToClipboard>
           </DialogContentText>
+          <DialogActions>
+            <Button
+              onClick={() => {
+                setOpenShareLink(false);
+              }}
+            >
+              Close
+            </Button>
+          </DialogActions>
         </DialogContent>
       </Dialog>
     </div>

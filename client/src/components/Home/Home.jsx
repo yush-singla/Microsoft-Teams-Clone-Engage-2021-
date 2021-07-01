@@ -47,11 +47,15 @@ export default function Home() {
   const [link, setLink] = useState(null);
   const [inputLink, setinputLink] = useState(null);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 1190);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [modalOpen, setModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [imgUrl, setImgUrl] = useState(null);
   const profileIconRef = useRef();
   useEffect(() => {
+    window.addEventListener("resize", () => {
+      setWindowWidth(window.innerWidth);
+    });
     axios.get("/authenticated").then((response) => {
       console.log(response.data);
       if (response.data !== "unauthorised") {
@@ -214,21 +218,21 @@ export default function Home() {
       <Box py={2} className={classes.joinButtons}>
         <Grid container spacing={1} className={classes.joinButtons}>
           <Grid item xs={12} md={6}>
-            <Box pt={isDesktop ? 5 : 1} ml={isDesktop && 5} mr={isDesktop ? 3 : 1} textAlign="left">
-              <Box pt={2} pl={3}>
+            <Box style={windowWidth >= 980 ? { paddingTop: "5vh", marginLeft: "5vw", marginRight: "3vw" } : { paddingTop: "1vh", marginLeft: "1vw", marginRight: "1vw" }} textAlign="left">
+              <Box style={{ paddingTop: "2vh", paddingLeft: "3vw" }}>
                 <Typography variant="h2">Welcome To Microsoft Teams</Typography>
-                <Box mt={4} mb={6} style={{ fontSize: "1.6rem", fontWeight: "bolder" }}>
+                <Box style={{ fontSize: "1.6rem", fontWeight: "bolder", marginTop: "3.5vh", marginBottom: "5vh" }}>
                   <Typography variant="h4">Keeping You Connected</Typography>
                 </Box>
                 <Typography>
                   Whether it’s chat, calls, or video, anyone can engage at any time, bringing everyone closer. So rest assured your next video call is a slam dunk with a lot of fun.
                 </Typography>
               </Box>
-              <Box px={isDesktop ? 2 : 0} mt={1} overflow="hidden" textAlign="center">
-                <Grid container style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Box style={{ paddingLeft: "2vw", marginTop: "1vh" }} overflow="hidden" textAlign="center">
+                <Grid container style={{ display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "4.2vh" }}>
                   <Grid item xs={12} md={6} className={classes.buttonPadding} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <Button size="large" startIcon={<VideoCall />} variant="contained" color="primary" onClick={handleCreate}>
-                      Create New Meet
+                      {windowWidth >= 1136 ? "Create New Meet" : "Create Meet"}
                     </Button>
                   </Grid>
                   <Grid item xs={12} md={6} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>

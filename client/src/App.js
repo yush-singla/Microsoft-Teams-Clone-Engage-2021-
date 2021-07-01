@@ -1,14 +1,11 @@
 import React from "react";
 import SocketProvider from "./utils/SocketProvider";
-import Home from "./components/Home";
-import VideoCallArea from "./TestingComponents/VideoCallArea";
-import { BrowserRouter as Router, Switch, Route, useLocation, Redirect } from "react-router-dom";
-import WaitingRoom from "./TestingComponents/WaitingRoom";
-import Authenticate from "./components/Authenticate";
+import Home from "./components/Home/Home";
+import VideoCallArea from "./components/VideoCallArea";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import WaitingRoom from "./components/WaitingRoom";
 import LoginProvider from "./utils/LoginProvider";
-import { useLogin } from "./utils/LoginProvider";
-import SignInFirst from "./components/SignInFirst";
-import axios from "axios";
+import SignInFirst from "./components/Home/SignInFirst";
 import ProtectedRoute from "./utils/ProtectedRoute";
 
 export default function App() {

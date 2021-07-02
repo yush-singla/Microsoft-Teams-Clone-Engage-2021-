@@ -110,6 +110,7 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
       setTimeout(() => {
         stopInterval.current();
       }, 1000);
+      firstTime.current = false;
     }
   }
 

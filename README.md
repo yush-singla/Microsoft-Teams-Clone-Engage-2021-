@@ -73,7 +73,7 @@ npm run dev
    *Google
    *Facebook
    \*Github
-4. Once a session is created it persists for the entire browsing session so no hassle of having to login again and again !!
+4. Once a session is created it persists for the entire browsing session so no hassle of having to login again and again!
 
 ### 5. Fun Face Masks
 

@@ -24,7 +24,15 @@ export default function ProtectedRoute({ component: Component, ...rest }) {
 
   if (!verifiedFromServer)
     return (
-      <div style={{ position: "absolute", top: "45vh", left: "44vw", textAlign: "center" }}>
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          textAlign: "center",
+        }}
+      >
         <Loader
           type="Puff"
           color="#00BFFF"

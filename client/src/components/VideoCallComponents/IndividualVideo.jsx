@@ -16,6 +16,7 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
   const img = useRef();
   const errCnt = useRef(0);
   const socket = useSocket();
+  const firstTime = useRef(true);
   useEffect(() => {
     startVideo();
     img.current = new Image();
@@ -74,7 +75,7 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
               .drawImage(
                 img.current,
                 jawCoods[4].x - (jawCoods[16].x - jawCoods[0].x) * 0.43,
-                jawCoods[0].y - (jawCoods[8].y - headCoods[3].y) * 0.9,
+                jawCoods[0].y - (jawCoods[8].y - headCoods[3].y) * 0.91,
                 (jawCoods[16].x - jawCoods[0].x) * 1.7,
                 (jawCoods[8].y - headCoods[3].y) * 1.8
               );
@@ -104,6 +105,12 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
         videoRefs.current[myId].canvasRef.getContext("2d").clearRect(0, 0, videoRefs.current[myId].canvasRef.width, videoRefs.current[myId].canvasRef.height);
       }, 2600);
     };
+    if (firstTime.current) {
+      startInterval.current();
+      setTimeout(() => {
+        stopInterval.current();
+      }, 1000);
+    }
   }
 
   const currMaxWidth = size === 1 ? useAbleMaxWidths[0] : size === 2 ? useAbleMaxWidths[1] : useAbleMaxWidths[2];
@@ -148,7 +155,7 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
         }}
         style={
           (videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)
-            ? { width: currMaxWidth, height: size !== 4 ? "100%" : "128%", position: "absolute", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }
+            ? { width: currMaxWidth, position: "absolute", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }
             : { display: "none" }
         }
       ></canvas>

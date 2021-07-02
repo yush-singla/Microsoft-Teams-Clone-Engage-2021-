@@ -1,5 +1,7 @@
 import React from "react";
 import { Grid, Box } from "@material-ui/core";
+import MicIcon from "@material-ui/icons/Mic";
+import MicOffIcon from "@material-ui/icons/MicOff";
 
 export default function ScreenShare({ someOneSharingScreen, videos, classes, myId, speakerToggle, video, audio, windowWidth }) {
   return (
@@ -40,6 +42,7 @@ export default function ScreenShare({ someOneSharingScreen, videos, classes, myI
                       textAlign: "center",
                       minHeight: "33vh",
                       overflow: "hidden",
+                      position: "relative",
                     }}
                   >
                     <video
@@ -54,6 +57,29 @@ export default function ScreenShare({ someOneSharingScreen, videos, classes, myI
                     {!((videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)) && (
                       <img src={videoStream.picurL} style={{ borderRadius: "100%", height: "auto", width: "25%", minWidth: "60px", maxWidth: "120px", display: "block" }} alt={videoStream.userName} />
                     )}
+                    <Box
+                      style={{
+                        fontSize: "1.3rem",
+                        fontFamily: "sans-serif",
+                        color: "white",
+                        textAlign: "right",
+                        paddingRight: "3%",
+                        width: "fit-content",
+                        marginLeft: "auto",
+                        padding: "1.3%",
+                        zIndex: "100",
+                        position: "absolute",
+                        bottom: "0",
+                        right: "0",
+                        backgroundColor: "rgba(0,0,0,0.5)",
+                      }}
+                    >
+                      <Box component="span" style={{ verticalAlign: "bottom" }}>
+                        {videoStream.userId === myId ? "You" : videoStream.userName}
+                      </Box>
+                      {videoStream.userId !== myId &&
+                        (videoStream.audio ? <MicIcon style={{ marginLeft: "10px", verticalAlign: "bottom" }} /> : <MicOffIcon style={{ marginLeft: "10px", verticalAlign: "bottom" }} />)}
+                    </Box>
                   </Box>
                 );
               }
@@ -80,6 +106,7 @@ export default function ScreenShare({ someOneSharingScreen, videos, classes, myI
                         textAlign: "center",
                         overflow: "hidden",
                         width: "100%%",
+                        position: "relative",
                       }}
                     >
                       <video
@@ -91,6 +118,35 @@ export default function ScreenShare({ someOneSharingScreen, videos, classes, myI
                           return videoRef;
                         }}
                       />
+                      <Box
+                        style={{
+                          fontSize: "0.5rem",
+                          fontFamily: "sans-serif",
+                          color: "white",
+                          textAlign: "right",
+                          paddingRight: "3%",
+                          width: "fit-content",
+                          marginLeft: "auto",
+                          zIndex: "100",
+                          position: "absolute",
+                          bottom: "0",
+                          right: "0",
+                          backgroundColor: "rgba(0,0,0,0.5)",
+                          height: "10vw",
+                        }}
+                      >
+                        <Box component="span" style={{ verticalAlign: "top", marginTop: "1vw" }}>
+                          {videoStream.userId === myId ? "You" : videoStream.userName}
+                        </Box>
+                        <Box component="span" style={{ verticalAlign: "middle" }}>
+                          {videoStream.userId !== myId &&
+                            (videoStream.audio ? (
+                              <MicIcon style={{ marginLeft: "10px", width: "3vw", verticalAlign: "bottom" }} />
+                            ) : (
+                              <MicOffIcon style={{ marginLeft: "10px", width: "3vw", verticalAlign: "bottom" }} />
+                            ))}
+                        </Box>
+                      </Box>
                       {!((videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)) && (
                         <img
                           src={videoStream.picurL}

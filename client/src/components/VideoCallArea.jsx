@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSocket } from "../utils/SocketProvider";
 import Peer from "peerjs";
 import AlertDialog from "./VideoCallComponents/DialogBox";
-import { makeStyles, Typography, Snackbar } from "@material-ui/core";
+import { Typography, Snackbar } from "@material-ui/core";
 import Toolbar from "./VideoCallComponents/Toolbar";
 import ShowParticipantsDrawer from "./VideoCallComponents/ShowParticipantsDrawer";
 import AllVideos from "./VideoCallComponents/AllVideos";
@@ -18,33 +18,9 @@ import { setCameraStreaming } from "../functions/setCameraStreaming";
 import { setScreenShareStream } from "../functions/setScreenStream";
 import ShareLinkClipBoard from "./VideoCallComponents/ShareLinkClipBoard";
 import SetUpInitail from "../functions/SetUpInitail";
-const useStyles = makeStyles({
-  videoContainer: {
-    display: "flex",
-    width: "auto",
-    height: "85vh",
-    justifyContent: "center",
-    alignItems: "center",
-    flexWrap: "wrap",
-  },
-  videoContainerChild: {
-    flex: "1 0 auto",
-  },
-  videoContainerGrandChild: {
-    display: "flex",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-    position: "relative",
-  },
-  videoContainerForFour: {
-    maxWidth: "100%",
-    maxHeight: "100%",
-  },
-});
+import MobileAllVideos from "./VideoCallComponents/MobileAllVIdeos";
 
 export default function VideoCallArea(props) {
-  const classes = useStyles();
   const [loadingScreen, setLoadingScreen] = useState(false);
   const socket = useSocket();
   const [myId, setMyId] = useState(undefined);
@@ -78,6 +54,7 @@ export default function VideoCallArea(props) {
   const myPicRef = useRef();
   const myNameRef = useRef();
   const [openShareLink, setOpenShareLink] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const firstTime = useRef(true);
   const loadModels = async () => {
     Promise.all([
@@ -90,6 +67,9 @@ export default function VideoCallArea(props) {
       .catch((err) => console.log(err));
   };
   useEffect(() => {
+    window.addEventListener("resize", () => {
+      setWindowWidth(window.innerWidth);
+    });
     loadModels();
 
     //turning off all the events when the component unmounts so that there is no accumulation
@@ -282,7 +262,6 @@ export default function VideoCallArea(props) {
   const toolbarProps = {
     audio,
     toggleAudio,
-    classes,
     sharingScreen,
     toggleShareScreen,
     toggleVideo,
@@ -303,7 +282,7 @@ export default function VideoCallArea(props) {
     askForPermission,
   };
   const participantDrawerProps = { waitingRoomOpen, setWaitingRoomOpen, videos, admitToMeeting, denyMeeting, askForPermission, myId };
-  const allVideoProps = { startInterval, stopInterval, startMaskSticker, someOneSharingScreen, videos, classes, myId, speakerToggle, video, audio };
+  const allVideoProps = { startInterval, stopInterval, startMaskSticker, someOneSharingScreen, videos, myId, speakerToggle, video, audio };
   const chatProps = { chatOpen, setChatOpen, chatOpenRef, videos, myId, myNameRef, myPicRef, setShowChatPopUp };
   if (videos.length === 0)
     return (
@@ -325,7 +304,7 @@ export default function VideoCallArea(props) {
           denyMeeting={denyMeeting}
         />
       )}
-      {someOneSharingScreen.value ? <ScreenShare {...allVideoProps} /> : <AllVideos {...allVideoProps} />}
+      {someOneSharingScreen.value ? <ScreenShare {...allVideoProps} /> : windowWidth > 900 ? <AllVideos {...allVideoProps} /> : <MobileAllVideos {...allVideoProps} />}
       <ShareLinkClipBoard openShareLink={openShareLink} setOpenShareLink={setOpenShareLink} />
       <Toolbar {...toolbarProps} />
       <ShowParticipantsDrawer {...participantDrawerProps} />

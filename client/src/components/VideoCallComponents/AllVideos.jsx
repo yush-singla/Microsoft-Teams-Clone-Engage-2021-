@@ -3,11 +3,37 @@ import IndividualVideo from "./IndividualVideo";
 import Box from "@material-ui/core/Box";
 import MicIcon from "@material-ui/icons/Mic";
 import MicOffIcon from "@material-ui/icons/MicOff";
-
+import { makeStyles } from "@material-ui/core";
 //these are heights for video components to be used for different no of people to keep the ui
 //beautiful all the time
-const usableHeights = ["90%", "75%", "60%", "45%"];
-export default function AllVideos({ startInterval, stopInterval, startMaskSticker, videos, classes, myId, speakerToggle, video, audio }) {
+const useStyles = makeStyles({
+  videoContainer: {
+    display: "flex",
+    width: "auto",
+    height: "85vh",
+    justifyContent: "center",
+    alignItems: "center",
+    flexWrap: "wrap",
+  },
+  videoContainerChild: {
+    flex: "1 0 auto",
+  },
+  videoContainerGrandChild: {
+    display: "flex",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+  },
+  videoContainerForFour: {
+    maxWidth: "100%",
+    maxHeight: "100%",
+  },
+});
+const usableHeights = ["90%", "75%", "60%", "48%"];
+export default function AllVideos({ startInterval, stopInterval, startMaskSticker, videos, myId, speakerToggle, video, audio }) {
+  const classes = useStyles();
+  if (videos.length === 0) return null;
   return (
     <Box className={classes.videoContainer}>
       {videos.map((videoStream, key) => {

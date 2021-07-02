@@ -200,7 +200,7 @@ export default function Toolbar({
             setOpenStickerModal(false);
           }}
         >
-          <Box style={{ backgroundColor: "white", height: "60vh", width: "40vw", margin: "auto", marginTop: "18vh", overflowY: "scroll" }}>
+          <Box style={{ backgroundColor: "white", height: "60vh", width: windowWidth >= 600 ? "40vw" : "80vw", margin: "auto", marginTop: "18vh", overflowY: "scroll" }}>
             <Grid container>
               <Grid xs={12} item style={{ textAlign: "center", position: "relative" }}>
                 <Tooltip title="Go Back">
@@ -220,9 +220,10 @@ export default function Toolbar({
                 //key here is the actual name of the variable/sticker
                 const nameOfSticker = Object.keys(sticker)[0];
                 return (
-                  <Grid key={JSON.stringify(sticker)} item xs={4} style={{ textAlign: "center" }}>
+                  <Grid key={JSON.stringify(sticker)} item xs={6} sm={4} style={{ textAlign: "center" }}>
                     <Tooltip title={nameOfSticker}>
                       <IconButton
+                        style={{ minWidth: "10px" }}
                         onClick={() => {
                           setOpenStickerModal(false);
                           setIsStickerSet(true);
@@ -230,7 +231,7 @@ export default function Toolbar({
                           socket.emit("start-sticker", myId, roomId, key);
                         }}
                       >
-                        <img src={sticker[nameOfSticker]} alt={"sticker"} style={{ width: "5vw", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }} />
+                        <img src={sticker[nameOfSticker]} alt={"sticker"} style={{ height: "10vh", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }} />
                       </IconButton>
                     </Tooltip>
                   </Grid>

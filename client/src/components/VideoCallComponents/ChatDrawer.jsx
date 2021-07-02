@@ -5,8 +5,13 @@ import SendIcon from "@material-ui/icons/Send";
 import KeyboardBackspaceIcon from "@material-ui/icons/KeyboardBackspace";
 
 const useStyles = makeStyles({
-  chatTextField: {
+  chatTextFieldPc: {
     width: "24vw",
+    paddingLeft: "1vw",
+    paddingRight: "3vw",
+  },
+  chatTextFieldMobile: {
+    width: "55vw",
     paddingLeft: "1vw",
     paddingRight: "3vw",
   },
@@ -55,7 +60,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function ChatDrawer({ chatOpen, setChatOpen, chatOpenRef, videos, myId, myNameRef, myPicRef, setShowChatPopUp }) {
+export default function ChatDrawer({ windowWidth, chatOpen, setChatOpen, chatOpenRef, videos, myId, myNameRef, myPicRef, setShowChatPopUp }) {
   const classes = useStyles();
   const socket = useSocket();
   const [sendTo, setSendTo] = useState("all");
@@ -147,7 +152,7 @@ export default function ChatDrawer({ chatOpen, setChatOpen, chatOpenRef, videos,
         chatOpenRef.current = false;
       }}
     >
-      <Box className={classes.chatBox} position="relative">
+      <Box className={classes.chatBox} style={{ width: windowWidth <= 500 ? "95vw" : windowWidth <= 900 ? "70vw" : "auto" }} position="relative">
         <Box textAlign="center">
           <Tooltip title="Go Back">
             <IconButton
@@ -197,13 +202,14 @@ export default function ChatDrawer({ chatOpen, setChatOpen, chatOpenRef, videos,
           })}
         </Select>
       </Box>
-      <Box>
+      <Box textAlign="center">
         <TextField
-          className={classes.chatTextField}
+          className={windowWidth >= 900 ? classes.chatTextPc : classes.chatTextFieldMobile}
+          style={{ margin: "auto" }}
           placeholder="Enter Chat Messages"
           InputProps={{
             classes: {
-              input: classes.chatText,
+              input: windowWidth >= 900 ? classes.chatTextPc : classes.chatTextFieldMobile,
             },
             endAdornment: <SendMessageButton />,
           }}

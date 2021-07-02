@@ -23,7 +23,7 @@ const useStyles = makeStyles({
   },
   sendedMessageContainer: {
     padding: "2%",
-    maxWidth: "20vw",
+    maxWidth: window.innerWidth > 700 ? "20vw" : "80vw",
   },
   chatBox: {
     height: "85vh",
@@ -41,7 +41,7 @@ const useStyles = makeStyles({
     wordWrap: "break-word",
     display: "inline-block",
     minWidth: "10vw",
-    maxWidth: "14vw",
+    maxWidth: window.innerWidth >= 700 ? "14vw" : "60vw",
     border: "1px solid grey",
   },
   rightAlignedChat: {
@@ -55,7 +55,7 @@ const useStyles = makeStyles({
     wordWrap: "break-word",
     display: "inline-block",
     minWidth: "10vw",
-    maxWidth: "14vw",
+    maxWidth: window.innerWidth >= 700 ? "14vw" : "60vw",
     fontFamily: "sans-serif",
   },
 });
@@ -175,7 +175,7 @@ export default function ChatDrawer({ windowWidth, chatOpen, setChatOpen, chatOpe
                 {chatMssg.from.userId !== myId && (
                   <Tooltip title={chatMssg.from.name}>
                     <span style={{ lineHeight: "20%" }}>
-                      <img src={chatMssg.from.picurL} style={{ height: "2.5vw", width: "auto", borderRadius: "100%", verticalAlign: "middle" }} alt={"pic"} />
+                      <img src={chatMssg.from.picurL} style={{ height: "6vh", width: "auto", borderRadius: "100%", verticalAlign: "middle" }} alt={"pic"} />
                     </span>
                   </Tooltip>
                 )}

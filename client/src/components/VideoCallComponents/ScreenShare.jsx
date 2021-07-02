@@ -62,42 +62,49 @@ export default function ScreenShare({ someOneSharingScreen, videos, classes, myI
           </Box>
         </Grid>
       ) : (
-        <Grid item xs={4}>
-          <Box style={{ overflowY: "scroll", maxHeight: "28vh", textAlign: "center" }}>
+        <Grid item xs={12}>
+          <Grid container style={{ overflowY: "hidden", overflowX: "scroll", maxHeight: "24vh", textAlign: "center" }}>
             {videos.map((videoStream, key) => {
               if (videoStream.userId !== someOneSharingScreen.userId) {
                 return (
-                  <Box
-                    style={{
-                      backgroundColor: "black",
-                      margin: "1% 5%",
-                      display: "flex",
-                      height: "28vh",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      textAlign: "center",
-                      minHeight: "33vh",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <video
-                      autoPlay
-                      muted={videoStream.userId === myId || speakerToggle}
-                      style={(!videoStream.video && videoStream.userId !== myId) || (!video && videoStream.userId === myId) ? { display: "none" } : { width: "30vw" }}
-                      ref={(videoRef) => {
-                        if (videoRef) videoRef.srcObject = videoStream.stream;
-                        return videoRef;
+                  <Grid xs={videos.length <= 4 ? 4 : 3}>
+                    <Box
+                      component="span"
+                      style={{
+                        backgroundColor: "black",
+                        margin: "1% 5%",
+                        display: "flex",
+                        height: "24vh",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        textAlign: "center",
+                        overflow: "hidden",
+                        width: "100%%",
                       }}
-                    />
-                    {!((videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)) && (
-                      <img src={videoStream.picurL} style={{ borderRadius: "100%", height: "auto", width: "25%", minWidth: "60px", maxWidth: "120px", display: "block" }} alt={videoStream.userName} />
-                    )}
-                  </Box>
+                    >
+                      <video
+                        autoPlay
+                        muted={videoStream.userId === myId || speakerToggle}
+                        style={(!videoStream.video && videoStream.userId !== myId) || (!video && videoStream.userId === myId) ? { display: "none" } : { width: "30vw" }}
+                        ref={(videoRef) => {
+                          if (videoRef) videoRef.srcObject = videoStream.stream;
+                          return videoRef;
+                        }}
+                      />
+                      {!((videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)) && (
+                        <img
+                          src={videoStream.picurL}
+                          style={{ borderRadius: "100%", height: "auto", width: "25%", minWidth: "60px", maxWidth: "120px", display: "block" }}
+                          alt={videoStream.userName}
+                        />
+                      )}
+                    </Box>
+                  </Grid>
                 );
               }
               return null;
             })}
-          </Box>
+          </Grid>
         </Grid>
       )}
     </Grid>

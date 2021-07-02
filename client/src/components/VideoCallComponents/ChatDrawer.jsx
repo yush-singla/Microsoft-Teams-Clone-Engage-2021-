@@ -23,7 +23,7 @@ const useStyles = makeStyles({
   },
   sendedMessageContainer: {
     padding: "2%",
-    maxWidth: window.innerWidth > 700 ? "20vw" : "80vw",
+    maxWidth: window.innerWidth > 900 ? "20vw" : "80%",
   },
   chatBox: {
     height: "85vh",
@@ -41,7 +41,7 @@ const useStyles = makeStyles({
     wordWrap: "break-word",
     display: "inline-block",
     minWidth: "10vw",
-    maxWidth: window.innerWidth >= 700 ? "14vw" : "60vw",
+    maxWidth: window.innerWidth >= 900 ? "14vw" : "60vw",
     border: "1px solid grey",
   },
   rightAlignedChat: {
@@ -55,7 +55,7 @@ const useStyles = makeStyles({
     wordWrap: "break-word",
     display: "inline-block",
     minWidth: "10vw",
-    maxWidth: window.innerWidth >= 700 ? "14vw" : "60vw",
+    maxWidth: window.innerWidth >= 900 ? "14vw" : "60vw",
     fontFamily: "sans-serif",
   },
 });
@@ -171,7 +171,14 @@ export default function ChatDrawer({ windowWidth, chatOpen, setChatOpen, chatOpe
         {chatMessagges.map((chatMssg, key) => {
           return (
             <Box>
-              <Box className={classes.sendedMessageContainer} style={chatMssg.from.userId !== myId ? { marginRight: "auto", textAlign: "left" } : { marginLeft: "auto", textAlign: "right" }}>
+              <Box
+                className={classes.sendedMessageContainer}
+                style={
+                  chatMssg.from.userId !== myId
+                    ? { marginRight: "auto", textAlign: "left", maxWidth: windowWidth > 900 ? "20vw" : "80%" }
+                    : { marginLeft: "auto", textAlign: "right", maxWidth: windowWidth > 900 ? "20vw" : "80%" }
+                }
+              >
                 {chatMssg.from.userId !== myId && (
                   <Tooltip title={chatMssg.from.name}>
                     <span style={{ lineHeight: "20%" }}>
@@ -179,7 +186,12 @@ export default function ChatDrawer({ windowWidth, chatOpen, setChatOpen, chatOpe
                     </span>
                   </Tooltip>
                 )}
-                <Typography component="p" variant="p" className={chatMssg.from.userId !== myId ? classes.leftAlignedChat : classes.rightAlignedChat}>
+                <Typography
+                  component="p"
+                  variant="p"
+                  className={chatMssg.from.userId !== myId ? classes.leftAlignedChat : classes.rightAlignedChat}
+                  style={{ maxWidth: windowWidth >= 900 ? "14vw" : "60vw" }}
+                >
                   <ShowChatMessage message={chatMssg.message} />
                 </Typography>
               </Box>

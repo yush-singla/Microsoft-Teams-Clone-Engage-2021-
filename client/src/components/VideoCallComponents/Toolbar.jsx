@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Paper, Box, Tooltip, IconButton, Badge, Modal, Grid, Typography, Popover } from "@material-ui/core";
+import { Paper, Box, Tooltip, IconButton, Badge, Modal, Grid, Typography, Popover, makeStyles } from "@material-ui/core";
 import allStickers from "../../utils/StickerProvider";
 import { useSocket } from "../../utils/SocketProvider";
 
@@ -20,10 +20,26 @@ import FaceIcon from "@material-ui/icons/Face";
 import ClearIcon from "@material-ui/icons/Clear";
 //end  of material ui icons import
 
+const useStyles = makeStyles({
+  bottomBar: {
+    width: "98%",
+    minHeight: "10vh",
+    position: "fixed",
+    bottom: "2vh",
+    backgroundColor: "lightgrey",
+  },
+  largeIcon: {
+    width: 35,
+    height: 35,
+  },
+  iconBg: {
+    backgroundColor: "grey",
+  },
+});
+
 export default function Toolbar({
   audio,
   toggleAudio,
-  classes,
   sharingScreen,
   toggleShareScreen,
   toggleVideo,
@@ -37,13 +53,14 @@ export default function Toolbar({
   chatOpenRef,
   myId,
   someOneSharingScreen,
+  askForPermission,
 }) {
   const socket = useSocket();
   const [openStickerModal, setOpenStickerModal] = useState(false);
   const [isStickerSet, setIsStickerSet] = useState(false);
   const [openPopover, setOpenPopover] = useState(false);
   const anchorForPopup = useRef();
-
+  const classes = useStyles();
   return (
     <Paper className={classes.bottomBar}>
       <Box textAlign="center">
@@ -102,7 +119,13 @@ export default function Toolbar({
               setWaitingRoomOpen(true);
             }}
           >
-            <PeopleIcon />
+            {askForPermission.length > 0 ? (
+              <Badge color="primary" badgeContent={askForPermission.length}>
+                <PeopleIcon />
+              </Badge>
+            ) : (
+              <PeopleIcon />
+            )}
           </IconButton>
         </Tooltip>
 

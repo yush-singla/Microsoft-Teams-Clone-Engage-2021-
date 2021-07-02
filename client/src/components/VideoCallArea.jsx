@@ -19,20 +19,6 @@ import { setScreenShareStream } from "../functions/setScreenStream";
 import ShareLinkClipBoard from "./VideoCallComponents/ShareLinkClipBoard";
 import SetUpInitail from "../functions/SetUpInitail";
 const useStyles = makeStyles({
-  bottomBar: {
-    width: "98%",
-    height: "10vh",
-    position: "fixed",
-    bottom: "20px",
-    backgroundColor: "lightgrey",
-  },
-  largeIcon: {
-    width: 35,
-    height: 35,
-  },
-  iconBg: {
-    backgroundColor: "grey",
-  },
   videoContainer: {
     display: "flex",
     width: "auto",
@@ -91,7 +77,8 @@ export default function VideoCallArea(props) {
   const startInterval = useRef();
   const myPicRef = useRef();
   const myNameRef = useRef();
-  const [openShareLink, setOpenShareLink] = useState(true);
+  const [openShareLink, setOpenShareLink] = useState(false);
+  const firstTime = useRef(true);
   const loadModels = async () => {
     Promise.all([
       faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
@@ -203,7 +190,11 @@ export default function VideoCallArea(props) {
       myIdRef.current = userId;
       cb();
       setVideos((prev) => {
-        setOpenShareLink(true);
+        if (firstTime.current) {
+          console.log("setting true share link becoz first time is  ", firstTime.current);
+          setOpenShareLink(true);
+        }
+        firstTime.current = false;
         return [{ stream, userId, audio: audioStatus.current, video: videoStatus.current, picurL: myPicRef.current, userName: titleCase(myNameRef.current) }];
       });
       const roomId = window.location.pathname.split("/")[2];
@@ -309,6 +300,7 @@ export default function VideoCallArea(props) {
     stopInterval,
     myId,
     someOneSharingScreen,
+    askForPermission,
   };
   const participantDrawerProps = { waitingRoomOpen, setWaitingRoomOpen, videos, admitToMeeting, denyMeeting, askForPermission, myId };
   const allVideoProps = { startInterval, stopInterval, startMaskSticker, someOneSharingScreen, videos, classes, myId, speakerToggle, video, audio };
@@ -322,7 +314,7 @@ export default function VideoCallArea(props) {
     );
   return (
     <div>
-      <LoadingModal loadingScreen={loadingScreen} />
+      <LoadingModal loadingScreen={loadingScreen} content={"Admitting new Participant"} />
       {openDialogBox && (
         <AlertDialog
           openDialogBox={openDialogBox}

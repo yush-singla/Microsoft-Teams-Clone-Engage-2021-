@@ -3,11 +3,34 @@ import IndividualVideo from "./IndividualVideo";
 import Box from "@material-ui/core/Box";
 import MicIcon from "@material-ui/icons/Mic";
 import MicOffIcon from "@material-ui/icons/MicOff";
-
+import { makeStyles } from "@material-ui/core";
 //these are heights for video components to be used for different no of people to keep the ui
 //beautiful all the time
-const usableHeights = ["90%", "75%", "60%", "45%"];
-export default function AllVideos({ startInterval, stopInterval, startMaskSticker, videos, classes, myId, speakerToggle, video, audio }) {
+const useStyles = makeStyles({
+  videoContainer: {
+    display: "flex",
+    width: "auto",
+    height: "85vh",
+    justifyContent: "center",
+    alignItems: "center",
+    flexWrap: "wrap",
+  },
+  videoContainerGrandChild: {
+    display: "flex",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+  },
+  videoContainerForFour: {
+    maxWidth: "100%",
+    maxHeight: "100%",
+  },
+});
+const usableHeights = ["94%", "80%", "60%", "48%"];
+export default function AllVideos({ startInterval, stopInterval, startMaskSticker, videos, myId, speakerToggle, video, audio }) {
+  const classes = useStyles();
+  if (videos.length === 0) return null;
   return (
     <Box className={classes.videoContainer}>
       {videos.map((videoStream, key) => {
@@ -16,7 +39,18 @@ export default function AllVideos({ startInterval, stopInterval, startMaskSticke
           <Box
             className={classes.videoContainerChild}
             key={videoStream.userId}
-            style={{ backgroundColor: "black", textAlign: "center", margin: "0 1%", minWidth: videos.length === 4 ? "32%" : "30%", height: currHeight, position: "relative" }}
+            style={{
+              backgroundColor: "black",
+              textAlign: "center",
+              minWidth: videos.length === 4 ? "32%" : "30%",
+              width: videos.length === 1 ? "75vw" : videos.length === 2 ? "45vw" : videos.length === 3 ? "30vw" : "30vw",
+              margin: "0 1%",
+              marginRight: videos.length === 4 ? (key === 1 || key === 3 ? "10%" : "2%") : "1%",
+              marginLeft: videos.length === 4 ? (key === 0 || key === 2 ? "10%" : "2%") : "1%",
+              height: currHeight,
+              position: "relative",
+              overflow: "hidden",
+            }}
           >
             <Box className={classes.videoContainerGrandChild}>
               <IndividualVideo

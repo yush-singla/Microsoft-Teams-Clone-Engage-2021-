@@ -4,9 +4,6 @@ import RemoveCircleIcon from "@material-ui/icons/RemoveCircle";
 import { Drawer, Typography, Divider, Tooltip, Grid, IconButton, Box, makeStyles } from "@material-ui/core";
 import KeyboardBackspaceIcon from "@material-ui/icons/KeyboardBackspace";
 const useStyles = makeStyles({
-  mainBox: {
-    minWidth: "25vw",
-  },
   participants: {
     paddingLeft: "20%",
     height: "40vh",
@@ -14,7 +11,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function ShowParticipantsDrawer({ myId, waitingRoomOpen, setWaitingRoomOpen, videos, admitToMeeting, denyMeeting, askForPermission }) {
+export default function ShowParticipantsDrawer({ myId, waitingRoomOpen, setWaitingRoomOpen, videos, admitToMeeting, denyMeeting, askForPermission, windowWidth }) {
   const classes = useStyles();
   return (
     <Drawer
@@ -24,7 +21,8 @@ export default function ShowParticipantsDrawer({ myId, waitingRoomOpen, setWaiti
         setWaitingRoomOpen(false);
       }}
     >
-      <Box className={classes.mainBox}>
+      {console.log(windowWidth)}
+      <Box style={{ minWidth: windowWidth >= 900 ? "30vw" : windowWidth >= 500 ? "65vw" : "88vw" }}>
         <Box textAlign="center" position="relative">
           <Tooltip title="Go Back">
             <IconButton

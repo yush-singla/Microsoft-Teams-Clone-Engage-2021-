@@ -5,8 +5,13 @@ import SendIcon from "@material-ui/icons/Send";
 import KeyboardBackspaceIcon from "@material-ui/icons/KeyboardBackspace";
 
 const useStyles = makeStyles({
-  chatTextField: {
+  chatTextFieldPc: {
     width: "24vw",
+    paddingLeft: "1vw",
+    paddingRight: "3vw",
+  },
+  chatTextFieldMobile: {
+    width: "55vw",
     paddingLeft: "1vw",
     paddingRight: "3vw",
   },
@@ -18,7 +23,7 @@ const useStyles = makeStyles({
   },
   sendedMessageContainer: {
     padding: "2%",
-    maxWidth: "20vw",
+    maxWidth: window.innerWidth > 900 ? "20vw" : "80%",
   },
   chatBox: {
     height: "85vh",
@@ -36,7 +41,7 @@ const useStyles = makeStyles({
     wordWrap: "break-word",
     display: "inline-block",
     minWidth: "10vw",
-    maxWidth: "14vw",
+    maxWidth: window.innerWidth >= 900 ? "14vw" : "60vw",
     border: "1px solid grey",
   },
   rightAlignedChat: {
@@ -50,12 +55,12 @@ const useStyles = makeStyles({
     wordWrap: "break-word",
     display: "inline-block",
     minWidth: "10vw",
-    maxWidth: "14vw",
+    maxWidth: window.innerWidth >= 900 ? "14vw" : "60vw",
     fontFamily: "sans-serif",
   },
 });
 
-export default function ChatDrawer({ chatOpen, setChatOpen, chatOpenRef, videos, myId, myNameRef, myPicRef, setShowChatPopUp }) {
+export default function ChatDrawer({ windowWidth, chatOpen, setChatOpen, chatOpenRef, videos, myId, myNameRef, myPicRef, setShowChatPopUp }) {
   const classes = useStyles();
   const socket = useSocket();
   const [sendTo, setSendTo] = useState("all");
@@ -147,7 +152,7 @@ export default function ChatDrawer({ chatOpen, setChatOpen, chatOpenRef, videos,
         chatOpenRef.current = false;
       }}
     >
-      <Box className={classes.chatBox} position="relative">
+      <Box className={classes.chatBox} style={{ width: windowWidth <= 500 ? "95vw" : windowWidth <= 900 ? "70vw" : "auto" }} position="relative">
         <Box textAlign="center">
           <Tooltip title="Go Back">
             <IconButton
@@ -166,15 +171,27 @@ export default function ChatDrawer({ chatOpen, setChatOpen, chatOpenRef, videos,
         {chatMessagges.map((chatMssg, key) => {
           return (
             <Box>
-              <Box className={classes.sendedMessageContainer} style={chatMssg.from.userId !== myId ? { marginRight: "auto", textAlign: "left" } : { marginLeft: "auto", textAlign: "right" }}>
+              <Box
+                className={classes.sendedMessageContainer}
+                style={
+                  chatMssg.from.userId !== myId
+                    ? { marginRight: "auto", textAlign: "left", maxWidth: windowWidth > 900 ? "20vw" : "80%" }
+                    : { marginLeft: "auto", textAlign: "right", maxWidth: windowWidth > 900 ? "20vw" : "80%" }
+                }
+              >
                 {chatMssg.from.userId !== myId && (
                   <Tooltip title={chatMssg.from.name}>
                     <span style={{ lineHeight: "20%" }}>
-                      <img src={chatMssg.from.picurL} style={{ height: "2.5vw", width: "auto", borderRadius: "100%", verticalAlign: "middle" }} alt={"pic"} />
+                      <img src={chatMssg.from.picurL} style={{ height: "6vh", width: "auto", borderRadius: "100%", verticalAlign: "middle" }} alt={"pic"} />
                     </span>
                   </Tooltip>
                 )}
-                <Typography component="p" variant="p" className={chatMssg.from.userId !== myId ? classes.leftAlignedChat : classes.rightAlignedChat}>
+                <Typography
+                  component="p"
+                  variant="p"
+                  className={chatMssg.from.userId !== myId ? classes.leftAlignedChat : classes.rightAlignedChat}
+                  style={{ maxWidth: windowWidth >= 900 ? "14vw" : "60vw" }}
+                >
                   <ShowChatMessage message={chatMssg.message} />
                 </Typography>
               </Box>
@@ -197,13 +214,14 @@ export default function ChatDrawer({ chatOpen, setChatOpen, chatOpenRef, videos,
           })}
         </Select>
       </Box>
-      <Box>
+      <Box textAlign="center">
         <TextField
-          className={classes.chatTextField}
+          className={windowWidth >= 900 ? classes.chatTextPc : classes.chatTextFieldMobile}
+          style={{ margin: "auto" }}
           placeholder="Enter Chat Messages"
           InputProps={{
             classes: {
-              input: classes.chatText,
+              input: windowWidth >= 900 ? classes.chatTextPc : classes.chatTextFieldMobile,
             },
             endAdornment: <SendMessageButton />,
           }}

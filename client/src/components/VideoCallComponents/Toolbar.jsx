@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Paper, Box, Tooltip, IconButton, Badge, Modal, Grid, Typography, Popover } from "@material-ui/core";
+import { Paper, Box, Tooltip, IconButton, Badge, Modal, Grid, Typography, Popover, makeStyles } from "@material-ui/core";
 import allStickers from "../../utils/StickerProvider";
 import { useSocket } from "../../utils/SocketProvider";
 
@@ -20,10 +20,26 @@ import FaceIcon from "@material-ui/icons/Face";
 import ClearIcon from "@material-ui/icons/Clear";
 //end  of material ui icons import
 
+const useStyles = makeStyles({
+  bottomBar: {
+    width: "98%",
+    minHeight: "10vh",
+    position: "fixed",
+    bottom: "2vh",
+    backgroundColor: "lightgrey",
+  },
+  largeIcon: {
+    width: 35,
+    height: 35,
+  },
+  iconBg: {
+    backgroundColor: "grey",
+  },
+});
+
 export default function Toolbar({
   audio,
   toggleAudio,
-  classes,
   sharingScreen,
   toggleShareScreen,
   toggleVideo,
@@ -37,13 +53,15 @@ export default function Toolbar({
   chatOpenRef,
   myId,
   someOneSharingScreen,
+  askForPermission,
+  windowWidth,
 }) {
   const socket = useSocket();
   const [openStickerModal, setOpenStickerModal] = useState(false);
   const [isStickerSet, setIsStickerSet] = useState(false);
   const [openPopover, setOpenPopover] = useState(false);
   const anchorForPopup = useRef();
-
+  const classes = useStyles();
   return (
     <Paper className={classes.bottomBar}>
       <Box textAlign="center">
@@ -86,15 +104,17 @@ export default function Toolbar({
           </IconButton>
         </Tooltip>
 
-        <Tooltip title={speakerToggle ? "Turn on Speaker" : "Turn off Speaker"}>
-          <IconButton
-            onClick={() => {
-              setSpeakerToggle((prev) => !prev);
-            }}
-          >
-            {speakerToggle ? <VolumeOffIcon /> : <VolumeUpIcon />}
-          </IconButton>
-        </Tooltip>
+        {windowWidth >= 400 && (
+          <Tooltip title={speakerToggle ? "Turn on Speaker" : "Turn off Speaker"}>
+            <IconButton
+              onClick={() => {
+                setSpeakerToggle((prev) => !prev);
+              }}
+            >
+              {speakerToggle ? <VolumeOffIcon /> : <VolumeUpIcon />}
+            </IconButton>
+          </Tooltip>
+        )}
 
         <Tooltip title={"Participants and Waiting room"}>
           <IconButton
@@ -102,7 +122,13 @@ export default function Toolbar({
               setWaitingRoomOpen(true);
             }}
           >
-            <PeopleIcon />
+            {askForPermission.length > 0 ? (
+              <Badge color="primary" badgeContent={askForPermission.length}>
+                <PeopleIcon />
+              </Badge>
+            ) : (
+              <PeopleIcon />
+            )}
           </IconButton>
         </Tooltip>
 
@@ -174,7 +200,7 @@ export default function Toolbar({
             setOpenStickerModal(false);
           }}
         >
-          <Box style={{ backgroundColor: "white", height: "60vh", width: "40vw", margin: "auto", marginTop: "18vh", overflowY: "scroll" }}>
+          <Box style={{ backgroundColor: "white", height: "60vh", width: windowWidth >= 600 ? "40vw" : "80vw", margin: "auto", marginTop: "18vh", overflowY: "scroll" }}>
             <Grid container>
               <Grid xs={12} item style={{ textAlign: "center", position: "relative" }}>
                 <Tooltip title="Go Back">
@@ -194,9 +220,10 @@ export default function Toolbar({
                 //key here is the actual name of the variable/sticker
                 const nameOfSticker = Object.keys(sticker)[0];
                 return (
-                  <Grid key={JSON.stringify(sticker)} item xs={4} style={{ textAlign: "center" }}>
+                  <Grid key={JSON.stringify(sticker)} item xs={6} sm={4} style={{ textAlign: "center" }}>
                     <Tooltip title={nameOfSticker}>
                       <IconButton
+                        style={{ minWidth: "10px" }}
                         onClick={() => {
                           setOpenStickerModal(false);
                           setIsStickerSet(true);
@@ -204,7 +231,7 @@ export default function Toolbar({
                           socket.emit("start-sticker", myId, roomId, key);
                         }}
                       >
-                        <img src={sticker[nameOfSticker]} alt={"sticker"} style={{ width: "5vw", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }} />
+                        <img src={sticker[nameOfSticker]} alt={"sticker"} style={{ height: "10vh", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }} />
                       </IconButton>
                     </Tooltip>
                   </Grid>

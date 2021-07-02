@@ -280,6 +280,7 @@ export default function VideoCallArea(props) {
     myId,
     someOneSharingScreen,
     askForPermission,
+    windowWidth,
   };
   const participantDrawerProps = { waitingRoomOpen, setWaitingRoomOpen, videos, admitToMeeting, denyMeeting, askForPermission, myId };
   const allVideoProps = { startInterval, stopInterval, startMaskSticker, someOneSharingScreen, videos, myId, speakerToggle, video, audio };
@@ -304,7 +305,7 @@ export default function VideoCallArea(props) {
           denyMeeting={denyMeeting}
         />
       )}
-      {someOneSharingScreen.value ? <ScreenShare {...allVideoProps} /> : windowWidth > 900 ? <AllVideos {...allVideoProps} /> : <MobileAllVideos {...allVideoProps} />}
+      {someOneSharingScreen.value ? <ScreenShare windowWidth={windowWidth} {...allVideoProps} /> : windowWidth > 900 ? <AllVideos {...allVideoProps} /> : <MobileAllVideos {...allVideoProps} />}
       <ShareLinkClipBoard openShareLink={openShareLink} setOpenShareLink={setOpenShareLink} />
       <Toolbar {...toolbarProps} />
       <ShowParticipantsDrawer {...participantDrawerProps} />

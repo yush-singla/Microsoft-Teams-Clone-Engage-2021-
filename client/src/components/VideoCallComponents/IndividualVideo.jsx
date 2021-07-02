@@ -3,7 +3,7 @@ import * as faceapi from "face-api.js";
 import { useSocket } from "../../utils/SocketProvider";
 import allStickers from "../../utils/StickerProvider";
 
-const useAbleMaxWidths = ["49vw", "43vw", "29vw"];
+const useAbleMaxWidths = ["65vw", "50vw", "32vw"];
 
 export default function IndividualVideo({ key, myId, speakerToggle, videoStream, video, audio, size }) {
   const [modelsLoaded, setModelsLoaded] = useState(false);
@@ -73,7 +73,7 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
               .getContext("2d")
               .drawImage(
                 img.current,
-                jawCoods[4].x - (jawCoods[16].x - jawCoods[0].x) * 0.48,
+                jawCoods[4].x - (jawCoods[16].x - jawCoods[0].x) * 0.43,
                 jawCoods[0].y - (jawCoods[8].y - headCoods[3].y) * 0.9,
                 (jawCoods[16].x - jawCoods[0].x) * 1.7,
                 (jawCoods[8].y - headCoods[3].y) * 1.8
@@ -106,7 +106,7 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
     };
   }
 
-  const currMaxWidth = size === 1 ? useAbleMaxWidths[0] : size === 2 || size === 4 ? useAbleMaxWidths[1] : useAbleMaxWidths[2];
+  const currMaxWidth = size === 1 ? useAbleMaxWidths[0] : size === 2 ? useAbleMaxWidths[1] : useAbleMaxWidths[2];
   if (!modelsLoaded) {
     return <div style={{ color: "white" }}>Loading</div>;
   }
@@ -123,7 +123,7 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
         }}
         style={
           (videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)
-            ? { width: currMaxWidth, height: "100%", position: "absolute", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }
+            ? { width: currMaxWidth, position: "absolute", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }
             : { display: "none" }
         }
         ref={(videoRef) => {
@@ -148,7 +148,7 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
         }}
         style={
           (videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)
-            ? { width: currMaxWidth, height: "100%", position: "absolute", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }
+            ? { width: currMaxWidth, height: size !== 4 ? "100%" : "128%", position: "absolute", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }
             : { display: "none" }
         }
       ></canvas>

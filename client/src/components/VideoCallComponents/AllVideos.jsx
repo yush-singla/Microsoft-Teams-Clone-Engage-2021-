@@ -15,9 +15,6 @@ const useStyles = makeStyles({
     alignItems: "center",
     flexWrap: "wrap",
   },
-  videoContainerChild: {
-    flex: "1 0 auto",
-  },
   videoContainerGrandChild: {
     display: "flex",
     height: "100%",
@@ -30,7 +27,7 @@ const useStyles = makeStyles({
     maxHeight: "100%",
   },
 });
-const usableHeights = ["90%", "75%", "60%", "48%"];
+const usableHeights = ["94%", "80%", "60%", "48%"];
 export default function AllVideos({ startInterval, stopInterval, startMaskSticker, videos, myId, speakerToggle, video, audio }) {
   const classes = useStyles();
   if (videos.length === 0) return null;
@@ -42,7 +39,18 @@ export default function AllVideos({ startInterval, stopInterval, startMaskSticke
           <Box
             className={classes.videoContainerChild}
             key={videoStream.userId}
-            style={{ backgroundColor: "black", textAlign: "center", margin: "0 1%", minWidth: videos.length === 4 ? "32%" : "30%", height: currHeight, position: "relative" }}
+            style={{
+              backgroundColor: "black",
+              textAlign: "center",
+              minWidth: videos.length === 4 ? "32%" : "30%",
+              width: videos.length === 1 ? "75vw" : videos.length === 2 ? "45vw" : videos.length === 3 ? "30vw" : "30vw",
+              margin: "0 1%",
+              marginRight: videos.length === 4 ? (key === 1 || key === 3 ? "10%" : "2%") : "1%",
+              marginLeft: videos.length === 4 ? (key === 0 || key === 2 ? "10%" : "2%") : "1%",
+              height: currHeight,
+              position: "relative",
+              overflow: "hidden",
+            }}
           >
             <Box className={classes.videoContainerGrandChild}>
               <IndividualVideo

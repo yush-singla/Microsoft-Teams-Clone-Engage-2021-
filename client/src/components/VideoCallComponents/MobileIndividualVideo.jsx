@@ -2,10 +2,11 @@ import React, { useEffect, useState, useRef } from "react";
 import * as faceapi from "face-api.js";
 import { useSocket } from "../../utils/SocketProvider";
 import allStickers from "../../utils/StickerProvider";
-
-const useAbleMaxWidths = ["70vw", "70vw", "40vw"];
-const useAbleMaxWidthsDiv = ["88vw", "77vw", "46vw"];
-const usableHeightsDiv = ["80vh", "45vh", "40vh"];
+import MicOffIcon from "@material-ui/icons/MicOff";
+import MicIcon from "@material-ui/icons/Mic";
+const useAbleMaxWidths = ["70vw", "60vw", "50vw"];
+const useAbleMaxWidthsDiv = ["70vw", "60vw", "43vw"];
+const usableHeightsDiv = ["80vh", "40vh", "32vh"];
 
 export default function MobileIndividualVideo({ key, myId, speakerToggle, videoStream, video, audio, size }) {
   const [modelsLoaded, setModelsLoaded] = useState(false);
@@ -123,6 +124,7 @@ export default function MobileIndividualVideo({ key, myId, speakerToggle, videoS
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        overflow: "hidden",
       }}
     >
       <video
@@ -135,7 +137,7 @@ export default function MobileIndividualVideo({ key, myId, speakerToggle, videoS
         }}
         style={
           (videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)
-            ? { width: useAbleMaxWidths[size <= 3 ? size - 1 : 2], height: "100%", position: "absolute", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }
+            ? { width: useAbleMaxWidths[size <= 3 ? size - 1 : 2], position: "absolute", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }
             : { display: "none" }
         }
         ref={(videoRef) => {
@@ -165,8 +167,29 @@ export default function MobileIndividualVideo({ key, myId, speakerToggle, videoS
         }
       ></canvas>
       {!((videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)) && (
-        <img src={videoStream.picurL} style={{ borderRadius: "100%", height: "20%", width: "25%", minWidth: "60px", maxWidth: "120px" }} alt={videoStream.userName} />
+        <img src={videoStream.picurL} style={{ borderRadius: "100%", height: "25%", width: "auto", minWidth: "60px", maxWidth: "120px" }} alt={videoStream.userName} />
       )}
+      <div
+        style={{
+          fontSize: "1.3rem",
+          fontFamily: "sans-serif",
+          color: "white",
+          textAlign: "right",
+          paddingRight: "3%",
+          width: "fit-content",
+          marginLeft: "auto",
+          padding: "1.3%",
+          zIndex: "100",
+          position: "absolute",
+          bottom: "0",
+          right: "0",
+          backgroundColor: "rgba(0,0,0,0.5)",
+        }}
+      >
+        <span style={{ verticalAlign: "bottom" }}>{videoStream.userId === myId ? "You" : videoStream.userName}</span>
+        {videoStream.userId !== myId &&
+          (videoStream.audio ? <MicIcon style={{ marginLeft: "10px", verticalAlign: "bottom" }} /> : <MicOffIcon style={{ marginLeft: "10px", verticalAlign: "bottom" }} />)}
+      </div>
     </div>
   );
 }

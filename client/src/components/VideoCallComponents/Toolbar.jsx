@@ -54,6 +54,7 @@ export default function Toolbar({
   myId,
   someOneSharingScreen,
   askForPermission,
+  windowWidth,
 }) {
   const socket = useSocket();
   const [openStickerModal, setOpenStickerModal] = useState(false);
@@ -103,15 +104,17 @@ export default function Toolbar({
           </IconButton>
         </Tooltip>
 
-        <Tooltip title={speakerToggle ? "Turn on Speaker" : "Turn off Speaker"}>
-          <IconButton
-            onClick={() => {
-              setSpeakerToggle((prev) => !prev);
-            }}
-          >
-            {speakerToggle ? <VolumeOffIcon /> : <VolumeUpIcon />}
-          </IconButton>
-        </Tooltip>
+        {windowWidth >= 400 && (
+          <Tooltip title={speakerToggle ? "Turn on Speaker" : "Turn off Speaker"}>
+            <IconButton
+              onClick={() => {
+                setSpeakerToggle((prev) => !prev);
+              }}
+            >
+              {speakerToggle ? <VolumeOffIcon /> : <VolumeUpIcon />}
+            </IconButton>
+          </Tooltip>
+        )}
 
         <Tooltip title={"Participants and Waiting room"}>
           <IconButton

@@ -89,22 +89,22 @@ export default function WaitingRoom() {
   }
   return (
     <>
-      <Box textAlign="center" px={8}>
-        <Typography variant="h2">WaitingRoom</Typography>
-        <Paper className={classes.paperStyle}>
-          <Box p={6}>
+      <Box textAlign="center" style={{ paddingLeft: "8vw", paddingRight: "8vw" }}>
+        <Typography variant={window.innerWidth >= 700 ? "h3" : "h4"}>WaitingRoom</Typography>
+        <Paper className={classes.paperStyle} style={{ width: "70vw", margin: "auto" }}>
+          <Box style={{ padding: "6vh 6vw" }}>
             <video
               muted
               playsInline
               autoPlay
-              style={{ width: "320px", height: "220px" }}
+              style={{ width: "32vw", height: "42vh" }}
               ref={(videoRef) => {
                 if (videoRef && myVideo) {
                   videoRef.srcObject = myVideo.stream;
                 }
               }}
             ></video>
-            <Grid container>
+            <Grid container style={{ marginTop: "5vh" }}>
               <Grid item xs={12}>
                 <Box component="span" px={1}>
                   <Tooltip placement="top" title={audio ? "Turn off Microphone" : "Turn on Microphone"}>

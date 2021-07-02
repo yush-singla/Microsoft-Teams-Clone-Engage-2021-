@@ -610,7 +610,7 @@ npm run dev
 4. WebRTC(PeerJs)
 5. PassPortJs
 
-### Usage
+### Usagegit
 
 1. ReactJs is used to make the entire front end, _since it allows me to use hooks and other modern features that make the website look smooth with no reloading whatsover like in a traditional Website_.
 2. NodeJs is used for the server, it handles get/post requests through express and also handles socket events.

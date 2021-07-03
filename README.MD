@@ -83,8 +83,7 @@ npm run dev
 3. Options, to turn cam on/off, mute,etc avaliable.
 
 ### 2. Chats
-
-![image](https://user-images.githubusercontent.com/70366079/123799398-cfd77580-d905-11eb-9382-195bfeecfee0.png)
+![image](https://user-images.githubusercontent.com/70366079/123799398-cfd77580-d905-11eb-9382-195bfeecfee0.png){ width=50% }
 
 1. Can send message to individuals, as well as to everyone in the meeting.
 2. Links can also be shared easily and become clickable.
@@ -92,7 +91,7 @@ npm run dev
 
 ### 3. Screen Share
 
-![image](https://user-images.githubusercontent.com/70366079/124368458-d7d54380-dc7e-11eb-99c5-8bcfd8d5be42.png)
+![image](https://user-images.githubusercontent.com/70366079/124368458-d7d54380-dc7e-11eb-99c5-8bcfd8d5be42.png){ width=50% }
 
 
 1. A single user can share their screen at a time.
@@ -109,15 +108,15 @@ npm run dev
 
 ### 5. Fun Face Masks
 
-![image](https://user-images.githubusercontent.com/70366079/124368419-92187b00-dc7e-11eb-909e-1bdf232e3cee.png)
+![image](https://user-images.githubusercontent.com/70366079/124368419-92187b00-dc7e-11eb-909e-1bdf232e3cee.png){ width=50% }
 
 1. Virtual Face masks and Stickers for your face.
 2. Chose from a large collection.
 
 ### 6. Waiting Rooms!
-![image](https://user-images.githubusercontent.com/70366079/124368483-10751d00-dc7f-11eb-8cb2-e48e412a8c03.png)
+![image](https://user-images.githubusercontent.com/70366079/124368483-10751d00-dc7f-11eb-8cb2-e48e412a8c03.png){ width=50% }
 
-![image](https://user-images.githubusercontent.com/70366079/124368487-1d920c00-dc7f-11eb-98f9-7d16b8a8819f.png)
+![image](https://user-images.githubusercontent.com/70366079/124368487-1d920c00-dc7f-11eb-98f9-7d16b8a8819f.png){ width=50% }
 
 
 1. The host of the meeting has full control of the meeting.

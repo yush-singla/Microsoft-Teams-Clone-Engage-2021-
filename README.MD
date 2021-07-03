@@ -84,11 +84,16 @@ npm run dev
 
 ### 2. Chats
 
+![image](https://user-images.githubusercontent.com/70366079/123799398-cfd77580-d905-11eb-9382-195bfeecfee0.png)
+
 1. Can send message to individuals, as well as to everyone in the meeting.
 2. Links can also be shared easily and become clickable.
 3. Push Notifications are sent to the user, who recieves a message.
 
 ### 3. Screen Share
+
+![image](https://user-images.githubusercontent.com/70366079/124368458-d7d54380-dc7e-11eb-99c5-8bcfd8d5be42.png)
+
 
 1. A single user can share their screen at a time.
 2. The video of the other users is also shown simentaneously
@@ -104,10 +109,16 @@ npm run dev
 
 ### 5. Fun Face Masks
 
+![image](https://user-images.githubusercontent.com/70366079/124368419-92187b00-dc7e-11eb-909e-1bdf232e3cee.png)
+
 1. Virtual Face masks and Stickers for your face.
 2. Chose from a large collection.
 
 ### 6. Waiting Rooms!
+![image](https://user-images.githubusercontent.com/70366079/124368483-10751d00-dc7f-11eb-8cb2-e48e412a8c03.png)
+
+![image](https://user-images.githubusercontent.com/70366079/124368487-1d920c00-dc7f-11eb-98f9-7d16b8a8819f.png)
+
 
 1. The host of the meeting has full control of the meeting.
 2. Whenever someone tries to join, the host can accept him or deny him entry.

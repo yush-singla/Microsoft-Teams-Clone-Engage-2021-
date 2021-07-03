@@ -1,8 +1,13 @@
+
 # Microsoft Teams Clone
 
 ## Free Video Calling App
 
 Microsoft Teams Clone is a webRTC based project to enjoy free, Quality video conversations with friends and colleagues.
+
+
+<!-- ![image](https://user-images.githubusercontent.com/70366079/123800040-7c195c00-d906-11eb-80af-9856360e4185.png) -->
+<img src="https://user-images.githubusercontent.com/70366079/123800040-7c195c00-d906-11eb-80af-9856360e4185.png" width="800" > 
 
 ### Features
 
@@ -12,6 +17,9 @@ Microsoft Teams Clone is a webRTC based project to enjoy free, Quality video con
 4. User Authentication
 5. Fun Face Masks
 6. Screen Share
+
+<img src="https://user-images.githubusercontent.com/70366079/124368483-10751d00-dc7f-11eb-8cb2-e48e412a8c03.png" width="200" >  <img src="https://user-images.githubusercontent.com/70366079/124368419-92187b00-dc7e-11eb-909e-1bdf232e3cee.png" width="200" style="margin:auto">  <img src="https://user-images.githubusercontent.com/70366079/124368406-65646380-dc7e-11eb-8d55-6645603677ad.png" width="200" >
+<img src="https://user-images.githubusercontent.com/70366079/124368458-d7d54380-dc7e-11eb-99c5-8bcfd8d5be42.png" width="200" > <img src="https://user-images.githubusercontent.com/70366079/123799398-cfd77580-d905-11eb-9382-195bfeecfee0.png" width="200" >   <img src="https://user-images.githubusercontent.com/70366079/124368537-92654600-dc7f-11eb-842c-855efd363e55.png" width="200" > 
 
 ## How to use
 
@@ -76,23 +84,36 @@ npm run dev
 ## Deep Dive into the Features
 
 ### 1. Video Meetings
+<!-- ![image](https://user-images.githubusercontent.com/70366079/124368537-92654600-dc7f-11eb-842c-855efd363e55.png) -->
+<img src="https://user-images.githubusercontent.com/70366079/124368537-92654600-dc7f-11eb-842c-855efd363e55.png" width="600" > 
+
 
 1. Supports upto 5 people.
 2. Compatible on Mobile as well as the web.
 3. Options, to turn cam on/off, mute,etc avaliable.
 
 ### 2. Chats
+<!-- ![image](https://user-images.githubusercontent.com/70366079/123799398-cfd77580-d905-11eb-9382-195bfeecfee0.png) -->
+<img src="https://user-images.githubusercontent.com/70366079/123799398-cfd77580-d905-11eb-9382-195bfeecfee0.png" width="600" > 
+
 
 1. Can send message to individuals, as well as to everyone in the meeting.
 2. Links can also be shared easily and become clickable.
 3. Push Notifications are sent to the user, who recieves a message.
 
 ### 3. Screen Share
+<img src="https://user-images.githubusercontent.com/70366079/124368458-d7d54380-dc7e-11eb-99c5-8bcfd8d5be42.png" width="600" style="margin:auto">
+<!-- ![image](https://user-images.githubusercontent.com/70366079/124368458-d7d54380-dc7e-11eb-99c5-8bcfd8d5be42.png) -->
+
 
 1. A single user can share their screen at a time.
 2. The video of the other users is also shown simentaneously
 
 ### 4. User Authentication
+
+<img src="https://user-images.githubusercontent.com/70366079/124368406-65646380-dc7e-11eb-8d55-6645603677ad.png" width="600" > 
+<!-- ![image](https://user-images.githubusercontent.com/70366079/124368406-65646380-dc7e-11eb-8d55-6645603677ad.png) -->
+
 
 1. No hassle of filling forms.
 2. Login with your favourite social media
@@ -102,11 +123,19 @@ npm run dev
    \*Github
 
 ### 5. Fun Face Masks
+<img src="https://user-images.githubusercontent.com/70366079/124368419-92187b00-dc7e-11eb-909e-1bdf232e3cee.png" width="600" style="margin:auto">
+<!-- ![image](https://user-images.githubusercontent.com/70366079/124368419-92187b00-dc7e-11eb-909e-1bdf232e3cee.png) -->
 
 1. Virtual Face masks and Stickers for your face.
 2. Chose from a large collection.
 
 ### 6. Waiting Rooms!
+<!-- ![image](https://user-images.githubusercontent.com/70366079/124368483-10751d00-dc7f-11eb-8cb2-e48e412a8c03.png) -->
+<img src="https://user-images.githubusercontent.com/70366079/124368483-10751d00-dc7f-11eb-8cb2-e48e412a8c03.png" width="600" > 
+<!-- ![image](https://user-images.githubusercontent.com/70366079/124368487-1d920c00-dc7f-11eb-98f9-7d16b8a8819f.png=200) -->
+<!-- <img src="https://user-images.githubusercontent.com/70366079/124368487-1d920c00-dc7f-11eb-98f9-7d16b8a8819f.png" width="600" >  -->
+
+
 
 1. The host of the meeting has full control of the meeting.
 2. Whenever someone tries to join, the host can accept him or deny him entry.
@@ -116,6 +145,9 @@ npm run dev
 ## Design
 
 ### High Level Design
+
+![image](https://user-images.githubusercontent.com/70366079/124369011-ea527b80-dc84-11eb-8406-7fd09756f25e.png)
+
 
 #### Video Meetings
 
@@ -154,6 +186,9 @@ npm run dev
 
 ### Low Level Design
 
+![image](https://user-images.githubusercontent.com/70366079/124369092-b0ce4000-dc85-11eb-9235-f970f66731ad.png)
+
+
 #### Video Meetings
 
 #### Client Side
@@ -177,6 +212,7 @@ function setUpSocketsAndPeerEvents({ socket, myPeer, stream, myPic }, cb) {
         addVideoStream(userVideoStream, call.peer, { userAudio, userVideo, userName, userPicUrl });
         const roomId = window.location.pathname.split("/")[2];
         setVideo((prev) => {
+          console.log("the state of video is", prev);
           return prev;
         });
         socket.emit("acknowledge-connected-user", {
@@ -307,6 +343,7 @@ function ProtectedRoute({ component: Component, ...rest }) {
 
   useEffect(() => {
     axios.get("/authenticated").then((response) => {
+      console.log(response.data);
       if (response.data !== "unauthorised") {
         setIsLoggedIn(true);
       } else {

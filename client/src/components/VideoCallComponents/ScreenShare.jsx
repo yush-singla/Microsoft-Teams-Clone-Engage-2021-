@@ -8,10 +8,10 @@ export default function ScreenShare({ someOneSharingScreen, videos, classes, myI
     <Grid container spacing={1}>
       <Grid item xs={windowWidth >= 900 ? 8 : 12}>
         {videos.map((videoStream, key) => {
-          console.log(videoStream.userId, myId, speakerToggle);
           if (videoStream.userId === someOneSharingScreen.userId) {
             return (
               <video
+                key={key}
                 autoPlay
                 muted={videoStream.userId === myId || speakerToggle}
                 style={{ height: windowWidth >= 900 ? "83vh" : "60vh", maxWidth: "100%", margin: "auto", display: "block" }}
@@ -32,6 +32,7 @@ export default function ScreenShare({ someOneSharingScreen, videos, classes, myI
               if (videoStream.userId !== someOneSharingScreen.userId) {
                 return (
                   <Box
+                    key={key}
                     style={{
                       backgroundColor: "black",
                       margin: "1% 5%",
@@ -93,7 +94,7 @@ export default function ScreenShare({ someOneSharingScreen, videos, classes, myI
             {videos.map((videoStream, key) => {
               if (videoStream.userId !== someOneSharingScreen.userId) {
                 return (
-                  <Grid xs={videos.length <= 4 ? 4 : 3}>
+                  <Grid key={key} xs={videos.length <= 4 ? 4 : 3}>
                     <Box
                       component="span"
                       style={{

@@ -21,7 +21,6 @@ export default function ShowParticipantsDrawer({ myId, waitingRoomOpen, setWaiti
         setWaitingRoomOpen(false);
       }}
     >
-      {console.log(windowWidth)}
       <Box style={{ minWidth: windowWidth >= 900 ? "30vw" : windowWidth >= 500 ? "65vw" : "88vw" }}>
         <Box textAlign="center" position="relative">
           <Tooltip title="Go Back">
@@ -43,7 +42,7 @@ export default function ShowParticipantsDrawer({ myId, waitingRoomOpen, setWaiti
           {videos.map((videoStream, key) => {
             if (videoStream && videoStream.userName)
               return (
-                <Box style={{ display: "table", padding: "10px" }}>
+                <Box key={key} style={{ display: "table", padding: "10px" }}>
                   <img src={videoStream.picurL} style={{ height: "6vh", width: "auto", borderRadius: "100%", display: "table-cell", verticalAlign: "middle" }} alt="pic of" />{" "}
                   <Typography
                     key={videoStream.userId}
@@ -65,7 +64,7 @@ export default function ShowParticipantsDrawer({ myId, waitingRoomOpen, setWaiti
         <Box style={{ overflowY: "scroll" }}>
           {askForPermission.map((request, key) => {
             return (
-              <React.Fragment key={Math.floor(Math.random() * 10000)}>
+              <React.Fragment key={key}>
                 <Grid container>
                   <Grid item xs={8}>
                     <Box textAlign="center" pt={1}>

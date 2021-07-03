@@ -124,12 +124,16 @@ export default function ChatDrawer({ windowWidth, chatOpen, setChatOpen, chatOpe
         {words.map((word, key) => {
           if (isUrl(word)) {
             return (
-              <Link href={!word.match(/^[a-zA-Z]+:\/\//) ? "http://" + word : word} target="_blank">
+              <Link key={key} href={!word.match(/^[a-zA-Z]+:\/\//) ? "http://" + word : word} target="_blank">
                 {word + " "}
               </Link>
             );
           }
-          return <Typography component="span">{word + " "}</Typography>;
+          return (
+            <Typography key={key} component="span">
+              {word + " "}
+            </Typography>
+          );
         })}
       </>
     );
@@ -170,7 +174,7 @@ export default function ChatDrawer({ windowWidth, chatOpen, setChatOpen, chatOpe
 
         {chatMessagges.map((chatMssg, key) => {
           return (
-            <Box>
+            <Box key={key}>
               <Box
                 className={classes.sendedMessageContainer}
                 style={
@@ -209,7 +213,12 @@ export default function ChatDrawer({ windowWidth, chatOpen, setChatOpen, chatOpe
         >
           <MenuItem value="all">To Everyone</MenuItem>
           {videos.map((videoStream, key) => {
-            if (videoStream.userId !== myId) return <MenuItem value={JSON.stringify({ name: videoStream.userName, userId: videoStream.userId })}>{videoStream.userName}</MenuItem>;
+            if (videoStream.userId !== myId)
+              return (
+                <MenuItem key={key} value={JSON.stringify({ name: videoStream.userName, userId: videoStream.userId })}>
+                  {videoStream.userName}
+                </MenuItem>
+              );
             return null;
           })}
         </Select>

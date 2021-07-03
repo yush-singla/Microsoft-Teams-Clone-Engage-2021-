@@ -18,7 +18,6 @@ export async function setCameraStreaming(
   },
   callback
 ) {
-  console.log("starting");
   try {
     let stream = await navigator.mediaDevices.getUserMedia({
       audio: true,
@@ -60,7 +59,6 @@ export async function setCameraStreaming(
         return;
       }
       setScreenShareStreamOn(() => {
-        console.log("log disconnecting working");
         setSharingScreen(true);
         stream.getTracks().forEach((track) => {
           track.stop();
@@ -68,13 +66,11 @@ export async function setCameraStreaming(
         myPeer.disconnect();
         const events = ["user-disconnected", "user-connected"];
         events.forEach((event) => {
-          console.log(`turning off the event ${event}`);
           socket.off(event);
         });
         socket.disconnect();
       });
     };
-    console.log("returning stream", stream);
     return new Promise((resolve, reject) => {
       resolve({ stream, myPeer });
     });

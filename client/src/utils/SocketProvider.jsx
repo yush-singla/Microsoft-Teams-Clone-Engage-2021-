@@ -3,7 +3,6 @@ import { io } from "socket.io-client";
 
 const socket = io.connect("/");
 const SocketContext = createContext();
-console.log(socket);
 
 export function useSocket() {
   return useContext(SocketContext);

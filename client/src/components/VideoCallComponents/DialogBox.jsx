@@ -14,7 +14,6 @@ export default function AlertDialog(props) {
 
   return (
     <div>
-      {console.log(props)}
       <Dialog open={props.openDialogBox} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
         <DialogTitle id="alert-dialog-title">{`${props.name} want to join the meet`}</DialogTitle>
         <DialogContent>

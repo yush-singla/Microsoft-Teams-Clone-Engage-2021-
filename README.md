@@ -173,7 +173,6 @@ function setUpSocketsAndPeerEvents({ socket, myPeer, stream, myPic }, cb) {
         addVideoStream(userVideoStream, call.peer, { userAudio, userVideo, userName, userPicUrl });
         const roomId = window.location.pathname.split("/")[2];
         setVideo((prev) => {
-          console.log("the state of video is", prev);
           return prev;
         });
         socket.emit("acknowledge-connected-user", {
@@ -304,7 +303,6 @@ function ProtectedRoute({ component: Component, ...rest }) {
 
   useEffect(() => {
     axios.get("/authenticated").then((response) => {
-      console.log(response.data);
       if (response.data !== "unauthorised") {
         setIsLoggedIn(true);
       } else {
@@ -722,7 +720,6 @@ function setUpSocketsAndPeerEvents({ socket, myPeer, stream, myPic }, cb) {
         addVideoStream(userVideoStream, call.peer, { userAudio, userVideo, userName, userPicUrl });
         const roomId = window.location.pathname.split("/")[2];
         setVideo((prev) => {
-          console.log("the state of video is", prev);
           return prev;
         });
         socket.emit("acknowledge-connected-user", {
@@ -853,7 +850,6 @@ function ProtectedRoute({ component: Component, ...rest }) {
 
   useEffect(() => {
     axios.get("/authenticated").then((response) => {
-      console.log(response.data);
       if (response.data !== "unauthorised") {
         setIsLoggedIn(true);
       } else {

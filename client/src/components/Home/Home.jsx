@@ -57,7 +57,6 @@ export default function Home() {
       setWindowWidth(window.innerWidth);
     });
     axios.get("/authenticated").then((response) => {
-      console.log(response.data);
       if (response.data !== "unauthorised") {
         setImgUrl(response.data.picurL);
         setIsLoggedIn(true);
@@ -65,7 +64,6 @@ export default function Home() {
     });
   }, []);
   const UserIcon = ({ url }) => {
-    console.log({ url });
     return <img style={{ height: "40px", width: "40px", borderRadius: "100%" }} alt="edit" src={url} />;
   };
   const SearchButton = () => (
@@ -93,7 +91,7 @@ export default function Home() {
       .then((response) => {
         setLink({ to: `/join/${response.data.link}`, created: true });
       })
-      .catch((error) => console.log(error));
+      .catch((error) => error);
   }
 
   function isValidHttpUrl(string) {

@@ -12,7 +12,6 @@ export default function ProtectedRoute({ component: Component, ...rest }) {
 
   useEffect(() => {
     axios.get("/authenticated").then((response) => {
-      console.log(response.data);
       if (response.data !== "unauthorised") {
         setIsLoggedIn(true);
       } else {

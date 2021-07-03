@@ -37,7 +37,7 @@ export default function MobileAllVideos({ startInterval, stopInterval, startMask
     <Grid container spacing={5}>
       {videos.map((videoStream, key) => {
         return (
-          <Grid item xs={(videos.length === 3 && key === 2) || videos.length <= 2 ? 12 : 6}>
+          <Grid key={key} item xs={(videos.length === 3 && key === 2) || videos.length <= 2 ? 12 : 6}>
             <MobileIndividualVideo
               startMaskSticker={startMaskSticker}
               size={videos.length}

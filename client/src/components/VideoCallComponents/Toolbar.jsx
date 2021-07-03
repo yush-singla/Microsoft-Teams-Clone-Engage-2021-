@@ -142,7 +142,6 @@ export default function Toolbar({
           >
             {showChatPopUp > 0 ? (
               <>
-                {console.log(showChatPopUp)}
                 <Badge color="primary" badgeContent={showChatPopUp}>
                   <ChatIcon />
                 </Badge>

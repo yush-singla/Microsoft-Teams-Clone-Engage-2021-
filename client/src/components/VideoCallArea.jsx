@@ -197,7 +197,6 @@ export default function VideoCallArea(props) {
         addVideoStream(userVideoStream, call.peer, { userAudio, userVideo, userName, userPicUrl });
         const roomId = window.location.pathname.split("/")[2];
         setVideo((prev) => {
-          console.log("the state of video is", prev);
           return prev;
         });
         socket.emit("acknowledge-connected-user", {
@@ -252,9 +251,8 @@ export default function VideoCallArea(props) {
   }
 
   function admitToMeeting({ socketId }) {
-    socket.emit("this-user-is-allowed", socketId, (success) => {
-      if (success) setLoadingScreen({ value: true, mssg: "Admitting new Participant" });
-    });
+    socket.emit("this-user-is-allowed", socketId);
+    setLoadingScreen({ value: true, mssg: "Admitting new Participant" });
     setAskForPermission((prev) => [...prev.filter((req) => req.socketId !== socketId)]);
   }
 
@@ -314,7 +312,6 @@ export default function VideoCallArea(props) {
       <Toolbar {...toolbarProps} />
       <ShowParticipantsDrawer {...participantDrawerProps} />
       <ChatDrawer {...chatProps} />
-      {console.log(openSnackBar)}
       <Snackbar
         open={openSnackBar.value}
         autoHideDuration={2500}

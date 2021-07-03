@@ -186,6 +186,9 @@ npm run dev
 
 ### Low Level Design
 
+![image](https://user-images.githubusercontent.com/70366079/124369092-b0ce4000-dc85-11eb-9235-f970f66731ad.png)
+
+
 #### Video Meetings
 
 #### Client Side

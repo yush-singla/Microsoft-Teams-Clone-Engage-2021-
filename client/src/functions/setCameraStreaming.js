@@ -1,5 +1,21 @@
 export async function setCameraStreaming(
-  { setVideo, videoStatus, setAudio, audioStatus, props, connectedPeers, socket, toggleShareScreen, toggleVideo, toggleAudio, Peer, someOneSharingScreenRef, setSharingScreen, setScreenShareStreamOn },
+  {
+    setVideo,
+    videoStatus,
+    setAudio,
+    audioStatus,
+    props,
+    connectedPeers,
+    socket,
+    toggleShareScreen,
+    toggleVideo,
+    toggleAudio,
+    Peer,
+    someOneSharingScreenRef,
+    setSharingScreen,
+    setScreenShareStreamOn,
+    setLoadingScreen,
+  },
   callback
 ) {
   console.log("starting");
@@ -10,6 +26,7 @@ export async function setCameraStreaming(
     });
     if (callback) {
       callback();
+      setLoadingScreen({ value: true, mssg: "Setting Up Video Mode.." });
       setVideo(false);
       videoStatus.current = false;
       stream.getAudioTracks()[0].enabled = audioStatus.current;

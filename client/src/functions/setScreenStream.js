@@ -14,6 +14,7 @@ export async function setScreenShareStream(
     myPic,
     myIdRef,
     Peer,
+    setLoadingScreen,
   },
   callback
 ) {
@@ -22,8 +23,10 @@ export async function setScreenShareStream(
     let ScreenShareStream = await navigator.mediaDevices.getDisplayMedia({
       video: true,
     });
-    if (callback) callback();
-    else {
+    if (callback) {
+      callback();
+      setLoadingScreen({ value: true, mssg: "Screen Share is being set Up.." });
+    } else {
       setAudio(true);
       console.log("callback is undefined");
       audioStatus.current = true;

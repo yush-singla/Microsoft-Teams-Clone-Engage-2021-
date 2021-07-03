@@ -21,7 +21,7 @@ import SetUpInitail from "../functions/SetUpInitail";
 import MobileAllVideos from "./VideoCallComponents/MobileAllVIdeos";
 
 export default function VideoCallArea(props) {
-  const [loadingScreen, setLoadingScreen] = useState(false);
+  const [loadingScreen, setLoadingScreen] = useState({ value: false, mssg: "" });
   const socket = useSocket();
   const [myId, setMyId] = useState(undefined);
   const myIdRef = useRef();
@@ -97,6 +97,7 @@ export default function VideoCallArea(props) {
       setSomeOneSharingScreen,
       titleCase,
       setVideos,
+      setLoadingScreen,
       props,
     }).then(() => {
       setCameraStreamingOn();
@@ -120,6 +121,7 @@ export default function VideoCallArea(props) {
         someOneSharingScreenRef,
         setSharingScreen,
         setScreenShareStreamOn,
+        setLoadingScreen,
       },
       callback
     ).then(({ stream, myPeer }) => {
@@ -150,6 +152,7 @@ export default function VideoCallArea(props) {
         myPic,
         myIdRef,
         Peer,
+        setLoadingScreen,
       },
       callback
     )
@@ -171,10 +174,10 @@ export default function VideoCallArea(props) {
       cb();
       setVideos((prev) => {
         if (firstTime.current) {
-          console.log("setting true share link becoz first time is  ", firstTime.current);
           setOpenShareLink(true);
         }
         firstTime.current = false;
+        setLoadingScreen({ value: false, mssg: "" });
         return [{ stream, userId, audio: audioStatus.current, video: videoStatus.current, picurL: myPicRef.current, userName: titleCase(myNameRef.current) }];
       });
       const roomId = window.location.pathname.split("/")[2];
@@ -182,7 +185,7 @@ export default function VideoCallArea(props) {
     });
     socket.on("user-connected", (userId, socketId, { audio: userAudio, video: userVideo, picurL: userPicUrl, name: userName }) => {
       const call = myPeer.call(userId, stream);
-      setLoadingScreen(true);
+      setLoadingScreen({ value: true, mssg: "Admitting new Participant" });
       if (call === undefined) {
         return;
       }
@@ -244,14 +247,15 @@ export default function VideoCallArea(props) {
     setVideos((prev) => {
       return [...prev, { userId, stream: userStream, audio: userAudio, video: userVideo, picurL: userPicUrl, userName: titleCase(userName) }];
     });
-    setLoadingScreen(false);
+    setLoadingScreen({ value: false });
     setOpenShareLink(false);
   }
 
   function admitToMeeting({ socketId }) {
-    socket.emit("this-user-is-allowed", socketId);
+    socket.emit("this-user-is-allowed", socketId, (success) => {
+      if (success) setLoadingScreen({ value: true, mssg: "Admitting new Participant" });
+    });
     setAskForPermission((prev) => [...prev.filter((req) => req.socketId !== socketId)]);
-    setLoadingScreen(true);
   }
 
   function denyMeeting({ socketId }) {
@@ -294,7 +298,7 @@ export default function VideoCallArea(props) {
     );
   return (
     <div>
-      <LoadingModal loadingScreen={loadingScreen} content={"Admitting new Participant"} />
+      <LoadingModal loadingScreen={loadingScreen.value} content={loadingScreen.mssg} />
       {openDialogBox && (
         <AlertDialog
           openDialogBox={openDialogBox}

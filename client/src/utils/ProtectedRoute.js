@@ -27,8 +27,8 @@ export default function ProtectedRoute({ component: Component, ...rest }) {
       <div
         style={{
           position: "absolute",
-          top: "50%",
-          left: "50%",
+          top: "53%",
+          left: "48%",
           transform: "translate(-50%, -50%)",
           textAlign: "center",
         }}

@@ -15,6 +15,7 @@ export default function SetUpInitail({
   titleCase,
   setVideos,
   props,
+  setLoadingScreen,
 }) {
   const events = ["user-connected", "user-disconnected", "changed-video-status-reply", "changed-audio-status-reply", "update-audio-video-state", "req-to-join-room"];
   events.forEach((event) => {
@@ -34,6 +35,14 @@ export default function SetUpInitail({
         };
       } else {
         setAskForPermission((prev) => [...prev.filter((permission) => permission.socketId !== socketId)]);
+        setOpenDialogBox(false);
+        setLoadingScreen({ value: true, mssg: "User Seems To have Left" });
+        setTimeout(() => {
+          setLoadingScreen({ value: true, mssg: "Check the waiting room!" });
+        }, 1000);
+        setTimeout(() => {
+          setLoadingScreen({ value: false });
+        }, 1900);
       }
     });
     socket.on("update-audio-video-state", ({ video: userVideo, audio: userAudio, userId, picurL: userPicUrl, name: userName, screenShareStatus }) => {

@@ -236,9 +236,11 @@ let waitingRooms = {};
 let getUserIdBySocketId = {};
 let getSocketIdByUserId = {};
 let getNameFromSocketId = {};
+let allUsers = {};
 
 //sockets coding
 io.on("connection", (socket) => {
+  allUsers[socket.id] = true;
   socket.on("check-valid-room", (roomId, cb) => {
     if (waitingRooms[roomId] === undefined) {
       cb({ status: "invalid room" });
@@ -251,13 +253,20 @@ io.on("connection", (socket) => {
     socket.on("disconnect", () => {
       if (getUserIdBySocketId[socket.id] === undefined) {
         socket.to(waitingRooms[roomId]).emit("req-to-join-room", { socketId: socket.id }, "leave");
+        console.log("left and removing him now");
+        delete allUsers[socket.id];
         delete getNameFromSocketId[socket.id];
       }
     });
   });
 
-  socket.on("this-user-is-allowed", (socketId) => {
-    socket.to(socketId).emit("you-are-admitted");
+  socket.on("this-user-is-allowed", (socketId, cb) => {
+    if (allUsers[socket.id] !== true) {
+      cb(false);
+    } else {
+      socket.to(socketId).emit("you-are-admitted");
+      cb(true);
+    }
   });
 
   socket.on("this-user-is-denied", (socketId) => {
@@ -279,6 +288,7 @@ io.on("connection", (socket) => {
       }
       socket.to(roomId).emit("user-disconnected", { userId, name: getNameFromSocketId[socket.id], audio, video });
       delete getSocketIdByUserId[getUserIdBySocketId[socket.id]];
+      delete allUsers[socket.id];
       delete getUserIdBySocketId[socket.id];
       delete getNameFromSocketId[socket.id];
     });

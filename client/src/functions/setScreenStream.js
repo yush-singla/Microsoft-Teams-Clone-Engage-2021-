@@ -28,7 +28,6 @@ export async function setScreenShareStream(
       setLoadingScreen({ value: true, mssg: "Screen Share is being set Up.." });
     } else {
       setAudio(true);
-      console.log("callback is undefined");
       audioStatus.current = true;
     }
     connectedPeers.current = {};
@@ -61,7 +60,6 @@ export async function setScreenShareStream(
         });
         const events = ["user-disconnected", "user-connected"];
         events.forEach((event) => {
-          console.log(`turning off the events ${event}`);
           socket.off(event);
         });
         socket.disconnect();

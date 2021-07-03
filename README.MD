@@ -5,6 +5,10 @@
 
 Microsoft Teams Clone is a webRTC based project to enjoy free, Quality video conversations with friends and colleagues.
 
+
+<!-- ![image](https://user-images.githubusercontent.com/70366079/123800040-7c195c00-d906-11eb-80af-9856360e4185.png) -->
+<img src="https://user-images.githubusercontent.com/70366079/123800040-7c195c00-d906-11eb-80af-9856360e4185.png" width="800" > 
+
 ### Features
 
 1. Video Meetings
@@ -77,27 +81,36 @@ npm run dev
 ## Deep Dive into the Features
 
 ### 1. Video Meetings
+<!-- ![image](https://user-images.githubusercontent.com/70366079/124368537-92654600-dc7f-11eb-842c-855efd363e55.png) -->
+<img src="https://user-images.githubusercontent.com/70366079/124368537-92654600-dc7f-11eb-842c-855efd363e55.png" width="600" > 
+
 
 1. Supports upto 5 people.
 2. Compatible on Mobile as well as the web.
 3. Options, to turn cam on/off, mute,etc avaliable.
 
 ### 2. Chats
-![image](https://user-images.githubusercontent.com/70366079/123799398-cfd77580-d905-11eb-9382-195bfeecfee0.png){ width=50% }
+<!-- ![image](https://user-images.githubusercontent.com/70366079/123799398-cfd77580-d905-11eb-9382-195bfeecfee0.png) -->
+<img src="https://user-images.githubusercontent.com/70366079/123799398-cfd77580-d905-11eb-9382-195bfeecfee0.png" width="600" > 
+
 
 1. Can send message to individuals, as well as to everyone in the meeting.
 2. Links can also be shared easily and become clickable.
 3. Push Notifications are sent to the user, who recieves a message.
 
 ### 3. Screen Share
-
-![image](https://user-images.githubusercontent.com/70366079/124368458-d7d54380-dc7e-11eb-99c5-8bcfd8d5be42.png){ width=50% }
+<img src="https://user-images.githubusercontent.com/70366079/124368458-d7d54380-dc7e-11eb-99c5-8bcfd8d5be42.png" width="600" style="margin:auto">
+<!-- ![image](https://user-images.githubusercontent.com/70366079/124368458-d7d54380-dc7e-11eb-99c5-8bcfd8d5be42.png) -->
 
 
 1. A single user can share their screen at a time.
 2. The video of the other users is also shown simentaneously
 
 ### 4. User Authentication
+
+<img src="https://user-images.githubusercontent.com/70366079/124368406-65646380-dc7e-11eb-8d55-6645603677ad.png" width="600" > 
+<!-- ![image](https://user-images.githubusercontent.com/70366079/124368406-65646380-dc7e-11eb-8d55-6645603677ad.png) -->
+
 
 1. No hassle of filling forms.
 2. Login with your favourite social media
@@ -107,16 +120,18 @@ npm run dev
    \*Github
 
 ### 5. Fun Face Masks
-
-![image](https://user-images.githubusercontent.com/70366079/124368419-92187b00-dc7e-11eb-909e-1bdf232e3cee.png){ width=50% }
+<img src="https://user-images.githubusercontent.com/70366079/124368419-92187b00-dc7e-11eb-909e-1bdf232e3cee.png" width="600" style="margin:auto">
+<!-- ![image](https://user-images.githubusercontent.com/70366079/124368419-92187b00-dc7e-11eb-909e-1bdf232e3cee.png) -->
 
 1. Virtual Face masks and Stickers for your face.
 2. Chose from a large collection.
 
 ### 6. Waiting Rooms!
-![image](https://user-images.githubusercontent.com/70366079/124368483-10751d00-dc7f-11eb-8cb2-e48e412a8c03.png){ width=50% }
+<!-- ![image](https://user-images.githubusercontent.com/70366079/124368483-10751d00-dc7f-11eb-8cb2-e48e412a8c03.png) -->
+<img src="https://user-images.githubusercontent.com/70366079/124368483-10751d00-dc7f-11eb-8cb2-e48e412a8c03.png" width="600" > 
+<!-- ![image](https://user-images.githubusercontent.com/70366079/124368487-1d920c00-dc7f-11eb-98f9-7d16b8a8819f.png=200) -->
+<!-- <img src="https://user-images.githubusercontent.com/70366079/124368487-1d920c00-dc7f-11eb-98f9-7d16b8a8819f.png" width="600" >  -->
 
-![image](https://user-images.githubusercontent.com/70366079/124368487-1d920c00-dc7f-11eb-98f9-7d16b8a8819f.png){ width=50% }
 
 
 1. The host of the meeting has full control of the meeting.

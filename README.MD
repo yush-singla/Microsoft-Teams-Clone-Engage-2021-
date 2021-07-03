@@ -146,6 +146,9 @@ npm run dev
 
 ### High Level Design
 
+![image](https://user-images.githubusercontent.com/70366079/124369011-ea527b80-dc84-11eb-8406-7fd09756f25e.png)
+
+
 #### Video Meetings
 
 1. Video Meetings are created using the combination of WebRTC and Socket.io.

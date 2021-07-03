@@ -20,7 +20,7 @@ Microsoft Teams Clone is a webRTC based project to enjoy free, Quality video con
 
 <img src="https://user-images.githubusercontent.com/70366079/124368483-10751d00-dc7f-11eb-8cb2-e48e412a8c03.png" width="200" >  <img src="https://user-images.githubusercontent.com/70366079/124368419-92187b00-dc7e-11eb-909e-1bdf232e3cee.png" width="200" style="margin:auto">  <img src="https://user-images.githubusercontent.com/70366079/124368406-65646380-dc7e-11eb-8d55-6645603677ad.png" width="200" >
 <img src="https://user-images.githubusercontent.com/70366079/124368458-d7d54380-dc7e-11eb-99c5-8bcfd8d5be42.png" width="200" > <img src="https://user-images.githubusercontent.com/70366079/123799398-cfd77580-d905-11eb-9382-195bfeecfee0.png" width="200" >   <img src="https://user-images.githubusercontent.com/70366079/124368537-92654600-dc7f-11eb-842c-855efd363e55.png" width="200" > 
-<img src="https://user-images.githubusercontent.com/70366079/124369189-b11b0b00-dc86-11eb-8fe2-0e2208f5f8e1.png" width="600" style="margin:auto">
+<img src="https://user-images.githubusercontent.com/70366079/124369189-b11b0b00-dc86-11eb-8fe2-0e2208f5f8e1.png" width="200" style="margin:auto">
 
 
 ## How to use

@@ -55,10 +55,11 @@ export default function Toolbar({
   someOneSharingScreen,
   askForPermission,
   windowWidth,
+  isStickerSet,
+  setIsStickerSet,
 }) {
   const socket = useSocket();
   const [openStickerModal, setOpenStickerModal] = useState(false);
-  const [isStickerSet, setIsStickerSet] = useState(false);
   const [openPopover, setOpenPopover] = useState(false);
   const anchorForPopup = useRef();
   const classes = useStyles();

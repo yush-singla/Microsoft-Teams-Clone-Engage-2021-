@@ -55,6 +55,7 @@ export default function VideoCallArea(props) {
   const myNameRef = useRef();
   const [openShareLink, setOpenShareLink] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [isStickerSet, setIsStickerSet] = useState(false);
   const firstTime = useRef(true);
   const loadModels = async () => {
     Promise.all([
@@ -283,9 +284,11 @@ export default function VideoCallArea(props) {
     someOneSharingScreen,
     askForPermission,
     windowWidth,
+    isStickerSet,
+    setIsStickerSet,
   };
   const participantDrawerProps = { windowWidth, waitingRoomOpen, setWaitingRoomOpen, videos, admitToMeeting, denyMeeting, askForPermission, myId };
-  const allVideoProps = { startInterval, stopInterval, startMaskSticker, someOneSharingScreen, videos, myId, speakerToggle, video, audio };
+  const allVideoProps = { setIsStickerSet, startInterval, stopInterval, startMaskSticker, someOneSharingScreen, videos, myId, speakerToggle, video, audio };
   const chatProps = { windowWidth, chatOpen, setChatOpen, chatOpenRef, videos, myId, myNameRef, myPicRef, setShowChatPopUp };
   if (videos.length === 0)
     return (

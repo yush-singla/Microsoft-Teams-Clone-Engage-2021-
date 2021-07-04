@@ -5,7 +5,7 @@ import allStickers from "../../utils/StickerProvider";
 
 const useAbleMaxWidths = ["65vw", "50vw", "32vw"];
 
-export default function IndividualVideo({ key, myId, speakerToggle, videoStream, video, audio, size }) {
+export default function IndividualVideo({ myId, speakerToggle, videoStream, video, size, setIsStickerSet }) {
   const [modelsLoaded, setModelsLoaded] = useState(false);
   //we are using this single variable to store both the refs to canvas as well as video in a map
   //linked to them by their userid
@@ -24,6 +24,7 @@ export default function IndividualVideo({ key, myId, speakerToggle, videoStream,
   useEffect(() => {
     if (typeof stopInterval.current === "function") {
       stopInterval.current();
+      setIsStickerSet(false);
     }
     socket.on("start-sticker", (userId, key) => {
       if (userId === videoStream.userId) {

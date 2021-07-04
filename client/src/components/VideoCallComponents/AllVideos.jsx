@@ -28,7 +28,7 @@ const useStyles = makeStyles({
   },
 });
 const usableHeights = ["94%", "80%", "60%", "48%"];
-export default function AllVideos({ startInterval, stopInterval, startMaskSticker, videos, myId, speakerToggle, video, audio }) {
+export default function AllVideos({ startInterval, stopInterval, startMaskSticker, videos, myId, speakerToggle, video, audio, setIsStickerSet }) {
   const classes = useStyles();
   if (videos.length === 0) return null;
   return (
@@ -65,6 +65,7 @@ export default function AllVideos({ startInterval, stopInterval, startMaskSticke
                 audio={audio}
                 startInterval={videoStream.userId === myId && startInterval}
                 stopInterval={videoStream.userId === myId && stopInterval}
+                setIsStickerSet={setIsStickerSet}
               />
             </Box>
             <Box

@@ -40,6 +40,8 @@ mongoose.connect("mongodb+srv://yush:" + process.env.PASSWORD + "@cluster0.dgbfh
   useUnifiedTopology: true,
 });
 
+// const ContactSchema
+
 const userSchema = new mongoose.Schema({
   email: String,
   password: String,
@@ -49,10 +51,18 @@ const userSchema = new mongoose.Schema({
   picurL: String,
   name: String,
   githubId: String,
+  uniqueId: String,
+  contacts: [{ Name: String, uniqueId: String }],
 });
 userSchema.plugin(findOrCreate);
 
 const User = new mongoose.model("User", userSchema);
+
+const chatSchema = new mongoose.Schema({
+  participants: [userSchema], //represents the people who are involoved in this chat
+  chats: [{ from: userSchema, content: String }],
+});
+const Chats = new mongoose.model("Chat", chatSchema);
 
 passport.serializeUser(function (user, done) {
   done(null, user.id);
@@ -79,6 +89,7 @@ passport.use(
         {
           name: profile.displayName,
           picurL: profile.photos[0].value,
+          uniqueId: uuidV4(),
         },
         function (err, user) {
           return cb(err, user);
@@ -104,6 +115,7 @@ passport.use(
         {
           name: profile._json.first_name + " " + profile._json.last_name,
           picurL: profile.photos[0].value,
+          uniqueId: uuidV4(),
         },
         function (err, user) {
           return cb(err, user);
@@ -128,6 +140,7 @@ passport.use(
         {
           name: profile._json.name,
           picurL: profile._json.avatar_url,
+          uniqueId: uuidV4(),
         },
         function (err, user) {
           return cb(err, user);
@@ -208,7 +221,8 @@ app.get(
 
 app.get("/authenticated", (req, res) => {
   if (req.isAuthenticated()) {
-    res.send({ picurL: req.user.picurL, name: req.user.name });
+    // console.log(req.user.uniqueId);
+    res.send({ picurL: req.user.picurL, name: req.user.name, uniqueId: req.user.uniqueId });
   } else {
     res.send("unauthorised");
   }
@@ -236,7 +250,8 @@ let waitingRooms = {};
 let getUserIdBySocketId = {};
 let getSocketIdByUserId = {};
 let getNameFromSocketId = {};
-
+let getUniqueIdFromSocketId = {};
+let getSocketIdFromUniqueId = {};
 //sockets coding
 io.on("connection", (socket) => {
   socket.on("check-valid-room", (roomId, cb) => {
@@ -245,13 +260,17 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("req-join-room", (roomId, name) => {
+  socket.on("req-join-room", (roomId, name, uniqueId) => {
     getNameFromSocketId[socket.id] = name;
+    getUniqueIdFromSocketId[socket.id] = uniqueId;
+    getSocketIdFromUniqueId[uniqueId] = socket.id;
     socket.to(waitingRooms[roomId]).emit("req-to-join-room", { socketId: socket.id, name }, "join");
     socket.on("disconnect", () => {
       if (getUserIdBySocketId[socket.id] === undefined) {
         socket.to(waitingRooms[roomId]).emit("req-to-join-room", { socketId: socket.id }, "leave");
         delete getNameFromSocketId[socket.id];
+        delete getSocketIdFromUniqueId[getUniqueIdFromSocketId[socket.id]];
+        delete getUniqueIdFromSocketId[socket.id];
       }
     });
   });
@@ -264,10 +283,11 @@ io.on("connection", (socket) => {
     socket.to(socketId).emit("you-are-denied");
   });
 
-  socket.on("join-room", (roomId, userId, { audio, video, picurL, name }) => {
+  socket.on("join-room", (roomId, userId, { audio, video, picurL, name, uniqueId }) => {
     getUserIdBySocketId[socket.id] = userId;
     getSocketIdByUserId[userId] = socket.id;
     getNameFromSocketId[socket.id] = name;
+    getUniqueIdFromSocketId[socket.id] = uniqueId;
     if (waitingRooms[roomId] === undefined) {
       waitingRooms[roomId] = socket.id;
     }
@@ -281,6 +301,8 @@ io.on("connection", (socket) => {
       delete getSocketIdByUserId[getUserIdBySocketId[socket.id]];
       delete getUserIdBySocketId[socket.id];
       delete getNameFromSocketId[socket.id];
+      delete getSocketIdFromUniqueId[getUniqueIdFromSocketId[socket.id]];
+      delete getUniqueIdFromSocketId[socket.id];
     });
   });
 

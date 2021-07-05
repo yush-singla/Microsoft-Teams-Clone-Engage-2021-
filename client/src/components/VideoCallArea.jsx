@@ -57,6 +57,7 @@ export default function VideoCallArea(props) {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isStickerSet, setIsStickerSet] = useState(false);
   const firstTime = useRef(true);
+  const uniqueIdRef = useRef();
   const loadModels = async () => {
     Promise.all([
       faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
@@ -100,6 +101,7 @@ export default function VideoCallArea(props) {
       setVideos,
       setLoadingScreen,
       props,
+      uniqueIdRef,
     }).then(() => {
       setCameraStreamingOn();
     });
@@ -182,7 +184,7 @@ export default function VideoCallArea(props) {
         return [{ stream, userId, audio: audioStatus.current, video: videoStatus.current, picurL: myPicRef.current, userName: titleCase(myNameRef.current) }];
       });
       const roomId = window.location.pathname.split("/")[2];
-      socket.emit("join-room", roomId, userId, { audio: audioStatus.current, video: videoStatus.current, picurL: myPicRef.current, name: myNameRef.current });
+      socket.emit("join-room", roomId, userId, { audio: audioStatus.current, video: videoStatus.current, picurL: myPicRef.current, name: myNameRef.current, uniqueId: uniqueIdRef.current });
     });
     socket.on("user-connected", (userId, socketId, { audio: userAudio, video: userVideo, picurL: userPicUrl, name: userName }) => {
       const call = myPeer.call(userId, stream);

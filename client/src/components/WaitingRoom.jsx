@@ -50,7 +50,8 @@ export default function WaitingRoom() {
       if (response.data !== "unauthorized") {
         setHasAskedToJoin(true);
         const roomId = window.location.pathname.split("/")[2];
-        socket.emit("req-join-room", roomId, response.data.name);
+        console.log("this is uniqueId", response.data);
+        socket.emit("req-join-room", roomId, response.data.name, response.data.uniqueId);
       } else {
         alert("you are not logged in");
         setStatus("denied");

@@ -16,6 +16,7 @@ export default function SetUpInitail({
   setVideos,
   props,
   setLoadingScreen,
+  uniqueIdRef,
 }) {
   const events = ["user-connected", "user-disconnected", "changed-video-status-reply", "changed-audio-status-reply", "update-audio-video-state", "req-to-join-room"];
   events.forEach((event) => {
@@ -25,6 +26,7 @@ export default function SetUpInitail({
     setMyPic(response.data.picurL);
     myPicRef.current = response.data.picurL;
     myNameRef.current = response.data.name;
+    uniqueIdRef.current = response.data.uniqueId;
     socket.on("req-to-join-room", ({ socketId, name }, attemtingTo) => {
       if (attemtingTo === "join") {
         setAskForPermission((prev) => [...prev, { socketId, name }]);

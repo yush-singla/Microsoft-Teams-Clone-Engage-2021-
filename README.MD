@@ -40,6 +40,9 @@ npm run dev
 
 3. Now the app will run on `localhost:3000`.
 
+
+Note: You need your own oauth credentials to login,and the feature won't work locally!
+
 ## Table of Contents
 
 1. [Tech Stack](#tech-stack)

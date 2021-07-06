@@ -60,7 +60,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function ChatDrawer({ windowWidth, chatOpen, setChatOpen, chatOpenRef, videos, myId, myNameRef, myPicRef, setShowChatPopUp }) {
+export default function ChatDrawer({ uniqueIdRef, windowWidth, chatOpen, setChatOpen, chatOpenRef, videos, myId, myNameRef, myPicRef, setShowChatPopUp }) {
   const classes = useStyles();
   const socket = useSocket();
   const [sendTo, setSendTo] = useState("all");
@@ -81,6 +81,24 @@ export default function ChatDrawer({ windowWidth, chatOpen, setChatOpen, chatOpe
     });
     prevId.current = myId;
   }, [myId]);
+
+  useEffect(() => {
+    socket.emit("get-chat-data", window.location.pathname.split("/")[2], (response) => {
+      const chatsGottenn = response.messages;
+      setChatMessagges([
+        ...chatsGottenn.map((eachChat) => {
+          return {
+            from: {
+              name: eachChat.from.name,
+              picurL: eachChat.from.picurL,
+              userId: eachChat.from.uniqueId === uniqueIdRef.current ? myId : null,
+            },
+            message: eachChat.content,
+          };
+        }),
+      ]);
+    });
+  }, []);
 
   useEffect(() => {
     socket.on("recieved-chat", (chat) => {

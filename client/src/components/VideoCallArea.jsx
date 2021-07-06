@@ -291,7 +291,7 @@ export default function VideoCallArea(props) {
   };
   const participantDrawerProps = { windowWidth, waitingRoomOpen, setWaitingRoomOpen, videos, admitToMeeting, denyMeeting, askForPermission, myId };
   const allVideoProps = { setIsStickerSet, startInterval, stopInterval, startMaskSticker, someOneSharingScreen, videos, myId, speakerToggle, video, audio };
-  const chatProps = { windowWidth, chatOpen, setChatOpen, chatOpenRef, videos, myId, myNameRef, myPicRef, setShowChatPopUp };
+  const chatProps = { uniqueIdRef, windowWidth, chatOpen, setChatOpen, chatOpenRef, videos, myId, myNameRef, myPicRef, setShowChatPopUp };
   if (videos.length === 0)
     return (
       <div style={{ position: "absolute", top: "45vh", left: "40vw", textAlign: "center" }}>

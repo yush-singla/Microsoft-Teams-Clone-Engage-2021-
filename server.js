@@ -351,6 +351,17 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("get-chat-data", (roomId, cb) => {
+    Chats.findOne({ roomDetails: roomId }, (err, chat) => {
+      if (err) console.log(err);
+      if (chat) {
+        cb(chat);
+      } else {
+        console.log("not found the chat for the roomid got", roomId);
+      }
+    });
+  });
+
   socket.on("acknowledge-connected-user", ({ screenShareStatus, socketId, video, audio, userId, roomId, picurL, name }) => {
     socket.to(socketId).emit("update-audio-video-state", { name, picurL, audio, video, userId: getUserIdBySocketId[socket.id], screenShareStatus });
   });

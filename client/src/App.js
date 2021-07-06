@@ -7,6 +7,7 @@ import WaitingRoom from "./components/WaitingRoom";
 import LoginProvider from "./utils/LoginProvider";
 import SignInFirst from "./components/Home/SignInFirst";
 import ProtectedRoute from "./utils/ProtectedRoute";
+import MyMeetings from "./components/My Meetings/MyMeetings";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
               <WaitingRoom />
             </Route>
             <Route path="/signinfirst" component={SignInFirst} />
+            <Route path="/mymeetings" component={MyMeetings} />
             <Route exact path="/" component={Home} />
           </Switch>
         </Router>

@@ -261,6 +261,18 @@ let getUniqueIdFromSocketId = {};
 let getSocketIdFromUniqueId = {};
 //sockets coding
 io.on("connection", (socket) => {
+  socket.on("join-all-rooms", (uniqueId) => {
+    User.findOne({ uniqueId }, (err, user) => {
+      if (err) console.log(err);
+      if (user) {
+        user.rooms.forEach((room) => {
+          console.log("joining room", room);
+          socket.join(room);
+        });
+      }
+    });
+  });
+
   socket.on("check-valid-room", (roomId, cb) => {
     if (waitingRooms[roomId] === undefined) {
       cb({ status: "invalid room" });
@@ -362,6 +374,15 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("get-prev-meetings", (uniqueId, cb) => {
+    User.findOne({ uniqueId }, (err, user) => {
+      if (err) console.log(err);
+      if (user) {
+        cb(user.rooms);
+      }
+    });
+  });
+
   socket.on("acknowledge-connected-user", ({ screenShareStatus, socketId, video, audio, userId, roomId, picurL, name }) => {
     socket.to(socketId).emit("update-audio-video-state", { name, picurL, audio, video, userId: getUserIdBySocketId[socket.id], screenShareStatus });
   });
@@ -374,16 +395,23 @@ io.on("connection", (socket) => {
     socket.to(roomId).emit("changed-video-status-reply", { status, userId: getUserIdBySocketId[socket.id] });
   });
   //chats handling
-  socket.on("send-chat", (chat) => {
+  socket.on("send-chat", (chat, MyMeetings) => {
+    console.log({ chat, MyMeetings });
     if (chat.all === true && chat.to && chat.to.roomId) {
-      const roomSocketsSet = io.sockets.adapter.rooms.get(chat.to.roomId);
-      const roomSockets = [...roomSocketsSet];
-      const roomUniqueIds = roomSockets.map((roomSocket) => getUniqueIdFromSocketId[roomSocket]);
-      User.find({ uniqueId: { $in: roomUniqueIds } }, (err, participants) => {
-        Rooms.findOne({ roomId: chat.to.roomId }, (err, room) => {
+      // console.log(c);
+      Rooms.findOne({ roomId: chat.to.roomId }, (err, room) => {
+        if (room === undefined) console.log("room is undefined");
+        // if(room)
+        roomUniqueIds = room ? room.participants.map((x) => x.uniqueId) : [];
+        if (err) console.log(err);
+        console.log(roomUniqueIds);
+        User.find({ uniqueId: { $in: roomUniqueIds } }, (err, participants) => {
           if (err) console.log(err);
-          const fromId = getUniqueIdFromSocketId[getSocketIdByUserId[chat.from.userId]];
+          console.log(participants);
+          const fromId = MyMeetings === undefined ? getUniqueIdFromSocketId[getSocketIdByUserId[chat.from.userId]] : chat.from.uniqueId;
+          console.log({ fromId });
           let from = participants.find((participant) => participant.uniqueId === fromId);
+          console.log({ from });
           from = { name: from.name, uniqueId: from.uniqueId, picurL: from.picurL };
           if (room) {
             // if (room.participants)
@@ -412,15 +440,18 @@ io.on("connection", (socket) => {
           }
         });
       });
-
       socket.to(chat.to.roomId).emit("recieved-chat", chat);
     } else {
       if (chat.to && chat.to.userId) {
-        const searchableIds = [getUniqueIdFromSocketId[getSocketIdByUserId[chat.from.userId]], getUniqueIdFromSocketId[getSocketIdByUserId[chat.to.userId]]];
+        const searchableIds =
+          MyMeetings === undefined
+            ? [getUniqueIdFromSocketId[getSocketIdByUserId[chat.from.userId]], getUniqueIdFromSocketId[getSocketIdByUserId[chat.to.userId]]]
+            : [chat.to.uniqueId, chat.from.uniqueId];
+
         User.find({ uniqueId: { $in: searchableIds } }, (err, participants) => {
           Rooms.findOne({ roomId: { $in: [searchableIds.join(""), searchableIds.reverse().join("")] } }, (err, room) => {
             if (err) console.log(err);
-            const fromId = getUniqueIdFromSocketId[getSocketIdByUserId[chat.from.userId]];
+            const fromId = MyMeetings === undefined ? getUniqueIdFromSocketId[getSocketIdByUserId[chat.from.userId]] : [chat.from.uniqueId];
             let from = participants.find((participant) => participant.uniqueId === fromId);
             from = { name: from.name, uniqueId: from.uniqueId, picurL: from.picurL };
             console.log({ from, fromId });
@@ -452,7 +483,8 @@ io.on("connection", (socket) => {
             }
           });
         });
-        socket.to(getSocketIdByUserId[chat.to.userId]).emit("recieved-chat", chat);
+        if (MyMeetings === undefined) socket.to(getSocketIdByUserId[chat.to.userId]).emit("recieved-chat", chat);
+        if (MyMeetings === true) socket.to(getSocketIdFromUniqueId[chat.to.uniqueId]).emit("recieved-chat", chat);
       }
     }
   });

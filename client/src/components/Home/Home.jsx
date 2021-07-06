@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { Redirect } from "react-router-dom";
+import { Redirect, Link } from "react-router-dom";
 import { Menu, MenuItem, Button, Box, Paper, makeStyles, TextField, Grid, IconButton, Typography, Modal, AppBar, Toolbar, Divider } from "@material-ui/core";
 import { ArrowForward, VideoCall } from "@material-ui/icons";
 import { useLogin } from "../../utils/LoginProvider";
@@ -11,7 +11,7 @@ import chartImg from "../../assets/images/chart.png";
 import GTranslateIcon from "@material-ui/icons/GTranslate";
 import FacebookIcon from "@material-ui/icons/Facebook";
 import GitHubIcon from "@material-ui/icons/GitHub";
-
+import { useSocket } from "../../utils/SocketProvider";
 const useStyles = makeStyles({
   joinButtons: {
     overflow: "hidden",
@@ -42,6 +42,7 @@ const useStyles = makeStyles({
 });
 
 export default function Home() {
+  const socket = useSocket();
   const [isLoggedIn, setIsLoggedIn] = useLogin();
   const classes = useStyles();
   const [link, setLink] = useState(null);
@@ -60,6 +61,7 @@ export default function Home() {
       if (response.data !== "unauthorised") {
         setImgUrl(response.data.picurL);
         setIsLoggedIn(true);
+        socket.emit("join-all-rooms", response.data.uniqueId);
       }
     });
   }, []);
@@ -234,7 +236,10 @@ export default function Home() {
                     </Button>
                   </Grid>
                   <Grid item xs={12} md={6} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <TextField
+                    <Button variant="contained" component={Link} to="/mymeetings">
+                      Show My Meetings
+                    </Button>
+                    {/* <TextField
                       onKeyDown={(e) => {
                         if (e.key === "Enter") handleJoin(inputLink);
                       }}
@@ -242,7 +247,7 @@ export default function Home() {
                       onChange={(e) => setinputLink(e.target.value)}
                       placeholder="Join with Link"
                       InputProps={{ endAdornment: <SearchButton /> }}
-                    />
+                    /> */}
                   </Grid>
                 </Grid>
               </Box>

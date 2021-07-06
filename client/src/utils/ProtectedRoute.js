@@ -4,16 +4,18 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import Loader from "react-loader-spinner";
+import { useSocket } from "./SocketProvider";
 
 export default function ProtectedRoute({ component: Component, ...rest }) {
   const [isLoggedIn, setIsLoggedIn] = useLogin();
   const { state } = useLocation();
   const [verifiedFromServer, setVerifiedFromServer] = useState(false);
-
+  const socket = useSocket();
   useEffect(() => {
     axios.get("/authenticated").then((response) => {
       if (response.data !== "unauthorised") {
         setIsLoggedIn(true);
+        socket.emit("join-all-rooms", response.data.uniqueId);
       } else {
         setIsLoggedIn(false);
       }

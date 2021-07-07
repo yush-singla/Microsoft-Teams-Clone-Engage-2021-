@@ -20,14 +20,24 @@ import {
   DialogActions,
   DialogContent,
   Button,
-  DialogContentText,
   DialogTitle,
   useTheme,
   useMediaQuery,
   FormControlLabel,
   Checkbox,
+  ListItemAvatar,
+  Drawer,
+  Avatar,
+  Divider,
 } from "@material-ui/core";
 import SendIcon from "@material-ui/icons/Send";
+import { titleCase } from "../../functions/titleCase";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
+import VideocamIcon from "@material-ui/icons/Videocam";
+import InfoIcon from "@material-ui/icons/Info";
+import FileCopyIcon from "@material-ui/icons/FileCopy";
+import { CopyToClipboard } from "react-copy-to-clipboard";
+
 const useStyles = makeStyles({
   chatTextFieldPc: {
     width: "50vw",
@@ -83,7 +93,6 @@ const useStyles = makeStyles({
     fontFamily: "sans-serif",
   },
 });
-
 export default function MyMeetings() {
   const classes = useStyles();
   // const classes = {};
@@ -100,6 +109,8 @@ export default function MyMeetings() {
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [meetingName, setMeetingName] = useState();
   const [allowAnyoneToStart, setAllowAnyoneToStart] = useState(false);
+  const [meetingInfo, setMeetingInfo] = useState();
+  const [openMeetingInfoDrawer, setOpenMeetingInfoDrawer] = useState(false);
   useEffect(() => {
     console.log("useeffect is here");
     axios.get("/authenticated").then((response) => {
@@ -109,6 +120,10 @@ export default function MyMeetings() {
       socket.emit("get-prev-meetings", uniqueIdRef.current, (prevMeetingsDetails) => {
         console.log(prevMeetingsDetails, "see these");
         setPrevMeetings(prevMeetingsDetails);
+        if (prevMeetingsDetails.length !== 0) {
+          selectedRoom.current = prevMeetingsDetails[0];
+          getChatMessages(selectedRoom.current.roomId);
+        }
       });
     });
   }, []);
@@ -227,6 +242,12 @@ export default function MyMeetings() {
       );
     });
   }
+  function showMeetingInfo() {
+    socket.emit("get-room-info", selectedRoom.current.roomId, (roomData) => {
+      setMeetingInfo(roomData);
+      setOpenMeetingInfoDrawer(true);
+    });
+  }
 
   if (redirectTo !== null) {
     console.log(selectedRoom);
@@ -325,17 +346,89 @@ export default function MyMeetings() {
           </Button>
         </DialogActions>
       </Dialog>
-      {console.log(prevMeetings)}
+      {meetingInfo && (
+        <Drawer
+          onClose={() => {
+            setOpenMeetingInfoDrawer(false);
+          }}
+          anchor="right"
+          open={openMeetingInfoDrawer}
+        >
+          <Box style={{ minWidth: "30vw", maxWidth: "50vw", textAlign: "center" }}>
+            <Typography variant="h3" component="span">
+              {titleCase(meetingInfo.name)}
+            </Typography>
+            <Divider />
+            <Avatar style={{ height: "8vw", width: "8vw", margin: "2vw auto" }}>
+              {titleCase(meetingInfo.name)
+                .split(" ")
+                .map((x) => x.substr(0, 1))
+                .join("")}
+            </Avatar>
+            <Divider />
+            <Grid container>
+              <Grid item xs={12} sm={8} style={{ marginTop: "1vh" }}>
+                <Typography variant="h5">Copy Invite Link</Typography>
+              </Grid>
+              <Grid item xs={12} sm={4} style={{ textAlign: "left" }}>
+                <CopyToClipboard text={`${window.location.href.split("/")[0] + "//" + window.location.href.split("/")[2]}/invite/${meetingInfo.roomId}`}>
+                  <IconButton>
+                    <FileCopyIcon />
+                  </IconButton>
+                </CopyToClipboard>
+              </Grid>
+            </Grid>
+            <Divider />
+
+            <Typography variant="h4" style={{ marginTop: "4vh", marginBottom: "3vh" }}>
+              Participants
+            </Typography>
+            <Divider />
+            <List>
+              {meetingInfo.participants.map((participant) => {
+                return (
+                  <ListItem>
+                    <ListItemAvatar>
+                      <Avatar src={participant.picurL} />
+                    </ListItemAvatar>
+                    <ListItemText primary={titleCase(participant.name)} secondary={meetingInfo.host === participant.uniqueId ? "Host" : "Member"} />
+                  </ListItem>
+                );
+              })}
+            </List>
+          </Box>
+        </Drawer>
+      )}
       <Grid container spacing={1}>
         <Grid item xs={3}>
           <Paper style={{ height: "92vh" }}>
             <List
-              style={{ overflowY: "scroll", height: "90vh" }}
+              style={{ overflowY: "scroll", height: "92vh" }}
               aria-labelledby="nested-list-subheader"
               color="primary"
               subheader={
                 <ListSubheader component="div" id="nested-list-subheader">
-                  Nested List Items
+                  <Paper>
+                    <Grid container>
+                      <Grid item xs={9}>
+                        <Typography component="span" variant="h6">
+                          Your Teams
+                        </Typography>
+                      </Grid>
+                      <Grid xs={3}>
+                        <Tooltip title="Create New Team">
+                          <IconButton
+                            onClick={() => {
+                              setOpenDialog(true);
+                            }}
+                            color="primary"
+                          >
+                            <AddCircleIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Grid>
+                    </Grid>
+                  </Paper>
                 </ListSubheader>
               }
               className={classes.root}
@@ -348,12 +441,10 @@ export default function MyMeetings() {
                       selectedRoom.current = meeting;
                       getChatMessages(meeting.roomId);
                     }}
-                    color="primary"
+                    style={meeting.roomId === selectedRoom.current?.roomId ? { backgroundColor: "lightgrey" } : { backgroundColor: "white" }}
                   >
-                    {/* <ListItemIcon>
-                  <SendIcon />
-                </ListItemIcon> */}
-                    <ListItemText primary={meeting.name} />
+                    {/* <ListItemIcon></ListItemIcon> */}
+                    <ListItemText primary={titleCase(meeting.name)} />
                   </ListItem>
                 );
               })}
@@ -361,7 +452,43 @@ export default function MyMeetings() {
           </Paper>
         </Grid>
         <Grid item xs={8}>
-          <Box height="80vh" style={{ backgroundColor: "white", overflowY: "scroll" }}>
+          <Box height="70vh" style={{ backgroundColor: "white", overflowY: "scroll", position: "relative", paddingTop: "10vh" }}>
+            {selectedRoom.current && (
+              <Paper style={{ position: "fixed", top: "2vh", width: "63vw" }}>
+                <Grid container>
+                  <Grid item xs={6}>
+                    <Typography component="span" variant="h4" style={{ width: "40vw" }}>
+                      {titleCase(selectedRoom.current.name)}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={2}></Grid>
+                  <Grid item xs={2} style={{ textAlign: "center", paddingTop: "1vh" }}>
+                    <Button
+                      endIcon={<VideocamIcon />}
+                      onClick={() => {
+                        joinMeeting();
+                      }}
+                      size="small"
+                      variant="outlined"
+                      color="primary"
+                    >
+                      Join Meet
+                    </Button>
+                  </Grid>
+                  <Grid item xs={2} style={{ textAlign: "center" }}>
+                    <Tooltip title="Team Info">
+                      <IconButton
+                        onClick={() => {
+                          showMeetingInfo();
+                        }}
+                      >
+                        <InfoIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
+                </Grid>
+              </Paper>
+            )}
             {chatMessagges.length === 0 && <Box>No Messages In This Meeting</Box>}
             {chatMessagges.map((chatMssg, key) => {
               return (
@@ -412,20 +539,7 @@ export default function MyMeetings() {
               if (e.key === "Enter" && chatMessage !== "") sendChat();
             }}
           />
-          <button
-            onClick={() => {
-              joinMeeting();
-            }}
-          >
-            Join This Meeting
-          </button>
-          <button
-            onClick={() => {
-              setOpenDialog(true);
-            }}
-          >
-            Open dialog
-          </button>
+
           {/* <button onClick={createInstantMeeting}>Create Instant New Meeting</button>
           <button onClick={createMeetingForLater}>Create New Meeting for Later</button> */}
         </Grid>

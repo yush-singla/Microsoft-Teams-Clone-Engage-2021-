@@ -410,6 +410,15 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("get-room-info", (roomId, cb) => {
+    Rooms.findOne({ roomId }, (err, room) => {
+      if (err) console.log(err);
+      if (room) {
+        cb(room);
+      }
+    });
+  });
+
   socket.on("get-chat-data", (roomId, cb) => {
     Chats.findOne({ roomDetails: roomId }, (err, chat) => {
       if (err) console.log(err);

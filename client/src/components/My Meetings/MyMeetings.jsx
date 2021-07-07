@@ -37,7 +37,9 @@ import VideocamIcon from "@material-ui/icons/Videocam";
 import InfoIcon from "@material-ui/icons/Info";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-
+import KeyboardBackspaceIcon from "@material-ui/icons/KeyboardBackspace";
+import { Scrollbars } from "react-custom-scrollbars";
+import CancelIcon from "@material-ui/icons/Cancel";
 const useStyles = makeStyles({
   chatTextFieldPc: {
     width: "50vw",
@@ -62,7 +64,6 @@ const useStyles = makeStyles({
   chatBox: {
     height: "85vh",
     minWidth: "28vw",
-    overflowY: "scroll",
   },
   leftAlignedChat: {
     borderRadius: "20px",
@@ -93,6 +94,7 @@ const useStyles = makeStyles({
     fontFamily: "sans-serif",
   },
 });
+const dayIs = ["Mond", "Tues", "Wed", "Thur", "Fri", "Sat", "Sun"];
 export default function MyMeetings() {
   const classes = useStyles();
   // const classes = {};
@@ -284,7 +286,24 @@ export default function MyMeetings() {
         }}
         aria-labelledby="enter-meeting-name"
       >
-        <DialogTitle id="responsive-dialog-title">{"Create A new Team"}</DialogTitle>
+        <IconButton
+          onClick={() => {
+            setOpenDialog(false);
+          }}
+          style={{ position: "absolute", top: "0", right: "0" }}
+        >
+          <CancelIcon />
+        </IconButton>
+        <DialogTitle id="responsive-dialog-title">
+          <Grid container>
+            <Grid item xs={11} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Typography variant="h6">Create A new Team</Typography>
+            </Grid>
+            {/* <Grid item xs={1} style={{ textAlign: "right" }}>
+              
+            </Grid> */}
+          </Grid>
+        </DialogTitle>
         <DialogContent style={{ overflow: "hidden" }}>
           <Grid container spacing={4}>
             <Grid item xs={12} style={{ textAlign: "center" }}>
@@ -355,6 +374,15 @@ export default function MyMeetings() {
           open={openMeetingInfoDrawer}
         >
           <Box style={{ minWidth: "30vw", maxWidth: "50vw", textAlign: "center" }}>
+            <Box textAlign="left">
+              <IconButton
+                onClick={() => {
+                  setOpenMeetingInfoDrawer(false);
+                }}
+              >
+                <KeyboardBackspaceIcon />
+              </IconButton>
+            </Box>
             <Typography variant="h3" component="span">
               {titleCase(meetingInfo.name)}
             </Typography>
@@ -401,38 +429,40 @@ export default function MyMeetings() {
       )}
       <Grid container spacing={1}>
         <Grid item xs={3}>
-          <Paper style={{ height: "92vh" }}>
-            <List
-              style={{ overflowY: "scroll", height: "92vh" }}
-              aria-labelledby="nested-list-subheader"
-              color="primary"
-              subheader={
-                <ListSubheader component="div" id="nested-list-subheader">
-                  <Paper>
-                    <Grid container>
-                      <Grid item xs={9}>
-                        <Typography component="span" variant="h6">
-                          Your Teams
-                        </Typography>
-                      </Grid>
-                      <Grid xs={3}>
-                        <Tooltip title="Create New Team">
-                          <IconButton
-                            onClick={() => {
-                              setOpenDialog(true);
-                            }}
-                            color="primary"
-                          >
-                            <AddCircleIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </Grid>
+          <List
+            style={{ height: "90vh", backgroundColor: "white" }}
+            aria-labelledby="nested-list-subheader"
+            color="primary"
+            subheader={
+              <ListSubheader component="div" id="nested-list-subheader">
+                <Box>
+                  <Grid container>
+                    <Grid item xs={9}>
+                      <Typography component="span" variant="h6">
+                        Your Teams
+                      </Typography>
                     </Grid>
-                  </Paper>
-                </ListSubheader>
-              }
-              className={classes.root}
-            >
+
+                    <Grid xs={3}>
+                      <Tooltip title="Create New Team">
+                        <IconButton
+                          onClick={() => {
+                            setOpenDialog(true);
+                          }}
+                          color="primary"
+                        >
+                          <AddCircleIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Grid>
+                  </Grid>
+                  <Divider />
+                </Box>
+              </ListSubheader>
+            }
+            className={classes.root}
+          >
+            <Scrollbars style={{ height: "82vh" }}>
               {prevMeetings.map((meeting) => {
                 return (
                   <ListItem
@@ -443,26 +473,34 @@ export default function MyMeetings() {
                     }}
                     style={meeting.roomId === selectedRoom.current?.roomId ? { backgroundColor: "lightgrey" } : { backgroundColor: "white" }}
                   >
+                    <ListItemAvatar>
+                      <Avatar>
+                        {titleCase(meeting.name)
+                          .split(" ")
+                          .map((x) => x.substr(0, 1))
+                          .join("")}
+                      </Avatar>
+                    </ListItemAvatar>
                     {/* <ListItemIcon></ListItemIcon> */}
                     <ListItemText primary={titleCase(meeting.name)} />
                   </ListItem>
                 );
               })}
-            </List>
-          </Paper>
+            </Scrollbars>
+          </List>
         </Grid>
         <Grid item xs={8}>
-          <Box height="70vh" style={{ backgroundColor: "white", overflowY: "scroll", position: "relative", paddingTop: "10vh" }}>
+          <Box height="70vh" style={{ backgroundColor: "white", position: "relative", paddingTop: "10vh" }}>
             {selectedRoom.current && (
-              <Paper style={{ position: "fixed", top: "2vh", width: "63vw" }}>
+              <Box style={{ position: "fixed", top: "2vh", width: "65.2vw", border: "solid lightgrey 2px" }}>
                 <Grid container>
                   <Grid item xs={6}>
                     <Typography component="span" variant="h4" style={{ width: "40vw" }}>
                       {titleCase(selectedRoom.current.name)}
                     </Typography>
                   </Grid>
-                  <Grid item xs={2}></Grid>
-                  <Grid item xs={2} style={{ textAlign: "center", paddingTop: "1vh" }}>
+                  <Grid item xs={3}></Grid>
+                  <Grid item xs={2} style={{ justifyContent: "center", display: "flex", alignItems: "center" }}>
                     <Button
                       endIcon={<VideocamIcon />}
                       onClick={() => {
@@ -475,7 +513,7 @@ export default function MyMeetings() {
                       Join Meet
                     </Button>
                   </Grid>
-                  <Grid item xs={2} style={{ textAlign: "center" }}>
+                  <Grid item xs={1} style={{ textAlign: "center" }}>
                     <Tooltip title="Team Info">
                       <IconButton
                         onClick={() => {
@@ -487,39 +525,44 @@ export default function MyMeetings() {
                     </Tooltip>
                   </Grid>
                 </Grid>
-              </Paper>
+              </Box>
             )}
             {chatMessagges.length === 0 && <Box>No Messages In This Meeting</Box>}
-            {chatMessagges.map((chatMssg, key) => {
-              return (
-                <Box key={key}>
-                  <Box
-                    className={classes.sendedMessageContainer}
-                    style={
-                      chatMssg.from.uniqueId !== uniqueIdRef.current
-                        ? { marginRight: "auto", textAlign: "left", maxWidth: windowWidth > 900 ? "20vw" : "80%" }
-                        : { marginLeft: "auto", textAlign: "right", maxWidth: windowWidth > 900 ? "20vw" : "80%" }
-                    }
-                  >
-                    {chatMssg.from.uniqueId !== uniqueIdRef.current && (
-                      <Tooltip title={chatMssg.from.name}>
-                        <span style={{ lineHeight: "20%" }}>
-                          <img src={chatMssg.from.picurL} style={{ height: "6vh", width: "auto", borderRadius: "100%", verticalAlign: "middle" }} alt={"pic"} />
-                        </span>
-                      </Tooltip>
-                    )}
-                    <Typography
-                      component="p"
-                      variant="p"
-                      className={chatMssg.from.uniqueId !== uniqueIdRef.current ? classes.leftAlignedChat : classes.rightAlignedChat}
-                      style={{ maxWidth: windowWidth >= 900 ? "14vw" : "60vw" }}
+            <Scrollbars style={{ height: "70vh" }}>
+              {chatMessagges.map((chatMssg, key) => {
+                return (
+                  <Box key={key}>
+                    <Box
+                      className={classes.sendedMessageContainer}
+                      style={
+                        chatMssg.from.uniqueId !== uniqueIdRef.current
+                          ? { marginRight: "auto", textAlign: "left", maxWidth: windowWidth > 900 ? "20vw" : "80%" }
+                          : { marginLeft: "auto", textAlign: "right", maxWidth: windowWidth > 900 ? "20vw" : "80%" }
+                      }
                     >
-                      <ShowChatMessage message={chatMssg.message} />
-                    </Typography>
+                      {chatMssg.from.uniqueId !== uniqueIdRef.current && (
+                        <Tooltip title={chatMssg.from.name}>
+                          <span style={{ lineHeight: "20%" }}>
+                            <img src={chatMssg.from.picurL} style={{ height: "6vh", width: "auto", borderRadius: "100%", verticalAlign: "middle" }} alt={"pic"} />
+                          </span>
+                        </Tooltip>
+                      )}
+                      <Typography
+                        component="p"
+                        variant="p"
+                        className={chatMssg.from.uniqueId !== uniqueIdRef.current ? classes.leftAlignedChat : classes.rightAlignedChat}
+                        style={{ maxWidth: windowWidth >= 900 ? "14vw" : "60vw" }}
+                      >
+                        <ShowChatMessage message={chatMssg.message} />
+                      </Typography>
+                      <Box style={{ color: "lightgrey", textAlign: chatMssg.from.uniqueId !== uniqueIdRef.current ? "left" : "right" }}>
+                        {new Date().getHours() + ":" + new Date().getMinutes() + "," + dayIs[new Date().getDay() - 1]}
+                      </Box>
+                    </Box>
                   </Box>
-                </Box>
-              );
-            })}
+                );
+              })}
+            </Scrollbars>
           </Box>
           <TextField
             className={windowWidth >= 900 ? classes.chatTextPc : classes.chatTextFieldMobile}

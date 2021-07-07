@@ -104,6 +104,9 @@ export default function ChatDrawer({ uniqueIdRef, windowWidth, chatOpen, setChat
     socket.on("recieved-chat", (chat) => {
       if (chatOpenRef.current === false) setShowChatPopUp((prev) => prev + 1);
       else setShowChatPopUp(0);
+      if (chat.from.userId === undefined) {
+        chat.from.userId = chat.from.uniqueId === uniqueIdRef.current ? myId : null;
+      }
       setChatMessagges((prev) => [...prev, chat]);
     });
     return () => {

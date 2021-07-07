@@ -41,8 +41,6 @@ mongoose.connect("mongodb+srv://yush:" + process.env.PASSWORD + "@cluster0.dgbfh
 });
 mongoose.set("useFindAndModify", false);
 
-// const ContactSchema
-
 const userSchema = new mongoose.Schema({
   email: String,
   password: String,
@@ -54,13 +52,16 @@ const userSchema = new mongoose.Schema({
   githubId: String,
   uniqueId: String,
   rooms: [String], //stores only the roomId of the rooms this user is a part of
-  // contacts: [{ Name: String, uniqueId: String }],
 });
 userSchema.plugin(findOrCreate);
 
 const User = new mongoose.model("User", userSchema);
+//add host,name of room,allowAnyoneToStartTheMeetOrOnlyICanStart(boolean needed)
 const roomSchema = new mongoose.Schema({
+  name: String,
   roomId: String,
+  host: String,
+  allowAnyoneToStart: Boolean,
   participants: [{ name: String, uniqueId: String, picurL: String }],
 });
 const chatSchema = new mongoose.Schema({
@@ -252,6 +253,29 @@ app.get("/production", (req, res) => {
   res.send(process.env.NODE_ENV);
 });
 
+function pushUserToRoom({ uniqueId, roomId, picurL, name }) {
+  Rooms.findOne({ roomId }, (err, room) => {
+    if (err) console.log(err);
+    if (room) {
+      const allUniqueIds = [...new Set([...room.participants.map((x) => x.uniqueId), uniqueId])];
+      console.log(allUniqueIds);
+      User.find({ uniqueId: { $in: allUniqueIds } }, (err, users) => {
+        const allParticipants = users.map(({ uniqueId, picurL, name }) => {
+          return { uniqueId, picurL, name };
+        });
+        console.log(allParticipants);
+        Rooms.findByIdAndUpdate(room._id, { $set: { participants: allParticipants } }, (err, done) => {
+          if (err) console.log(err);
+        });
+      });
+    }
+  });
+  User.findOneAndUpdate({ uniqueId }, { $addToSet: { rooms: roomId } }, (err, user) => {
+    if (err) console.log(err);
+    if (user) console.log(user);
+  });
+}
+
 //these are some variables that store the essentials that are needed during vide call
 let waitingRooms = {};
 let getUserIdBySocketId = {};
@@ -272,10 +296,18 @@ io.on("connection", (socket) => {
       }
     });
   });
-
+  //check for room in the database and return either invalid room OR not allowed to join before host
   socket.on("check-valid-room", (roomId, cb) => {
+    console.log(roomId);
     if (waitingRooms[roomId] === undefined) {
-      cb({ status: "invalid room" });
+      Rooms.findOne({ roomId }, (err, room) => {
+        if (err) console.log(err);
+        if (room) {
+          if (room.allowAnyoneToStart === false) cb({ status: "host absent" });
+        } else {
+          cb({ status: "invalid room" });
+        }
+      });
     }
   });
 
@@ -302,6 +334,51 @@ io.on("connection", (socket) => {
     socket.to(socketId).emit("you-are-denied");
   });
 
+  //this event will create a new room or replace the room(only possible if uuid messes up)
+  socket.on("create-room-chat", ({ roomId, uniqueId, picurL, name, meetingName, allowAnyoneToStart }, cb) => {
+    console.log("creat got called");
+    console.log({ roomId, uniqueId, name, picurL, meetingName });
+    Rooms.findOne({ roomId }, (err, room) => {
+      if (err) console.log(err);
+      if (room) {
+        pushUserToRoom({ uniqueId, name, picurL, roomId });
+      } else {
+        const newRoom = new Rooms({
+          name: meetingName,
+          roomId,
+          participants: [{ uniqueId, name, picurL }],
+          host: uniqueId,
+          allowAnyoneToStart,
+        });
+        // newRoom.participants = [{ uniqueId, host, allowAnyoneToStart }];
+        newRoom.save();
+        const newChat = new Chats({
+          roomDetails: roomId,
+          messages: [],
+        });
+        console.log(newChat);
+        newChat.save();
+        if (cb) {
+          cb(newRoom);
+        }
+      }
+      User.findOneAndUpdate({ uniqueId }, { $addToSet: { rooms: roomId } }, (err, user) => {
+        if (err) console.log(err);
+        if (user) {
+          console.log("successfully created a new meeting");
+        }
+      });
+    });
+  });
+
+  //replicate below event here also just don't have userId, and not establish the
+  //call and only do the database stuff in it where we push participant to the db
+  socket.on("join-room-chat", (roomId, { uniqueId, picurL, name }) => {
+    pushUserToRoom({ uniqueId, name, picurL, roomId });
+  });
+
+  //this does the job of sending the user id and making calls through peerjs
+  //also it stores the room in the user and creates other things as needed
   socket.on("join-room", (roomId, userId, { audio, video, picurL, name, uniqueId }) => {
     getUserIdBySocketId[socket.id] = userId;
     getSocketIdByUserId[userId] = socket.id;
@@ -310,43 +387,13 @@ io.on("connection", (socket) => {
     if (waitingRooms[roomId] === undefined) {
       waitingRooms[roomId] = socket.id;
     }
-    Rooms.findOne({ roomId }, (err, room) => {
-      if (err) console.log(err);
-      if (room) {
-        const roomSocketsSet = io.sockets.adapter.rooms.get(roomId);
-        const roomSockets = [...roomSocketsSet];
-        const roomUniqueIds = roomSockets.map((roomSocket) => getUniqueIdFromSocketId[roomSocket]);
-        const otherIds = room.participants.map((participant) => participant.uniqueId);
-        console.log(otherIds, roomUniqueIds);
-        const finalParticipants = [...new Set([...roomUniqueIds, ...otherIds])];
-        console.log(finalParticipants);
-        User.find({ uniqueId: { $in: finalParticipants } }, (err, participants) => {
-          const finalParticipants = participants.map((participant) => {
-            return { name: participant.name, picurL: participant.picurL, uniqueId: participant.uniqueId };
-          });
-          Rooms.findByIdAndUpdate(room._id, { $set: { participants: finalParticipants } }, { new: true }, (err, doc) => {
-            if (err) console.log(err);
-            console.log(doc);
-          });
-          User.updateMany({ uniqueId: { $in: finalParticipants.map((x) => x.uniqueId) } }, { $addToSet: { rooms: roomId } }, (err, done) => {
-            if (err) console.log(err);
-          });
-        });
-      } else {
-        const newRoom = new Rooms({
-          roomId,
-          participants: [{ uniqueId, name, picurL }],
-        });
-        newRoom.save();
-        const newChats = new Chats({
-          roomDetails: roomId,
-        });
-        newChats.save();
-        User.updateMany({ uniqueId }, { $push: { rooms: roomId } }, (err, done) => {
-          if (err) console.log(err);
-        });
-      }
-    });
+    console.log(uniqueId, name, picurL, audio, roomId);
+    console.log("adding to set");
+    // Rooms.findOneAndUpdate({ roomId }, { $addToSet: { participants: { uniqueId, picurL, name } } }, (err, room) => {
+    //   if (err) console.log(err);
+    //   console.log(room);
+    // });
+    pushUserToRoom({ uniqueId, name, picurL, roomId });
 
     socket.join(roomId);
     socket.to(roomId).emit("user-connected", userId, socket.id, { audio, video, picurL, name });
@@ -378,7 +425,9 @@ io.on("connection", (socket) => {
     User.findOne({ uniqueId }, (err, user) => {
       if (err) console.log(err);
       if (user) {
-        cb(user.rooms);
+        Rooms.find({ roomId: { $in: user.rooms } }, (err, rooms) => {
+          cb(rooms);
+        });
       }
     });
   });
@@ -404,6 +453,7 @@ io.on("connection", (socket) => {
         // if(room)
         roomUniqueIds = room ? room.participants.map((x) => x.uniqueId) : [];
         if (err) console.log(err);
+        console.log("roomuniqueids");
         console.log(roomUniqueIds);
         User.find({ uniqueId: { $in: roomUniqueIds } }, (err, participants) => {
           if (err) console.log(err);
@@ -429,7 +479,7 @@ io.on("connection", (socket) => {
               }),
             });
             room.save();
-            User.updateMany({ uniqueId: { $in: roomUniqueIds } }, { $push: { rooms: room.roomId } }, (err, done) => {
+            User.updateMany({ uniqueId: { $in: roomUniqueIds } }, { $addToSet: { rooms: room.roomId } }, (err, done) => {
               if (err) console.log(err);
             });
             const chatObj = new Chats({

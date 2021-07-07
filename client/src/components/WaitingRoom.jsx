@@ -27,10 +27,14 @@ export default function WaitingRoom() {
   useEffect(() => {
     showUserVideo();
     const roomId = window.location.pathname.split("/")[2];
+    console.log({ roomId });
     socket.emit("check-valid-room", roomId, ({ status }) => {
       if (status === "invalid room") {
         alert("Link is invalid");
         setStatus("invalid room");
+      } else if (status === "host absent") {
+        alert("Host is not present and you are not allowed to join before him");
+        setStatus("host absent");
       }
     });
     socket.on("you-are-admitted", () => {
@@ -73,6 +77,9 @@ export default function WaitingRoom() {
 
   if (status === "invalid room") {
     return <Redirect to="/" />;
+  }
+  if (status === "host absent") {
+    return <Redirect to="/mymeetings" />;
   }
   if (status === "allowed") {
     const link = `/join/${window.location.pathname.split("/")[2]}`;

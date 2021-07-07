@@ -103,6 +103,22 @@ export default function VideoCallArea(props) {
       props,
       uniqueIdRef,
     }).then(() => {
+      axios.get("/authenticated").then((response) => {
+        uniqueIdRef.current = response.data.uniqueId;
+        console.log({ before: props.location.state.name });
+        if (props.location.state.creator) {
+          console.log("now calliing create room chat");
+          socket.emit("create-room-chat", {
+            roomId: window.location.pathname.split("/")[2],
+            uniqueId: uniqueIdRef.current,
+            picurL: myPicRef.current,
+            name: myNameRef.current,
+            meetingName: props.location.state.name,
+            allowAnyoneToStart: props.location.state.allowAnyoneToStart,
+          });
+        }
+      });
+
       setCameraStreamingOn();
     });
   };

@@ -1,8 +1,32 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { Link } from "@material-ui/core";
+import { Link, setRef } from "@material-ui/core";
+import { Redirect } from "react-router";
 import { useSocket } from "../../utils/SocketProvider";
-import { IconButton, TextField, Paper, Grid, Box, Typography, makeStyles, Tooltip, List, ListItemText, ListSubheader, ListItem } from "@material-ui/core";
+import {
+  IconButton,
+  TextField,
+  Paper,
+  Grid,
+  Box,
+  Typography,
+  makeStyles,
+  Tooltip,
+  List,
+  ListItemText,
+  ListSubheader,
+  ListItem,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  Button,
+  DialogContentText,
+  DialogTitle,
+  useTheme,
+  useMediaQuery,
+  FormControlLabel,
+  Checkbox,
+} from "@material-ui/core";
 import SendIcon from "@material-ui/icons/Send";
 const useStyles = makeStyles({
   chatTextFieldPc: {
@@ -70,6 +94,12 @@ export default function MyMeetings() {
   const uniqueIdRef = useRef();
   const myData = useRef();
   const selectedRoom = useRef();
+  const [openDialog, setOpenDialog] = useState(false);
+  const [redirectTo, setRedirectTo] = useState(null);
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const [meetingName, setMeetingName] = useState();
+  const [allowAnyoneToStart, setAllowAnyoneToStart] = useState(false);
   useEffect(() => {
     console.log("useeffect is here");
     axios.get("/authenticated").then((response) => {
@@ -117,6 +147,17 @@ export default function MyMeetings() {
     return regexp.test(s);
   }
 
+  function joinMeeting() {
+    setRedirectTo({ to: `/join/${selectedRoom.current.roomId}`, created: false });
+  }
+  function createInstantMeeting() {
+    console.log("creating meet");
+    axios.get("/api/join").then((response) => {
+      console.log(response.data);
+      setRedirectTo({ to: `/join/${response.data.link}`, created: true });
+    });
+  }
+
   function ShowChatMessage({ message }) {
     const words = message.split(" ");
     return (
@@ -157,7 +198,7 @@ export default function MyMeetings() {
         picurL: myData.current.picurL,
       },
       all: true,
-      to: { roomId: selectedRoom.current },
+      to: { roomId: selectedRoom.current.roomId },
       message: chatMessage,
     };
     setChatMessage("");
@@ -165,94 +206,224 @@ export default function MyMeetings() {
     socket.emit("send-chat", chat, true);
   }
 
-  return (
-    <Grid container spacing={1}>
-      <Grid item xs={3}>
-        <Paper style={{ height: "92vh" }}>
-          <List
-            style={{ overflowY: "scroll", height: "90vh" }}
-            aria-labelledby="nested-list-subheader"
-            color="primary"
-            subheader={
-              <ListSubheader component="div" id="nested-list-subheader">
-                Nested List Items
-              </ListSubheader>
-            }
-            className={classes.root}
-          >
-            {prevMeetings.map((meeting) => {
-              return (
-                <ListItem
-                  button
-                  onClick={() => {
-                    selectedRoom.current = meeting;
-                    getChatMessages(meeting);
-                  }}
-                  color="primary"
-                >
-                  {/* <ListItemIcon>
-                  <SendIcon />
-                </ListItemIcon> */}
-                  <ListItemText primary={meeting} />
-                </ListItem>
-              );
-            })}
-          </List>
-        </Paper>
-      </Grid>
-      <Grid item xs={8}>
-        <Box height="80vh" style={{ backgroundColor: "white", overflowY: "scroll" }}>
-          {chatMessagges.length === 0 && <Box>No Messages In This Meeting</Box>}
-          {chatMessagges.map((chatMssg, key) => {
-            return (
-              <Box key={key}>
-                <Box
-                  className={classes.sendedMessageContainer}
-                  style={
-                    chatMssg.from.uniqueId !== uniqueIdRef.current
-                      ? { marginRight: "auto", textAlign: "left", maxWidth: windowWidth > 900 ? "20vw" : "80%" }
-                      : { marginLeft: "auto", textAlign: "right", maxWidth: windowWidth > 900 ? "20vw" : "80%" }
-                  }
-                >
-                  {chatMssg.from.uniqueId !== uniqueIdRef.current && (
-                    <Tooltip title={chatMssg.from.name}>
-                      <span style={{ lineHeight: "20%" }}>
-                        <img src={chatMssg.from.picurL} style={{ height: "6vh", width: "auto", borderRadius: "100%", verticalAlign: "middle" }} alt={"pic"} />
-                      </span>
-                    </Tooltip>
-                  )}
-                  <Typography
-                    component="p"
-                    variant="p"
-                    className={chatMssg.from.uniqueId !== uniqueIdRef.current ? classes.leftAlignedChat : classes.rightAlignedChat}
-                    style={{ maxWidth: windowWidth >= 900 ? "14vw" : "60vw" }}
-                  >
-                    <ShowChatMessage message={chatMssg.message} />
-                  </Typography>
-                </Box>
-              </Box>
-            );
-          })}
-        </Box>
-        <TextField
-          className={windowWidth >= 900 ? classes.chatTextPc : classes.chatTextFieldMobile}
-          style={{ marginLeft: "2vw", marginTop: "3vh" }}
-          placeholder="Enter Chat Messages"
-          InputProps={{
-            classes: {
-              input: windowWidth >= 900 ? classes.chatTextFieldPc : classes.chatTextFieldMobile,
-            },
-            endAdornment: <SendMessageButton />,
-          }}
-          value={chatMessage}
-          onChange={(e) => {
-            setChatMessage(e.target.value);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && chatMessage !== "") sendChat();
+  function createMeetingForLater() {
+    console.log("trying");
+    axios.get("/api/join").then((response) => {
+      console.log("harder");
+      socket.emit(
+        "create-room-chat",
+        {
+          uniqueId: myData.current.uniqueId,
+          picurL: myData.current.picurL,
+          name: myData.current.name,
+          roomId: response.data.link,
+          meetingName,
+        },
+        (meeting) => {
+          console.log("success");
+          setPrevMeetings((prev) => [...prev, meeting]);
+        }
+      );
+    });
+  }
+
+  if (redirectTo !== null) {
+    if (redirectTo.created === false && (selectedRoom.current.allowAnyoneToStart || uniqueIdRef.current === selectedRoom.current.host))
+      return (
+        <Redirect
+          to={{
+            pathname: redirectTo.to,
+            state: { from: "/" },
           }}
         />
+      );
+    else if (redirectTo.created === false && !selectedRoom.current.allowAnyoneToStart) {
+      return (
+        <Redirect
+          to={{
+            pathname: redirectTo.to,
+          }}
+        />
+      );
+    } else if (redirectTo.created === true) {
+      return <Redirect to={{ pathname: redirectTo.to, state: { from: "/", name: meetingName, creator: true, allowAnyoneToStart: allowAnyoneToStart } }} />;
+    }
+  }
+  // const dialogProps={openDialog,setOpenDialog,createInstantMeeting,createMeetingForLater,}
+
+  return (
+    <>
+      <Dialog
+        fullScreen={fullScreen}
+        open={openDialog}
+        onClose={() => {
+          setOpenDialog(false);
+        }}
+        aria-labelledby="enter-meeting-name"
+      >
+        <DialogTitle id="responsive-dialog-title">{"Create A new Team"}</DialogTitle>
+        <DialogContent style={{ overflow: "hidden" }}>
+          <Grid container spacing={4}>
+            <Grid item xs={12} style={{ textAlign: "center" }}>
+              <TextField
+                label="Enter the Team Name"
+                value={meetingName}
+                onChange={(e) => {
+                  setMeetingName(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} style={{ textAlign: "center" }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={allowAnyoneToStart}
+                    onChange={(e) => {
+                      setAllowAnyoneToStart(e.target.checked);
+                    }}
+                    name="checkedF"
+                    color="primary"
+                  />
+                }
+                label="Allow Anyone to start meeting"
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            autoFocus
+            onClick={() => {
+              if (meetingName !== "") {
+                setOpenDialog(false);
+                createInstantMeeting();
+              } else alert("Team Name cannot be empty!");
+            }}
+            color="primary"
+            variant="contained"
+          >
+            Start Meeting Instantly
+          </Button>
+          <Button
+            onClick={() => {
+              if (meetingName !== "") {
+                setOpenDialog(false);
+                createMeetingForLater();
+              } else alert("Team Name cannot be empty!");
+            }}
+            color="primary"
+            autoFocus
+            variant="outlined"
+          >
+            Save Team For Later
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {console.log(prevMeetings)}
+      <Grid container spacing={1}>
+        <Grid item xs={3}>
+          <Paper style={{ height: "92vh" }}>
+            <List
+              style={{ overflowY: "scroll", height: "90vh" }}
+              aria-labelledby="nested-list-subheader"
+              color="primary"
+              subheader={
+                <ListSubheader component="div" id="nested-list-subheader">
+                  Nested List Items
+                </ListSubheader>
+              }
+              className={classes.root}
+            >
+              {prevMeetings.map((meeting) => {
+                return (
+                  <ListItem
+                    button
+                    onClick={() => {
+                      selectedRoom.current = meeting;
+                      getChatMessages(meeting.roomId);
+                    }}
+                    color="primary"
+                  >
+                    {/* <ListItemIcon>
+                  <SendIcon />
+                </ListItemIcon> */}
+                    <ListItemText primary={meeting.name} />
+                  </ListItem>
+                );
+              })}
+            </List>
+          </Paper>
+        </Grid>
+        <Grid item xs={8}>
+          <Box height="80vh" style={{ backgroundColor: "white", overflowY: "scroll" }}>
+            {chatMessagges.length === 0 && <Box>No Messages In This Meeting</Box>}
+            {chatMessagges.map((chatMssg, key) => {
+              return (
+                <Box key={key}>
+                  <Box
+                    className={classes.sendedMessageContainer}
+                    style={
+                      chatMssg.from.uniqueId !== uniqueIdRef.current
+                        ? { marginRight: "auto", textAlign: "left", maxWidth: windowWidth > 900 ? "20vw" : "80%" }
+                        : { marginLeft: "auto", textAlign: "right", maxWidth: windowWidth > 900 ? "20vw" : "80%" }
+                    }
+                  >
+                    {chatMssg.from.uniqueId !== uniqueIdRef.current && (
+                      <Tooltip title={chatMssg.from.name}>
+                        <span style={{ lineHeight: "20%" }}>
+                          <img src={chatMssg.from.picurL} style={{ height: "6vh", width: "auto", borderRadius: "100%", verticalAlign: "middle" }} alt={"pic"} />
+                        </span>
+                      </Tooltip>
+                    )}
+                    <Typography
+                      component="p"
+                      variant="p"
+                      className={chatMssg.from.uniqueId !== uniqueIdRef.current ? classes.leftAlignedChat : classes.rightAlignedChat}
+                      style={{ maxWidth: windowWidth >= 900 ? "14vw" : "60vw" }}
+                    >
+                      <ShowChatMessage message={chatMssg.message} />
+                    </Typography>
+                  </Box>
+                </Box>
+              );
+            })}
+          </Box>
+          <TextField
+            className={windowWidth >= 900 ? classes.chatTextPc : classes.chatTextFieldMobile}
+            style={{ marginLeft: "2vw", marginTop: "3vh" }}
+            placeholder="Enter Chat Messages"
+            InputProps={{
+              classes: {
+                input: windowWidth >= 900 ? classes.chatTextFieldPc : classes.chatTextFieldMobile,
+              },
+              endAdornment: <SendMessageButton />,
+            }}
+            value={chatMessage}
+            onChange={(e) => {
+              setChatMessage(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && chatMessage !== "") sendChat();
+            }}
+          />
+          <button
+            onClick={() => {
+              joinMeeting();
+            }}
+          >
+            Join This Meeting
+          </button>
+          <button
+            onClick={() => {
+              setOpenDialog(true);
+            }}
+          >
+            Open dialog
+          </button>
+          {/* <button onClick={createInstantMeeting}>Create Instant New Meeting</button>
+          <button onClick={createMeetingForLater}>Create New Meeting for Later</button> */}
+        </Grid>
       </Grid>
-    </Grid>
+    </>
   );
 }

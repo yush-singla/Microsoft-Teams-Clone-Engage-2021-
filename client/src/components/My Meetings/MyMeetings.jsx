@@ -116,7 +116,7 @@ export default function MyMeetings() {
   useEffect(() => {
     socket.on("recieved-chat", (chat) => {
       console.log(chat, selectedRoom.current);
-      if (chat.to === selectedRoom.current) setChatMessagges((prev) => [...prev, chat]);
+      if (chat.to.roomId === selectedRoom.current.roomId) setChatMessagges((prev) => [...prev, chat]);
     });
     return () => {
       socket.off("recieved-chat");
@@ -218,6 +218,7 @@ export default function MyMeetings() {
           name: myData.current.name,
           roomId: response.data.link,
           meetingName,
+          allowAnyoneToStart,
         },
         (meeting) => {
           console.log("success");
@@ -228,6 +229,7 @@ export default function MyMeetings() {
   }
 
   if (redirectTo !== null) {
+    console.log(selectedRoom);
     if (redirectTo.created === false && (selectedRoom.current.allowAnyoneToStart || uniqueIdRef.current === selectedRoom.current.host))
       return (
         <Redirect
@@ -297,6 +299,8 @@ export default function MyMeetings() {
               if (meetingName !== "") {
                 setOpenDialog(false);
                 createInstantMeeting();
+                setMeetingName("");
+                setAllowAnyoneToStart(false);
               } else alert("Team Name cannot be empty!");
             }}
             color="primary"
@@ -309,6 +313,8 @@ export default function MyMeetings() {
               if (meetingName !== "") {
                 setOpenDialog(false);
                 createMeetingForLater();
+                setMeetingName("");
+                setAllowAnyoneToStart(false);
               } else alert("Team Name cannot be empty!");
             }}
             color="primary"

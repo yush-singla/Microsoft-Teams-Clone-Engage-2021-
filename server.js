@@ -337,7 +337,7 @@ io.on("connection", (socket) => {
   //this event will create a new room or replace the room(only possible if uuid messes up)
   socket.on("create-room-chat", ({ roomId, uniqueId, picurL, name, meetingName, allowAnyoneToStart }, cb) => {
     console.log("creat got called");
-    console.log({ roomId, uniqueId, name, picurL, meetingName });
+    console.log({ roomId, uniqueId, name, picurL, meetingName, allowAnyoneToStart });
     Rooms.findOne({ roomId }, (err, room) => {
       if (err) console.log(err);
       if (room) {
@@ -533,6 +533,10 @@ io.on("connection", (socket) => {
             }
           });
         });
+        if (MyMeetings === undefined) {
+          chat.from.uniqueId === getUniqueIdFromSocketId[getSocketIdByUserId[chat.from.userId]];
+          console.log(chat.from);
+        }
         if (MyMeetings === undefined) socket.to(getSocketIdByUserId[chat.to.userId]).emit("recieved-chat", chat);
         if (MyMeetings === true) socket.to(getSocketIdFromUniqueId[chat.to.uniqueId]).emit("recieved-chat", chat);
       }

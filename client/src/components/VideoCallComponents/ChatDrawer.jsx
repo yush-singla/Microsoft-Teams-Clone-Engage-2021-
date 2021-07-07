@@ -59,6 +59,7 @@ const useStyles = makeStyles({
     fontFamily: "sans-serif",
   },
 });
+const dayIs = ["Mond", "Tues", "Wed", "Thur", "Fri", "Sat", "Sun"];
 
 export default function ChatDrawer({ uniqueIdRef, windowWidth, chatOpen, setChatOpen, chatOpenRef, videos, myId, myNameRef, myPicRef, setShowChatPopUp }) {
   const classes = useStyles();
@@ -93,6 +94,7 @@ export default function ChatDrawer({ uniqueIdRef, windowWidth, chatOpen, setChat
               picurL: eachChat.from.picurL,
               userId: eachChat.from.uniqueId === uniqueIdRef.current ? myId : null,
             },
+            dateTime: new Date(eachChat.dateTime),
             message: eachChat.content,
           };
         }),
@@ -121,6 +123,7 @@ export default function ChatDrawer({ uniqueIdRef, windowWidth, chatOpen, setChat
         userId: myId,
         picurL: myPicRef.current,
       },
+      dateTime: new Date(),
       all: sendTo === "all",
       to: sendTo === "all" ? { roomId: window.location.pathname.split("/")[2] } : JSON.parse(sendTo),
       message: chatMessage,
@@ -219,6 +222,9 @@ export default function ChatDrawer({ uniqueIdRef, windowWidth, chatOpen, setChat
                 >
                   <ShowChatMessage message={chatMssg.message} />
                 </Typography>
+                <Box style={{ color: "lightgrey", textAlign: chatMssg.from.userId !== myId ? "left" : "right" }}>
+                  {new Date().getHours() + ":" + new Date().getMinutes() + "," + dayIs[new Date().getDay() - 1]}
+                </Box>
               </Box>
             </Box>
           );

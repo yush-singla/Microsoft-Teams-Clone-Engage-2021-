@@ -132,6 +132,8 @@ export default function MyMeetings() {
 
   useEffect(() => {
     socket.on("recieved-chat", (chat) => {
+      chat.dateTime = new Date(chat.dateTime);
+      console.log("gotten-data");
       console.log(chat, selectedRoom.current);
       if (chat.to.roomId === selectedRoom.current.roomId) setChatMessagges((prev) => [...prev, chat]);
     });
@@ -144,14 +146,17 @@ export default function MyMeetings() {
   function getChatMessages(roomId) {
     socket.emit("get-chat-data", roomId, (response) => {
       const chatsGottenn = response.messages;
+      console.log("got these chats bro", chatsGottenn);
       setChatMessagges([
         ...chatsGottenn.map((eachChat) => {
+          console.log({ eachChat });
           return {
             from: {
               name: eachChat.from.name,
               picurL: eachChat.from.picurL,
               uniqueId: eachChat.from.uniqueId,
             },
+            dateTime: new Date(eachChat.dateTime),
             message: eachChat.content,
           };
         }),
@@ -171,7 +176,7 @@ export default function MyMeetings() {
     console.log("creating meet");
     axios.get("/api/join").then((response) => {
       console.log(response.data);
-      setRedirectTo({ to: `/join/${response.data.link}`, created: true });
+      setRedirectTo({ to: `/join/${response.data.link}`, created: true, meetingName });
     });
   }
 
@@ -214,6 +219,7 @@ export default function MyMeetings() {
         uniqueId: myData.current.uniqueId,
         picurL: myData.current.picurL,
       },
+      dateTime: new Date(),
       all: true,
       to: { roomId: selectedRoom.current.roomId },
       message: chatMessage,
@@ -339,8 +345,6 @@ export default function MyMeetings() {
               if (meetingName !== "") {
                 setOpenDialog(false);
                 createInstantMeeting();
-                setMeetingName("");
-                setAllowAnyoneToStart(false);
               } else alert("Team Name cannot be empty!");
             }}
             color="primary"
@@ -353,8 +357,6 @@ export default function MyMeetings() {
               if (meetingName !== "") {
                 setOpenDialog(false);
                 createMeetingForLater();
-                setMeetingName("");
-                setAllowAnyoneToStart(false);
               } else alert("Team Name cannot be empty!");
             }}
             color="primary"
@@ -447,6 +449,8 @@ export default function MyMeetings() {
                       <Tooltip title="Create New Team">
                         <IconButton
                           onClick={() => {
+                            setMeetingName("");
+                            setAllowAnyoneToStart(false);
                             setOpenDialog(true);
                           }}
                           color="primary"
@@ -556,7 +560,7 @@ export default function MyMeetings() {
                         <ShowChatMessage message={chatMssg.message} />
                       </Typography>
                       <Box style={{ color: "lightgrey", textAlign: chatMssg.from.uniqueId !== uniqueIdRef.current ? "left" : "right" }}>
-                        {new Date().getHours() + ":" + new Date().getMinutes() + "," + dayIs[new Date().getDay() - 1]}
+                        {chatMssg.dateTime && chatMssg.dateTime.getHours() + ":" + chatMssg.dateTime.getMinutes() + "," + dayIs[chatMssg.dateTime.getDay() - 1]}
                       </Box>
                     </Box>
                   </Box>

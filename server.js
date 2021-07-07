@@ -66,7 +66,7 @@ const roomSchema = new mongoose.Schema({
 });
 const chatSchema = new mongoose.Schema({
   roomDetails: String,
-  messages: [{ from: { name: String, uniqueId: String, picurL: String }, content: String }],
+  messages: [{ from: { name: String, uniqueId: String, picurL: String }, dateTime: Date, content: String }],
 });
 const Chats = new mongoose.model("Chat", chatSchema);
 
@@ -423,6 +423,7 @@ io.on("connection", (socket) => {
     Chats.findOne({ roomDetails: roomId }, (err, chat) => {
       if (err) console.log(err);
       if (chat) {
+        console.log({ chat });
         cb(chat);
       } else {
         console.log("not found the chat for the roomid got", roomId);
@@ -462,8 +463,7 @@ io.on("connection", (socket) => {
         // if(room)
         roomUniqueIds = room ? room.participants.map((x) => x.uniqueId) : [];
         if (err) console.log(err);
-        console.log("roomuniqueids");
-        console.log(roomUniqueIds);
+
         User.find({ uniqueId: { $in: roomUniqueIds } }, (err, participants) => {
           if (err) console.log(err);
           console.log(participants);
@@ -474,7 +474,7 @@ io.on("connection", (socket) => {
           from = { name: from.name, uniqueId: from.uniqueId, picurL: from.picurL };
           if (room) {
             // if (room.participants)
-            Chats.findOneAndUpdate({ roomDetails: room.roomId }, { $push: { messages: { from, content: chat.message } } }, { new: true }, (err, doc) => {
+            Chats.findOneAndUpdate({ roomDetails: room.roomId }, { $push: { messages: { from, content: chat.message, dateTime: chat.dateTime } } }, { new: true }, (err, doc) => {
               if (err) {
                 console.log(err);
               }
@@ -493,7 +493,7 @@ io.on("connection", (socket) => {
             });
             const chatObj = new Chats({
               roomDetails: room.roomId,
-              messages: [{ from, content: chat.message }],
+              messages: [{ from, content: chat.message, dateTime: chat.dateTime }],
             });
             chatObj.save();
           }
@@ -516,7 +516,7 @@ io.on("connection", (socket) => {
             console.log({ from, fromId });
             console.log("participants");
             if (room) {
-              Chats.findOneAndUpdate({ roomDetails: room.roomId }, { $push: { messages: { from, content: chat.message } } }, { new: true }, (err, doc) => {
+              Chats.findOneAndUpdate({ roomDetails: room.roomId }, { $push: { messages: { from, content: chat.message, dateTime: chat.dateTime } } }, { new: true }, (err, doc) => {
                 if (err) {
                   console.log(err);
                 }
@@ -535,7 +535,7 @@ io.on("connection", (socket) => {
               });
               const chatObj = new Chats({
                 roomDetails: room.roomId,
-                messages: [{ from, content: chat.message }],
+                messages: [{ from, content: chat.message, dateTime: chat.dateTime }],
               });
               chatObj.save();
               console.log(chatObj, room);

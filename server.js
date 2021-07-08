@@ -174,7 +174,6 @@ app.get(
   }),
   function (req, res) {
     if (req.session.redirectDetails && req.session.redirectDetails.join && req.session.redirectDetails.prev) {
-      console.log(`${useDomain}/invite/${req.session.redirectDetails.room}`);
       res.redirect(`${useDomain}/invite/${req.session.redirectDetails.room}`);
     } else if (req.session.redirectDetails && req.session.redirectDetails.join) {
       res.redirect(`${useDomain}/join/${req.session.redirectDetails.room}`);
@@ -230,7 +229,6 @@ app.get(
 
 app.get("/authenticated", (req, res) => {
   if (req.isAuthenticated()) {
-    // console.log(req.user.uniqueId);
     res.send({ picurL: req.user.picurL, name: req.user.name, uniqueId: req.user.uniqueId });
   } else {
     res.send("unauthorised");
@@ -259,12 +257,10 @@ function pushUserToRoom({ uniqueId, roomId, picurL, name }) {
     if (err) console.log(err);
     if (room) {
       const allUniqueIds = [...new Set([...room.participants.map((x) => x.uniqueId), uniqueId])];
-      console.log(allUniqueIds);
       User.find({ uniqueId: { $in: allUniqueIds } }, (err, users) => {
         const allParticipants = users.map(({ uniqueId, picurL, name }) => {
           return { uniqueId, picurL, name };
         });
-        console.log(allParticipants);
         Rooms.findByIdAndUpdate(room._id, { $set: { participants: allParticipants } }, (err, done) => {
           if (err) console.log(err);
         });
@@ -284,7 +280,6 @@ function RemoveUserFromRoom({ uniqueId, roomId }) {
       const allParticipants = room.participants.filter((x) => x.uniqueId !== uniqueId);
       if (allParticipants.length > 0) {
         const newHost = room.host === uniqueId ? allParticipants[0].uniqueId : room.host;
-        console.log(newHost, allParticipants);
         Rooms.findByIdAndUpdate(room._id, { $set: { participants: allParticipants, host: newHost } }, (err, done) => {
           if (err) console.log(err);
         });
@@ -320,7 +315,6 @@ io.on("connection", (socket) => {
       if (err) console.log(err);
       if (user) {
         user.rooms.forEach((room) => {
-          console.log("joining room", room);
           socket.join(room);
         });
       }
@@ -366,8 +360,6 @@ io.on("connection", (socket) => {
 
   //this event will create a new room or replace the room(only possible if uuid messes up)
   socket.on("create-room-chat", ({ roomId, uniqueId, picurL, name, meetingName, allowAnyoneToStart }, cb) => {
-    console.log("creat got called");
-    console.log({ roomId, uniqueId, name, picurL, meetingName, allowAnyoneToStart });
     Rooms.findOne({ roomId }, (err, room) => {
       if (err) console.log(err);
       if (room) {
@@ -386,7 +378,6 @@ io.on("connection", (socket) => {
           roomDetails: roomId,
           messages: [],
         });
-        console.log(newChat);
         newChat.save();
         if (cb) {
           cb(newRoom);
@@ -394,9 +385,6 @@ io.on("connection", (socket) => {
       }
       User.findOneAndUpdate({ uniqueId }, { $addToSet: { rooms: roomId } }, (err, user) => {
         if (err) console.log(err);
-        if (user) {
-          console.log("successfully created a new meeting");
-        }
       });
     });
   });
@@ -404,8 +392,6 @@ io.on("connection", (socket) => {
   //replicate below event here also just don't have userId, and not establish the
   //call and only do the database stuff in it where we push participant to the db
   socket.on("join-room-chat", (roomId, { uniqueId, picurL, name }) => {
-    console.log("data gotten is ");
-    console.log({ uniqueId, picurL, name });
     pushUserToRoom({ uniqueId, name, picurL, roomId });
   });
 
@@ -419,8 +405,6 @@ io.on("connection", (socket) => {
     if (waitingRooms[roomId] === undefined) {
       waitingRooms[roomId] = socket.id;
     }
-    console.log(uniqueId, name, picurL, audio, roomId);
-    console.log("adding to set");
     // Rooms.findOneAndUpdate({ roomId }, { $addToSet: { participants: { uniqueId, picurL, name } } }, (err, room) => {
     //   if (err) console.log(err);
     //   console.log(room);
@@ -461,7 +445,6 @@ io.on("connection", (socket) => {
     Chats.findOne({ roomDetails: roomId }, (err, chat) => {
       if (err) console.log(err);
       if (chat) {
-        console.log({ chat });
         cb(chat);
       } else {
         console.log("not found the chat for the roomid got", roomId);
@@ -493,9 +476,7 @@ io.on("connection", (socket) => {
   });
   //chats handling
   socket.on("send-chat", (chat, MyMeetings) => {
-    console.log({ chat, MyMeetings });
     if (chat.all === true && chat.to && chat.to.roomId) {
-      // console.log(c);
       Rooms.findOne({ roomId: chat.to.roomId }, (err, room) => {
         if (room === undefined) console.log("room is undefined");
         // if(room)
@@ -504,11 +485,8 @@ io.on("connection", (socket) => {
 
         User.find({ uniqueId: { $in: roomUniqueIds } }, (err, participants) => {
           if (err) console.log(err);
-          console.log(participants);
           const fromId = MyMeetings === undefined ? getUniqueIdFromSocketId[getSocketIdByUserId[chat.from.userId]] : chat.from.uniqueId;
-          console.log({ fromId });
           let from = participants.find((participant) => participant.uniqueId === fromId);
-          console.log({ from });
           from = { name: from.name, uniqueId: from.uniqueId, picurL: from.picurL };
           if (room) {
             // if (room.participants)
@@ -516,7 +494,6 @@ io.on("connection", (socket) => {
               if (err) {
                 console.log(err);
               }
-              console.log(doc);
             });
           } else {
             const room = new Rooms({
@@ -551,14 +528,11 @@ io.on("connection", (socket) => {
             const fromId = MyMeetings === undefined ? getUniqueIdFromSocketId[getSocketIdByUserId[chat.from.userId]] : [chat.from.uniqueId];
             let from = participants.find((participant) => participant.uniqueId === fromId);
             from = { name: from.name, uniqueId: from.uniqueId, picurL: from.picurL };
-            console.log({ from, fromId });
-            console.log("participants");
             if (room) {
               Chats.findOneAndUpdate({ roomDetails: room.roomId }, { $push: { messages: { from, content: chat.message, dateTime: chat.dateTime } } }, { new: true }, (err, doc) => {
                 if (err) {
                   console.log(err);
                 }
-                console.log(doc);
               });
             } else {
               const room = new Rooms({
@@ -576,13 +550,11 @@ io.on("connection", (socket) => {
                 messages: [{ from, content: chat.message, dateTime: chat.dateTime }],
               });
               chatObj.save();
-              console.log(chatObj, room);
             }
           });
         });
         if (MyMeetings === undefined) {
           chat.from.uniqueId === getUniqueIdFromSocketId[getSocketIdByUserId[chat.from.userId]];
-          console.log(chat.from);
         }
         if (MyMeetings === undefined) socket.to(getSocketIdByUserId[chat.to.userId]).emit("recieved-chat", chat);
         if (MyMeetings === true) socket.to(getSocketIdFromUniqueId[chat.to.uniqueId]).emit("recieved-chat", chat);

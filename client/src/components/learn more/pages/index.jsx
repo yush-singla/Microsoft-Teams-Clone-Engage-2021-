@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Footer from "../components/Footer";
 import Hero from "../components/Hero";
 import Info from "../components/Info";
 import { homeObjOne, homeObjTwo, homeObjThree, homeObjFour, homeObjFive } from "../components/Info/Data";

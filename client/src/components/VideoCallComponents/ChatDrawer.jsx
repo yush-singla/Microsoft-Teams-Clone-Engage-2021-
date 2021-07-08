@@ -3,6 +3,7 @@ import { Drawer, Typography, TextField, IconButton, Link, makeStyles, Tooltip, B
 import { useSocket } from "../../utils/SocketProvider";
 import SendIcon from "@material-ui/icons/Send";
 import KeyboardBackspaceIcon from "@material-ui/icons/KeyboardBackspace";
+import { Scrollbars } from "react-custom-scrollbars";
 
 const useStyles = makeStyles({
   chatTextFieldPc: {
@@ -26,9 +27,8 @@ const useStyles = makeStyles({
     maxWidth: window.innerWidth > 900 ? "20vw" : "80%",
   },
   chatBox: {
-    height: "85vh",
+    height: "80vh",
     minWidth: "28vw",
-    overflowY: "scroll",
   },
   leftAlignedChat: {
     borderRadius: "20px",
@@ -195,46 +195,49 @@ export default function ChatDrawer({ uniqueIdRef, windowWidth, chatOpen, setChat
           <Typography variant="h3">Chats</Typography>
         </Box>
         <Divider />
-
-        {chatMessagges.map((chatMssg, key) => {
-          return (
-            <Box key={key}>
-              <Box
-                className={classes.sendedMessageContainer}
-                style={
-                  chatMssg.from.userId !== myId
-                    ? { marginRight: "auto", textAlign: "left", maxWidth: windowWidth > 900 ? "20vw" : "80%" }
-                    : { marginLeft: "auto", textAlign: "right", maxWidth: windowWidth > 900 ? "20vw" : "80%" }
-                }
-              >
-                {chatMssg.from.uniqueId !== uniqueIdRef.current && (
-                  <Box style={{ color: "lightgray", fontWeight: "bolder", fontSize: "0.8rem", textAlign: chatMssg.from.uniqueId !== uniqueIdRef.current ? "left" : "right" }}>{chatMssg.from.name}</Box>
-                )}
-                {chatMssg.from.userId !== myId && (
-                  <Tooltip title={chatMssg.from.name}>
-                    <span style={{ lineHeight: "20%" }}>
-                      <img src={chatMssg.from.picurL} style={{ height: "6vh", width: "auto", borderRadius: "100%", verticalAlign: "middle" }} alt={"pic"} />
-                    </span>
-                  </Tooltip>
-                )}
-                <Typography
-                  component="p"
-                  variant="p"
-                  className={chatMssg.from.userId !== myId ? classes.leftAlignedChat : classes.rightAlignedChat}
-                  style={{ maxWidth: windowWidth >= 900 ? "14vw" : "60vw" }}
+        <Scrollbars style={{ height: "75vh" }}>
+          {chatMessagges.map((chatMssg, key) => {
+            return (
+              <Box key={key}>
+                <Box
+                  className={classes.sendedMessageContainer}
+                  style={
+                    chatMssg.from.userId !== myId
+                      ? { marginRight: "auto", textAlign: "left", maxWidth: windowWidth > 900 ? "20vw" : "80%" }
+                      : { marginLeft: "auto", textAlign: "right", maxWidth: windowWidth > 900 ? "20vw" : "80%" }
+                  }
                 >
-                  <ShowChatMessage message={chatMssg.message} />
-                </Typography>
-                <Box style={{ color: "lightgrey", textAlign: chatMssg.from.userId !== myId ? "left" : "right" }}>
-                  {new Date().getHours() + ":" + new Date().getMinutes() + "," + dayIs[new Date().getDay() - 1]}
+                  {chatMssg.from.userId !== myId && (
+                    <Box style={{ color: "lightgray", fontWeight: "bolder", fontSize: "0.8rem", textAlign: chatMssg.from.uniqueId !== uniqueIdRef.current ? "left" : "right" }}>
+                      {chatMssg.from.name}
+                    </Box>
+                  )}
+                  {chatMssg.from.userId !== myId && (
+                    <Tooltip title={chatMssg.from.name}>
+                      <span style={{ lineHeight: "20%" }}>
+                        <img src={chatMssg.from.picurL} style={{ height: "6vh", width: "auto", borderRadius: "100%", verticalAlign: "middle" }} alt={"pic"} />
+                      </span>
+                    </Tooltip>
+                  )}
+                  <Typography
+                    component="p"
+                    variant="p"
+                    className={chatMssg.from.userId !== myId ? classes.leftAlignedChat : classes.rightAlignedChat}
+                    style={{ maxWidth: windowWidth >= 900 ? "14vw" : "60vw" }}
+                  >
+                    <ShowChatMessage message={chatMssg.message} />
+                  </Typography>
+                  <Box style={{ color: "lightgrey", textAlign: chatMssg.from.userId !== myId ? "left" : "right" }}>
+                    {new Date().getHours() + ":" + new Date().getMinutes() + "," + dayIs[new Date().getDay() - 1]}
+                  </Box>
                 </Box>
               </Box>
-            </Box>
-          );
-        })}
+            );
+          })}
+        </Scrollbars>
       </Box>
-      <Box textAlign="center" className={classes.containerSendTo}>
-        <Select
+      <Box textAlign="center" className={classes.containerSendTo} height="9vh">
+        {/* <Select
           className={classes.SelectForSendTo}
           value={sendTo}
           onChange={(e) => {
@@ -251,7 +254,7 @@ export default function ChatDrawer({ uniqueIdRef, windowWidth, chatOpen, setChat
               );
             return null;
           })}
-        </Select>
+        </Select> */}
       </Box>
       <Box textAlign="center">
         <TextField

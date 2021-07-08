@@ -2,6 +2,7 @@ import React from "react";
 import { Grid, Box } from "@material-ui/core";
 import MicIcon from "@material-ui/icons/Mic";
 import MicOffIcon from "@material-ui/icons/MicOff";
+import { Scrollbars } from "react-custom-scrollbars";
 
 export default function ScreenShare({ someOneSharingScreen, videos, classes, myId, speakerToggle, video, audio, windowWidth }) {
   return (
@@ -27,66 +28,72 @@ export default function ScreenShare({ someOneSharingScreen, videos, classes, myI
       </Grid>
       {windowWidth >= 900 ? (
         <Grid item xs={4}>
-          <Box style={{ overflowY: "scroll", maxHeight: "80vh", textAlign: "center" }}>
-            {videos.map((videoStream, key) => {
-              if (videoStream.userId !== someOneSharingScreen.userId) {
-                return (
-                  <Box
-                    key={key}
-                    style={{
-                      backgroundColor: "black",
-                      margin: "1% 5%",
-                      display: "flex",
-                      height: "40vh",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      textAlign: "center",
-                      minHeight: "33vh",
-                      overflow: "hidden",
-                      position: "relative",
-                    }}
-                  >
-                    <video
-                      autoPlay
-                      muted={videoStream.userId === myId || speakerToggle}
-                      style={(!videoStream.video && videoStream.userId !== myId) || (!video && videoStream.userId === myId) ? { display: "none" } : { width: "30vw" }}
-                      ref={(videoRef) => {
-                        if (videoRef) videoRef.srcObject = videoStream.stream;
-                        return videoRef;
-                      }}
-                    />
-                    {!((videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)) && (
-                      <img src={videoStream.picurL} style={{ borderRadius: "100%", height: "auto", width: "25%", minWidth: "60px", maxWidth: "120px", display: "block" }} alt={videoStream.userName} />
-                    )}
+          <Scrollbars>
+            <Box style={{ maxHeight: "80vh", textAlign: "center" }}>
+              {videos.map((videoStream, key) => {
+                if (videoStream.userId !== someOneSharingScreen.userId) {
+                  return (
                     <Box
+                      key={key}
                       style={{
-                        fontSize: "1.3rem",
-                        fontFamily: "sans-serif",
-                        color: "white",
-                        textAlign: "right",
-                        paddingRight: "3%",
-                        width: "fit-content",
-                        marginLeft: "auto",
-                        padding: "1.3%",
-                        zIndex: "100",
-                        position: "absolute",
-                        bottom: "0",
-                        right: "0",
-                        backgroundColor: "rgba(0,0,0,0.5)",
+                        backgroundColor: "black",
+                        margin: "1% 5%",
+                        display: "flex",
+                        height: "40vh",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        textAlign: "center",
+                        minHeight: "33vh",
+                        overflow: "hidden",
+                        position: "relative",
                       }}
                     >
-                      <Box component="span" style={{ verticalAlign: "bottom" }}>
-                        {videoStream.userId === myId ? "You" : videoStream.userName}
+                      <video
+                        autoPlay
+                        muted={videoStream.userId === myId || speakerToggle}
+                        style={(!videoStream.video && videoStream.userId !== myId) || (!video && videoStream.userId === myId) ? { display: "none" } : { width: "30vw" }}
+                        ref={(videoRef) => {
+                          if (videoRef) videoRef.srcObject = videoStream.stream;
+                          return videoRef;
+                        }}
+                      />
+                      {!((videoStream.video && videoStream.userId !== myId) || (videoStream.userId === myId && video)) && (
+                        <img
+                          src={videoStream.picurL}
+                          style={{ borderRadius: "100%", height: "auto", width: "25%", minWidth: "60px", maxWidth: "120px", display: "block" }}
+                          alt={videoStream.userName}
+                        />
+                      )}
+                      <Box
+                        style={{
+                          fontSize: "1.3rem",
+                          fontFamily: "sans-serif",
+                          color: "white",
+                          textAlign: "right",
+                          paddingRight: "3%",
+                          width: "fit-content",
+                          marginLeft: "auto",
+                          padding: "1.3%",
+                          zIndex: "100",
+                          position: "absolute",
+                          bottom: "0",
+                          right: "0",
+                          backgroundColor: "rgba(0,0,0,0.5)",
+                        }}
+                      >
+                        <Box component="span" style={{ verticalAlign: "bottom" }}>
+                          {videoStream.userId === myId ? "You" : videoStream.userName}
+                        </Box>
+                        {videoStream.userId !== myId &&
+                          (videoStream.audio ? <MicIcon style={{ marginLeft: "10px", verticalAlign: "bottom" }} /> : <MicOffIcon style={{ marginLeft: "10px", verticalAlign: "bottom" }} />)}
                       </Box>
-                      {videoStream.userId !== myId &&
-                        (videoStream.audio ? <MicIcon style={{ marginLeft: "10px", verticalAlign: "bottom" }} /> : <MicOffIcon style={{ marginLeft: "10px", verticalAlign: "bottom" }} />)}
                     </Box>
-                  </Box>
-                );
-              }
-              return null;
-            })}
-          </Box>
+                  );
+                }
+                return null;
+              })}
+            </Box>
+          </Scrollbars>
         </Grid>
       ) : (
         <Grid item xs={12}>

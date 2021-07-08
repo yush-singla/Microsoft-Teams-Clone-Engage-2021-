@@ -174,7 +174,8 @@ app.get(
   }),
   function (req, res) {
     if (req.session.redirectDetails && req.session.redirectDetails.join && req.session.redirectDetails.prev) {
-      res.redirect(`${useDomain}/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
+      console.log(`${useDomain}/invite/${req.session.redirectDetails.room}`);
+      res.redirect(`${useDomain}/invite/${req.session.redirectDetails.room}`);
     } else if (req.session.redirectDetails && req.session.redirectDetails.join) {
       res.redirect(`${useDomain}/join/${req.session.redirectDetails.room}`);
     } else {
@@ -196,7 +197,7 @@ app.get(
   }),
   function (req, res) {
     if (req.session.redirectDetails && req.session.redirectDetails.join && req.session.redirectDetails.prev) {
-      res.redirect(`${useDomain}/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
+      res.redirect(`${useDomain}/invite/${req.session.redirectDetails.room}`);
     } else if (req.session.redirectDetails && req.session.redirectDetails.join) {
       res.redirect(`${useDomain}/join/${req.session.redirectDetails.room}`);
     } else {
@@ -218,7 +219,7 @@ app.get(
   }),
   function (req, res) {
     if (req.session.redirectDetails && req.session.redirectDetails.join && req.session.redirectDetails.prev) {
-      res.redirect(`${useDomain}/join/${req.session.redirectDetails.room}/${req.session.redirectDetails.prev}`);
+      res.redirect(`${useDomain}/invite/${req.session.redirectDetails.room}`);
     } else if (req.session.redirectDetails && req.session.redirectDetails.join) {
       res.redirect(`${useDomain}/join/${req.session.redirectDetails.room}`);
     } else {
@@ -374,6 +375,8 @@ io.on("connection", (socket) => {
   //replicate below event here also just don't have userId, and not establish the
   //call and only do the database stuff in it where we push participant to the db
   socket.on("join-room-chat", (roomId, { uniqueId, picurL, name }) => {
+    console.log("data gotten is ");
+    console.log({ uniqueId, picurL, name });
     pushUserToRoom({ uniqueId, name, picurL, roomId });
   });
 
@@ -415,6 +418,8 @@ io.on("connection", (socket) => {
       if (err) console.log(err);
       if (room) {
         cb(room);
+      } else {
+        cb(null);
       }
     });
   });

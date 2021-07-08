@@ -8,6 +8,7 @@ import LoginProvider from "./utils/LoginProvider";
 import SignInFirst from "./components/Home/SignInFirst";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import MyMeetings from "./components/My Meetings/MyMeetings";
+import MeetingDetails from "./components/My Meetings/MeetingDetails";
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
         <Router>
           <Switch>
             <ProtectedRoute path="/join" component={VideoCallArea} />
+            <Route path="/invite" component={MeetingDetails} />
             <Route path="/waitingroom">
               <WaitingRoom />
             </Route>

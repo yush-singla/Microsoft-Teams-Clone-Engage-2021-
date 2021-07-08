@@ -1,12 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { Link, setRef } from "@material-ui/core";
+import { Link } from "@material-ui/core";
 import { Redirect } from "react-router";
 import { useSocket } from "../../utils/SocketProvider";
 import {
   IconButton,
   TextField,
-  Paper,
   Grid,
   Box,
   Typography,
@@ -29,6 +28,10 @@ import {
   Drawer,
   Avatar,
   Divider,
+  Menu,
+  MenuItem,
+  AppBar,
+  Toolbar,
 } from "@material-ui/core";
 import SendIcon from "@material-ui/icons/Send";
 import { titleCase } from "../../functions/titleCase";
@@ -40,6 +43,7 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import KeyboardBackspaceIcon from "@material-ui/icons/KeyboardBackspace";
 import { Scrollbars } from "react-custom-scrollbars";
 import CancelIcon from "@material-ui/icons/Cancel";
+import { useLogin } from "../../utils/LoginProvider";
 const useStyles = makeStyles({
   chatTextFieldPc: {
     width: "50vw",
@@ -62,7 +66,7 @@ const useStyles = makeStyles({
     maxWidth: window.innerWidth > 900 ? "20vw" : "80%",
   },
   chatBox: {
-    height: "85vh",
+    height: "75vh",
     minWidth: "28vw",
   },
   leftAlignedChat: {
@@ -113,10 +117,15 @@ export default function MyMeetings() {
   const [allowAnyoneToStart, setAllowAnyoneToStart] = useState(false);
   const [meetingInfo, setMeetingInfo] = useState();
   const [openMeetingInfoDrawer, setOpenMeetingInfoDrawer] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [imgUrl, setImgUrl] = useState();
+  const [isLoggedIn, setIsLoggedIn] = useLogin();
+  const profileIconRef = useRef();
   useEffect(() => {
     console.log("useeffect is here");
     axios.get("/authenticated").then((response) => {
       console.log(response.data.uniqueId);
+      setImgUrl(response.data.picurL);
       uniqueIdRef.current = response.data.uniqueId;
       myData.current = response.data;
       socket.emit("get-prev-meetings", uniqueIdRef.current, (prevMeetingsDetails) => {
@@ -281,9 +290,62 @@ export default function MyMeetings() {
     }
   }
   // const dialogProps={openDialog,setOpenDialog,createInstantMeeting,createMeetingForLater,}
+  function handleLogOut() {
+    axios.get("/logout").then((response) => {
+      setImgUrl(null);
+      setIsLoggedIn(false);
+    });
+  }
+  if (isLoggedIn === false) {
+    return <Redirect to="/" />;
+  }
+  const UserIcon = ({ url }) => {
+    return <img style={{ height: "40px", width: "40px", borderRadius: "100%" }} alt="edit" src={url} />;
+  };
 
   return (
     <>
+      <AppBar position="static">
+        <Toolbar>
+          <Box flexDirection="right" flexGrow={1}>
+            <Typography variant="h6" className={classes.title}>
+              Teams
+            </Typography>
+          </Box>
+
+          <>
+            <IconButton
+              onClick={() => {
+                setMenuOpen(true);
+              }}
+              className={classes.profileIcon}
+              ref={profileIconRef}
+            >
+              <UserIcon url={imgUrl} />
+            </IconButton>
+            <Menu
+              keepMounted
+              anchorEl={profileIconRef.current}
+              open={menuOpen}
+              onClose={() => {
+                setMenuOpen(false);
+              }}
+              getContentAnchorEl={null}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "center",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "center",
+              }}
+            >
+              <MenuItem onClick={handleLogOut}>Logout</MenuItem>
+            </Menu>
+          </>
+        </Toolbar>
+      </AppBar>
+
       <Dialog
         fullScreen={fullScreen}
         open={openDialog}
@@ -376,18 +438,25 @@ export default function MyMeetings() {
           open={openMeetingInfoDrawer}
         >
           <Box style={{ minWidth: "30vw", maxWidth: "50vw", textAlign: "center" }}>
-            <Box textAlign="left">
-              <IconButton
-                onClick={() => {
-                  setOpenMeetingInfoDrawer(false);
-                }}
-              >
-                <KeyboardBackspaceIcon />
-              </IconButton>
-            </Box>
-            <Typography variant="h3" component="span">
-              {titleCase(meetingInfo.name)}
-            </Typography>
+            <Grid container>
+              <Grid item xs={1}>
+                <Box textAlign="left">
+                  <IconButton
+                    onClick={() => {
+                      setOpenMeetingInfoDrawer(false);
+                    }}
+                  >
+                    <KeyboardBackspaceIcon />
+                  </IconButton>
+                </Box>
+              </Grid>
+              <Grid item xs={11}>
+                <Typography variant="h3" component="span">
+                  {titleCase(meetingInfo.name)}
+                </Typography>
+              </Grid>
+            </Grid>
+
             <Divider />
             <Avatar style={{ height: "8vw", width: "8vw", margin: "2vw auto" }}>
               {titleCase(meetingInfo.name)
@@ -411,7 +480,7 @@ export default function MyMeetings() {
             <Divider />
 
             <Typography variant="h4" style={{ marginTop: "4vh", marginBottom: "3vh" }}>
-              Participants
+              Members
             </Typography>
             <Divider />
             <List>
@@ -429,10 +498,10 @@ export default function MyMeetings() {
           </Box>
         </Drawer>
       )}
-      <Grid container spacing={1}>
-        <Grid item xs={3}>
+      <Grid container spacing={1} style={{ marginTop: "1vh", paddingTop: "2vh" }}>
+        <Grid item xs={3} style={{ paddingLeft: "2vw" }}>
           <List
-            style={{ height: "90vh", backgroundColor: "white" }}
+            style={{ height: "78vh", backgroundColor: "white", border: "solid lightgrey 1px" }}
             aria-labelledby="nested-list-subheader"
             color="primary"
             subheader={
@@ -466,7 +535,7 @@ export default function MyMeetings() {
             }
             className={classes.root}
           >
-            <Scrollbars style={{ height: "82vh" }}>
+            <Scrollbars style={{ height: "68vh" }}>
               {prevMeetings.map((meeting) => {
                 return (
                   <ListItem
@@ -493,10 +562,10 @@ export default function MyMeetings() {
             </Scrollbars>
           </List>
         </Grid>
-        <Grid item xs={8}>
-          <Box height="70vh" style={{ backgroundColor: "white", position: "relative", paddingTop: "10vh" }}>
+        <Grid item xs={9} style={{ paddingLeft: "2vw", paddingRight: "7vw" }}>
+          <Box height="58vh" style={{ backgroundColor: "white", position: "relative", paddingTop: "8vh" }}>
             {selectedRoom.current && (
-              <Box style={{ position: "fixed", top: "2vh", width: "65.2vw", border: "solid lightgrey 2px" }}>
+              <Box style={{ position: "fixed", zIndex: "1000", top: "16vh", width: "65.2vw", backgroundColor: "white", border: "solid lightgrey 2px" }}>
                 <Grid container>
                   <Grid item xs={6}>
                     <Typography component="span" variant="h4" style={{ width: "40vw" }}>
@@ -531,8 +600,8 @@ export default function MyMeetings() {
                 </Grid>
               </Box>
             )}
-            {chatMessagges.length === 0 && <Box>No Messages In This Meeting</Box>}
-            <Scrollbars style={{ height: "70vh" }}>
+            {chatMessagges.length === 0 && <Box mt={4}>No Messages In This Meeting</Box>}
+            <Scrollbars style={{ height: "58vh" }}>
               {chatMessagges.map((chatMssg, key) => {
                 return (
                   <Box key={key}>

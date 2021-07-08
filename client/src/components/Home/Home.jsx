@@ -65,6 +65,9 @@ export default function Home() {
       }
     });
   }, []);
+  if (isLoggedIn) {
+    return <Redirect to="/mymeetings" />;
+  }
   const UserIcon = ({ url }) => {
     return <img style={{ height: "40px", width: "40px", borderRadius: "100%" }} alt="edit" src={url} />;
   };

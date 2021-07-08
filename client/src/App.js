@@ -9,7 +9,7 @@ import SignInFirst from "./components/Home/SignInFirst";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import MyMeetings from "./components/My Meetings/MyMeetings";
 import MeetingDetails from "./components/My Meetings/MeetingDetails";
-import LearnMore from "./components/Home/LearnMore";
+import HomeL from "./components/LearnMore/pages";
 
 export default function App() {
   return (
@@ -24,7 +24,7 @@ export default function App() {
             </Route>
             <Route path="/signinfirst" component={SignInFirst} />
             <Route path="/mymeetings" component={MyMeetings} />
-            <Route path="/learnmore" component={LearnMore} />
+            <Route path="/learnmore" component={HomeL} />
             <Route exact path="/" component={Home} />
           </Switch>
         </Router>

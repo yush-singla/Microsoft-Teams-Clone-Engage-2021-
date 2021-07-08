@@ -1,0 +1,83 @@
+export const homeObjOne = {
+  id: "about",
+  lightBg: false,
+  lightText: true,
+  lighttextDesc: true,
+  topLine: "Video Meetings",
+  headline: "Free High Quality Video Calls",
+  description: "The video call can support upto 6 people, is fully responsive for Mobile and PC. You have the option to turn off the audio or video as well. ",
+  buttonLabel: "Get started",
+  imgStart: false,
+  img: "./../../images/svg-1.svg",
+  alt: "car",
+  dark: true,
+  primary: true,
+  darkText: false,
+};
+
+export const homeObjTwo = {
+  id: "discover",
+  lightBg: true,
+  lightText: false,
+  lighttextDesc: false,
+  topLine: "Chats",
+  headline: "Send Messages to Your Team",
+  description: "Chat with people in your Team. You can chat seamlessly before, during and after your meeting. All the messages are saved and may be accessed later.",
+  buttonLabel: "Learn More",
+  imgStart: true,
+  img: "./../../images/svg-4.svg",
+  alt: "Piggybanck",
+  dark: false,
+  primary: false,
+  darkText: true,
+};
+
+export const homeObjThree = {
+  id: "signup",
+  lightBg: true,
+  lightText: false,
+  lighttextDesc: false,
+  topLine: "Authentication",
+  headline: "Login Though your Favourite Service",
+  description: "No hassle to fill forms to sign in. We support Google, Facebook and Github. Use any one to Sign in, we only use your name and picture.",
+  buttonLabel: "Start Now",
+  imgStart: false,
+  img: "./../../images/svg-3.svg",
+  alt: "car",
+  primary: false,
+  darkText: true,
+};
+
+export const homeObjFour = {
+  id: "screen",
+  lightBg: false,
+  lightText: true,
+  lighttextDesc: true,
+  topLine: "Screen Share",
+  headline: "Present your Screen",
+  description: "Share your screen with a single click. The Screen get shown along with videos of other users. It is fully responsive for Mobile and PC",
+  buttonLabel: "Get started",
+  imgStart: false,
+  img: "./../../images/svg-1.svg",
+  alt: "car",
+  dark: true,
+  primary: true,
+  darkText: false,
+};
+
+export const homeObjFive = {
+  id: "wait",
+  lightBg: true,
+  lightText: false,
+  lighttextDesc: false,
+  topLine: "Waiting Rooms",
+  headline: "Manage Your Meeting Better",
+  description:
+    "Ayone who joins the meeting is taken to the waiting room. The host gets notified, he may accept/deny entry to the new user. The host can also put him in the waiting room from where he could allow/deny later on.",
+  buttonLabel: "Start Now",
+  imgStart: false,
+  img: "./../../images/svg-3.svg",
+  alt: "car",
+  primary: false,
+  darkText: true,
+};

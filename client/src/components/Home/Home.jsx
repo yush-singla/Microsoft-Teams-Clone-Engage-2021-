@@ -6,7 +6,6 @@ import { ArrowForward, VideoCall } from "@material-ui/icons";
 import { useLogin } from "../../utils/LoginProvider";
 import handleSignIn from "../../utils/handleSignIn";
 import chartImg from "../../assets/images/chart.png";
-
 //material ui icons
 import GTranslateIcon from "@material-ui/icons/GTranslate";
 import FacebookIcon from "@material-ui/icons/Facebook";
@@ -135,7 +134,7 @@ export default function Home() {
     );
   }
   return (
-    <>
+    <Box m={2}>
       <AppBar position="static">
         <Toolbar>
           <Box flexDirection="right" flexGrow={1}>
@@ -249,7 +248,7 @@ export default function Home() {
                     </Button>
                   </Grid>
                   <Grid item xs={12} md={6} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <Button fullWidth size="large" color="primary" variant="outlined">
+                    <Button component={Link} to="/learnmore" fullWidth size="large" color="primary" variant="outlined">
                       Learn More
                     </Button>
                   </Grid>
@@ -264,6 +263,6 @@ export default function Home() {
           </Grid>
         </Grid>
       </Box>
-    </>
+    </Box>
   );
 }

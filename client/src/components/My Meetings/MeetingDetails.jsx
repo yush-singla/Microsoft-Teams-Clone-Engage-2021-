@@ -17,12 +17,10 @@ export default function MeetingDetails() {
   const [meetingInfo, setMeetingInfo] = useState();
   useEffect(() => {
     axios.get("/authenticated").then((response) => {
-      console.log(response.data);
       if (response.data !== "unauthorised") {
         setIsLoggedIn(true);
         myData.current = response.data;
         socket.emit("get-room-info", window.location.pathname.split("/")[2], (roomData) => {
-          console.log(roomData);
           if (roomData === null) {
             alert("the room is invalid!");
             setRedirectToHome(true);

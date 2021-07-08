@@ -124,14 +124,11 @@ export default function MyMeetings() {
   const [isLoggedIn, setIsLoggedIn] = useLogin();
   const profileIconRef = useRef();
   useEffect(() => {
-    console.log("useeffect is here");
     axios.get("/authenticated").then((response) => {
-      console.log(response.data.uniqueId);
       setImgUrl(response.data.picurL);
       uniqueIdRef.current = response.data.uniqueId;
       myData.current = response.data;
       socket.emit("get-prev-meetings", uniqueIdRef.current, (prevMeetingsDetails) => {
-        console.log(prevMeetingsDetails, "see these");
         setPrevMeetings(prevMeetingsDetails);
         if (prevMeetingsDetails.length !== 0) {
           selectedRoom.current = prevMeetingsDetails[0];
@@ -144,26 +141,7 @@ export default function MyMeetings() {
   useEffect(() => {
     socket.on("recieved-chat", (chat) => {
       chat.dateTime = new Date(chat.dateTime);
-      console.log("gotten-data");
-      console.log(chat, selectedRoom.current);
       if (chat.to.roomId === selectedRoom.current.roomId) setChatMessagges((prev) => [...prev, chat]);
-      // else {
-      //   setPrevMeetings((prev) => {
-      //     console.log("c1");
-      //     prev.forEach((meet) => {
-      //       console.log(meet.roomId, chat.to.roomId);
-      //       if (chat.to.roomId === meet.roomId) {
-      //         console.log("c2");
-      //         if (meet.badgeContent === undefined) prev.badgeContent = 1;
-      //         else {
-      //           meet.badgeContent++;
-      //         }
-      //       }
-      //     });
-      //     console.log("c3");
-      //     return [...prev];
-      //   });
-      // }
     });
     return () => {
       socket.off("recieved-chat");
@@ -171,7 +149,6 @@ export default function MyMeetings() {
   }, []);
 
   function leaveMeeting() {
-    console.log({ uniqueId: uniqueIdRef.current, roomId: selectedRoom.current.roomId });
     socket.emit("leave-team", { uniqueId: uniqueIdRef.current, roomId: selectedRoom.current.roomId });
     setPrevMeetings((prev) => {
       const ans = [...prev.filter((meet) => meet.roomId !== selectedRoom.current.roomId)];
@@ -188,10 +165,8 @@ export default function MyMeetings() {
   function getChatMessages(roomId) {
     socket.emit("get-chat-data", roomId, (response) => {
       const chatsGottenn = response.messages;
-      console.log("got these chats bro", chatsGottenn);
       setChatMessagges([
         ...chatsGottenn.map((eachChat) => {
-          console.log({ eachChat });
           return {
             from: {
               name: eachChat.from.name,
@@ -215,9 +190,7 @@ export default function MyMeetings() {
     setRedirectTo({ to: `/join/${selectedRoom.current.roomId}`, created: false });
   }
   function createInstantMeeting() {
-    console.log("creating meet");
     axios.get("/api/join").then((response) => {
-      console.log(response.data);
       setRedirectTo({ to: `/join/${response.data.link}`, created: true, meetingName });
     });
   }
@@ -272,9 +245,7 @@ export default function MyMeetings() {
   }
 
   function createMeetingForLater() {
-    console.log("trying");
     axios.get("/api/join").then((response) => {
-      console.log("harder");
       socket.emit(
         "create-room-chat",
         {
@@ -286,7 +257,6 @@ export default function MyMeetings() {
           allowAnyoneToStart,
         },
         (meeting) => {
-          console.log("success");
           selectedRoom.current = meeting;
           setPrevMeetings((prev) => [...prev, meeting]);
         }
@@ -301,7 +271,6 @@ export default function MyMeetings() {
   }
 
   if (redirectTo !== null) {
-    console.log(selectedRoom);
     if (redirectTo.created === false && (selectedRoom.current.allowAnyoneToStart || uniqueIdRef.current === selectedRoom.current.host))
       return (
         <Redirect

@@ -277,6 +277,18 @@ function pushUserToRoom({ uniqueId, roomId, picurL, name }) {
   });
 }
 
+function RemoveUserFromRoom({ uniqueId, roomId }) {
+  Rooms.findOne({ roomId }, (err, room) => {
+    if (err) console.log(err);
+    if (room) {
+      const participants = romm.participants.filter((x) => x.uniqueId !== uniqueId);
+      Rooms.findOneAndUpdate({ roomId }, { $set: { participants } }, (err, done) => {
+        if (err) console.log(err);
+      });
+    }
+  });
+}
+
 //these are some variables that store the essentials that are needed during vide call
 let waitingRooms = {};
 let getUserIdBySocketId = {};

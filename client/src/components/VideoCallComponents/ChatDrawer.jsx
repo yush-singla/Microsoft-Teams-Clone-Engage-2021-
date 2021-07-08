@@ -207,6 +207,9 @@ export default function ChatDrawer({ uniqueIdRef, windowWidth, chatOpen, setChat
                     : { marginLeft: "auto", textAlign: "right", maxWidth: windowWidth > 900 ? "20vw" : "80%" }
                 }
               >
+                {chatMssg.from.uniqueId !== uniqueIdRef.current && (
+                  <Box style={{ color: "lightgray", fontWeight: "bolder", fontSize: "0.8rem", textAlign: chatMssg.from.uniqueId !== uniqueIdRef.current ? "left" : "right" }}>{chatMssg.from.name}</Box>
+                )}
                 {chatMssg.from.userId !== myId && (
                   <Tooltip title={chatMssg.from.name}>
                     <span style={{ lineHeight: "20%" }}>

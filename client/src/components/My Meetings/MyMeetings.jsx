@@ -32,6 +32,7 @@ import {
   MenuItem,
   AppBar,
   Toolbar,
+  Badge,
 } from "@material-ui/core";
 import SendIcon from "@material-ui/icons/Send";
 import { titleCase } from "../../functions/titleCase";
@@ -145,6 +146,23 @@ export default function MyMeetings() {
       console.log("gotten-data");
       console.log(chat, selectedRoom.current);
       if (chat.to.roomId === selectedRoom.current.roomId) setChatMessagges((prev) => [...prev, chat]);
+      // else {
+      //   setPrevMeetings((prev) => {
+      //     console.log("c1");
+      //     prev.forEach((meet) => {
+      //       console.log(meet.roomId, chat.to.roomId);
+      //       if (chat.to.roomId === meet.roomId) {
+      //         console.log("c2");
+      //         if (meet.badgeContent === undefined) prev.badgeContent = 1;
+      //         else {
+      //           meet.badgeContent++;
+      //         }
+      //       }
+      //     });
+      //     console.log("c3");
+      //     return [...prev];
+      //   });
+      // }
     });
     return () => {
       socket.off("recieved-chat");
@@ -321,7 +339,7 @@ export default function MyMeetings() {
               className={classes.profileIcon}
               ref={profileIconRef}
             >
-              <UserIcon url={imgUrl} />
+              {imgUrl && <UserIcon url={imgUrl} />}
             </IconButton>
             <Menu
               keepMounted
@@ -495,6 +513,7 @@ export default function MyMeetings() {
                 );
               })}
             </List>
+            <Typography> {meetingInfo.allowAnyoneToStart === true ? "(Members can start the meet before host)" : "(Only Host can start the meet)"} </Typography>
           </Box>
         </Drawer>
       )}
@@ -536,23 +555,26 @@ export default function MyMeetings() {
             className={classes.root}
           >
             <Scrollbars style={{ height: "68vh" }}>
-              {prevMeetings.map((meeting) => {
+              {prevMeetings.map((meeting, key) => {
                 return (
                   <ListItem
                     button
+                    key={prevMeetings.roomId}
                     onClick={() => {
                       selectedRoom.current = meeting;
                       getChatMessages(meeting.roomId);
                     }}
-                    style={meeting.roomId === selectedRoom.current?.roomId ? { backgroundColor: "lightgrey" } : { backgroundColor: "white" }}
+                    style={{ backgroundColor: meeting.roomId === selectedRoom.current?.roomId ? "lightgrey" : "white", marginTop: key === 0 ? "1vh" : "auto" }}
                   >
                     <ListItemAvatar>
-                      <Avatar>
-                        {titleCase(meeting.name)
-                          .split(" ")
-                          .map((x) => x.substr(0, 1))
-                          .join("")}
-                      </Avatar>
+                      <Badge badgeContent={meeting.badgeContent === undefined ? 0 : meeting.badgeContent} color="primary">
+                        <Avatar>
+                          {titleCase(meeting.name)
+                            .split(" ")
+                            .map((x) => x.substr(0, 1))
+                            .join("")}
+                        </Avatar>
+                      </Badge>
                     </ListItemAvatar>
                     {/* <ListItemIcon></ListItemIcon> */}
                     <ListItemText primary={titleCase(meeting.name)} />
@@ -613,6 +635,11 @@ export default function MyMeetings() {
                           : { marginLeft: "auto", textAlign: "right", maxWidth: windowWidth > 900 ? "20vw" : "80%" }
                       }
                     >
+                      {chatMssg.from.uniqueId !== uniqueIdRef.current && (
+                        <Box style={{ color: "lightgray", fontWeight: "bolder", fontSize: "0.8rem", textAlign: chatMssg.from.uniqueId !== uniqueIdRef.current ? "left" : "right" }}>
+                          {titleCase(chatMssg.from.name)}
+                        </Box>
+                      )}
                       {chatMssg.from.uniqueId !== uniqueIdRef.current && (
                         <Tooltip title={chatMssg.from.name}>
                           <span style={{ lineHeight: "20%" }}>

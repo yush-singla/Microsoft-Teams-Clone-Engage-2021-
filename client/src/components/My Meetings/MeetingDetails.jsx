@@ -53,7 +53,7 @@ export default function MeetingDetails() {
   }
   if (meetingInfo) {
     return (
-      <Box style={{ textAlign: "center", maxWidth: "80vw", margin: "auto" }}>
+      <Box style={{ textAlign: "center", maxWidth: "50vw", margin: "auto", border: "lightgrey solid 2px" }}>
         <Typography variant="h4" component="span">
           {titleCase(meetingInfo.name)}
         </Typography>
@@ -67,7 +67,7 @@ export default function MeetingDetails() {
         <Divider />
 
         <Typography variant="h5" style={{ marginTop: "4vh", marginBottom: "1.5vh" }}>
-          Participants
+          Members
         </Typography>
         <Divider />
         <Box style={{ width: "50vw", margin: "auto", border: "solid 1px lightgrey" }}>
@@ -86,6 +86,8 @@ export default function MeetingDetails() {
             </Scrollbars>
           </List>
         </Box>
+        <Typography> {meetingInfo.allowAnyoneToStart === true ? "(Members can start the meet before host)" : "(Only Host can start the meet)"} </Typography>
+
         <Button
           startIcon={<QueueIcon />}
           onClick={() => {

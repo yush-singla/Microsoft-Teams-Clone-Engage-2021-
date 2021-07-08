@@ -9,7 +9,7 @@ import SignInFirst from "./components/Home/SignInFirst";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import MyMeetings from "./components/My Meetings/MyMeetings";
 import MeetingDetails from "./components/My Meetings/MeetingDetails";
-import HomeL from "./components/LearnMore/pages";
+import HomeL from "./components/learn more/pages/index";
 
 export default function App() {
   return (

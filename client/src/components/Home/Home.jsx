@@ -12,6 +12,7 @@ import GTranslateIcon from "@material-ui/icons/GTranslate";
 import FacebookIcon from "@material-ui/icons/Facebook";
 import GitHubIcon from "@material-ui/icons/GitHub";
 import { useSocket } from "../../utils/SocketProvider";
+import VpnKeyIcon from "@material-ui/icons/VpnKey";
 const useStyles = makeStyles({
   joinButtons: {
     overflow: "hidden",
@@ -180,7 +181,7 @@ export default function Home() {
               }}
               color="inherit"
             >
-              Login
+              Sign In
             </Button>
           )}
         </Toolbar>
@@ -232,25 +233,25 @@ export default function Home() {
                 </Typography>
               </Box>
               <Box style={{ paddingLeft: "2vw", marginTop: "1vh" }} overflow="hidden" textAlign="center">
-                <Grid container style={{ display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "4.2vh" }}>
+                <Grid container spacing={4} style={{ display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "4.2vh" }}>
                   <Grid item xs={12} md={6} className={classes.buttonPadding} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <Button size="large" startIcon={<VideoCall />} variant="contained" color="primary" onClick={handleCreate}>
-                      {windowWidth >= 1136 ? "Create New Meet" : "Create Meet"}
+                    <Button
+                      onClick={() => {
+                        setModalOpen(true);
+                      }}
+                      size="large"
+                      color="primary"
+                      fullWidth
+                      variant="contained"
+                      startIcon={<VpnKeyIcon />}
+                    >
+                      Sign In
                     </Button>
                   </Grid>
                   <Grid item xs={12} md={6} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <Button variant="contained" component={Link} to="/mymeetings">
-                      Show My Meetings
+                    <Button fullWidth size="large" color="primary" variant="outlined">
+                      Learn More
                     </Button>
-                    {/* <TextField
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") handleJoin(inputLink);
-                      }}
-                      value={inputLink}
-                      onChange={(e) => setinputLink(e.target.value)}
-                      placeholder="Join with Link"
-                      InputProps={{ endAdornment: <SearchButton /> }}
-                    /> */}
                   </Grid>
                 </Grid>
               </Box>

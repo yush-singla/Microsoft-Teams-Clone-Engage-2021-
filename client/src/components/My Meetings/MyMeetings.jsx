@@ -45,6 +45,7 @@ import KeyboardBackspaceIcon from "@material-ui/icons/KeyboardBackspace";
 import { Scrollbars } from "react-custom-scrollbars";
 import CancelIcon from "@material-ui/icons/Cancel";
 import { useLogin } from "../../utils/LoginProvider";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 const useStyles = makeStyles({
   chatTextFieldPc: {
     width: "50vw",
@@ -169,6 +170,20 @@ export default function MyMeetings() {
     };
   }, []);
 
+  function leaveMeeting() {
+    console.log({ uniqueId: uniqueIdRef.current, roomId: selectedRoom.current.roomId });
+    socket.emit("leave-team", { uniqueId: uniqueIdRef.current, roomId: selectedRoom.current.roomId });
+    setPrevMeetings((prev) => {
+      const ans = [...prev.filter((meet) => meet.roomId !== selectedRoom.current.roomId)];
+      if (ans.length > 0) selectedRoom.current = ans[0];
+      else {
+        selectedRoom.current = null;
+        setChatMessagges([]);
+      }
+      return [...ans];
+    });
+  }
+
   const windowWidth = 1000;
   function getChatMessages(roomId) {
     socket.emit("get-chat-data", roomId, (response) => {
@@ -272,6 +287,7 @@ export default function MyMeetings() {
         },
         (meeting) => {
           console.log("success");
+          selectedRoom.current = meeting;
           setPrevMeetings((prev) => [...prev, meeting]);
         }
       );
@@ -576,7 +592,6 @@ export default function MyMeetings() {
                         </Avatar>
                       </Badge>
                     </ListItemAvatar>
-                    {/* <ListItemIcon></ListItemIcon> */}
                     <ListItemText primary={titleCase(meeting.name)} />
                   </ListItem>
                 );
@@ -594,7 +609,7 @@ export default function MyMeetings() {
                       {titleCase(selectedRoom.current.name)}
                     </Typography>
                   </Grid>
-                  <Grid item xs={3}></Grid>
+                  <Grid item xs={1}></Grid>
                   <Grid item xs={2} style={{ justifyContent: "center", display: "flex", alignItems: "center" }}>
                     <Button
                       endIcon={<VideocamIcon />}
@@ -608,7 +623,7 @@ export default function MyMeetings() {
                       Join Meet
                     </Button>
                   </Grid>
-                  <Grid item xs={1} style={{ textAlign: "center" }}>
+                  <Grid item xs={2} style={{ textAlign: "center" }}>
                     <Tooltip title="Team Info">
                       <IconButton
                         onClick={() => {
@@ -619,10 +634,39 @@ export default function MyMeetings() {
                       </IconButton>
                     </Tooltip>
                   </Grid>
+                  <Grid item xs={1}>
+                    <Tooltip title="Leave Meeting">
+                      <IconButton
+                        onClick={() => {
+                          leaveMeeting();
+                        }}
+                      >
+                        <ExitToAppIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
                 </Grid>
               </Box>
             )}
-            {chatMessagges.length === 0 && <Box mt={4}>No Messages In This Meeting</Box>}
+            {prevMeetings.length === 0 && (
+              <Box style={{ padding: "10vh 1vw", textAlign: "center" }}>
+                <Typography variant="h4">Create Your First Team And Engage with your Colleagues</Typography>
+                <Box style={{ marginTop: "3vh" }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
+                      setMeetingName("");
+                      setAllowAnyoneToStart(false);
+                      setOpenDialog(true);
+                    }}
+                  >
+                    Create My Team
+                  </Button>
+                </Box>
+              </Box>
+            )}
+            {prevMeetings.length > 0 && chatMessagges.length === 0 && <Box mt={4}>No Messages In This Meeting</Box>}
             <Scrollbars style={{ height: "58vh" }}>
               {chatMessagges.map((chatMssg, key) => {
                 return (
@@ -664,24 +708,26 @@ export default function MyMeetings() {
               })}
             </Scrollbars>
           </Box>
-          <TextField
-            className={windowWidth >= 900 ? classes.chatTextPc : classes.chatTextFieldMobile}
-            style={{ marginLeft: "2vw", marginTop: "3vh" }}
-            placeholder="Enter Chat Messages"
-            InputProps={{
-              classes: {
-                input: windowWidth >= 900 ? classes.chatTextFieldPc : classes.chatTextFieldMobile,
-              },
-              endAdornment: <SendMessageButton />,
-            }}
-            value={chatMessage}
-            onChange={(e) => {
-              setChatMessage(e.target.value);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && chatMessage !== "") sendChat();
-            }}
-          />
+          {prevMeetings.length > 0 && selectedRoom.current && (
+            <TextField
+              className={windowWidth >= 900 ? classes.chatTextPc : classes.chatTextFieldMobile}
+              style={{ marginLeft: "2vw", marginTop: "3vh" }}
+              placeholder="Enter Chat Messages"
+              InputProps={{
+                classes: {
+                  input: windowWidth >= 900 ? classes.chatTextFieldPc : classes.chatTextFieldMobile,
+                },
+                endAdornment: <SendMessageButton />,
+              }}
+              value={chatMessage}
+              onChange={(e) => {
+                setChatMessage(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && chatMessage !== "") sendChat();
+              }}
+            />
+          )}
 
           {/* <button onClick={createInstantMeeting}>Create Instant New Meeting</button>
           <button onClick={createMeetingForLater}>Create New Meeting for Later</button> */}

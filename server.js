@@ -281,10 +281,27 @@ function RemoveUserFromRoom({ uniqueId, roomId }) {
   Rooms.findOne({ roomId }, (err, room) => {
     if (err) console.log(err);
     if (room) {
-      const participants = romm.participants.filter((x) => x.uniqueId !== uniqueId);
-      Rooms.findOneAndUpdate({ roomId }, { $set: { participants } }, (err, done) => {
-        if (err) console.log(err);
-      });
+      const allParticipants = room.participants.filter((x) => x.uniqueId !== uniqueId);
+      if (allParticipants.length > 0) {
+        const newHost = room.host === uniqueId ? allParticipants[0].uniqueId : room.host;
+        console.log(newHost, allParticipants);
+        Rooms.findByIdAndUpdate(room._id, { $set: { participants: allParticipants, host: newHost } }, (err, done) => {
+          if (err) console.log(err);
+        });
+      } else {
+        Rooms.findOneAndDelete({ roomId }, (err, done) => {
+          if (err) console.log(err);
+        });
+        Chats.findOneAndDelete({ roomDetails: roomId }, (err, done) => {
+          if (err) console.log(err);
+        });
+      }
+    }
+  });
+  User.findOneAndUpdate({ uniqueId }, { $pull: { rooms: roomId } }, { new: true }, (err, user) => {
+    if (err) console.log(err);
+    if (user) {
+      console.log(user);
     }
   });
 }
@@ -423,6 +440,10 @@ io.on("connection", (socket) => {
       delete getSocketIdFromUniqueId[getUniqueIdFromSocketId[socket.id]];
       delete getUniqueIdFromSocketId[socket.id];
     });
+  });
+
+  socket.on("leave-team", ({ roomId, uniqueId }) => {
+    RemoveUserFromRoom({ uniqueId, roomId });
   });
 
   socket.on("get-room-info", (roomId, cb) => {

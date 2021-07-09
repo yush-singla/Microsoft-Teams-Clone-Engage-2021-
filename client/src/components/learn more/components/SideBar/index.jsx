@@ -1,7 +1,7 @@
-import React from 'react'
-import { SidebarContainer, Icon, CloseIcon, SidebarWrapper, SidebarMenu, SidebarLink, SidebarRoute, SideBtnWrap } from './SidebarElements'
+import React from "react";
+import { SidebarContainer, Icon, CloseIcon, SidebarWrapper, SidebarMenu, SidebarLink, SidebarRoute, SideBtnWrap } from "./SidebarElements";
 
-const Sidebar = ({isOpen,toggle}) => {
+const Sidebar = ({ isOpen, toggle }) => {
   return (
     <SidebarContainer isOpen={isOpen} onClick={toggle}>
       <Icon onClick={toggle}>
@@ -9,17 +9,28 @@ const Sidebar = ({isOpen,toggle}) => {
       </Icon>
       <SidebarWrapper>
         <SidebarMenu>
-          <SidebarLink to='about' onClick={toggle}>About</SidebarLink>
-          <SidebarLink to='discover' onClick={toggle}>Discover</SidebarLink>
-          <SidebarLink to='services' onClick={toggle}>Services</SidebarLink>
-          <SidebarLink to='signup' onClick={toggle}>Sign up</SidebarLink>
+          <SidebarLink to="about" onClick={toggle}>
+            Video Meetings
+          </SidebarLink>
+          <SidebarLink to="discover" onClick={toggle}>
+            Chats
+          </SidebarLink>
+          <SidebarLink to="services" onClick={toggle}>
+            Face Masks
+          </SidebarLink>
+          <SidebarLink to="signup" onClick={toggle}>
+            Authentication
+          </SidebarLink>
+          <SidebarLink to="screen" onClick={toggle}>
+            Screen Share
+          </SidebarLink>
+          <SidebarLink to="wait" onClick={toggle}>
+            Waiting Rooms
+          </SidebarLink>
         </SidebarMenu>
-        <SideBtnWrap>
-          <SidebarRoute to='/signin'>Sign in</SidebarRoute>
-        </SideBtnWrap>
       </SidebarWrapper>
     </SidebarContainer>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

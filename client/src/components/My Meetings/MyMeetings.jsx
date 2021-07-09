@@ -258,6 +258,7 @@ export default function MyMeetings() {
         },
         (meeting) => {
           selectedRoom.current = meeting;
+          setChatMessage([]);
           setPrevMeetings((prev) => [...prev, meeting]);
         }
       );

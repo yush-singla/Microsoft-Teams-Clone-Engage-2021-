@@ -223,7 +223,7 @@ export default function Home() {
           <Grid item xs={12} md={6}>
             <Box style={windowWidth >= 980 ? { paddingTop: "5vh", marginLeft: "5vw", marginRight: "3vw" } : { paddingTop: "1vh", marginLeft: "1vw", marginRight: "1vw" }} textAlign="left">
               <Box style={{ paddingTop: "2vh", paddingLeft: "3vw" }}>
-                <Typography variant="h2">Welcome To Microsoft Teams</Typography>
+                <Typography variant="h2">Welcome To Teams</Typography>
                 <Box style={{ fontSize: "1.6rem", fontWeight: "bolder", marginTop: "3.5vh", marginBottom: "5vh" }}>
                   <Typography variant="h4">Keeping You Connected</Typography>
                 </Box>

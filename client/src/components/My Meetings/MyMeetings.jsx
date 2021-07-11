@@ -100,7 +100,7 @@ const useStyles = makeStyles({
     fontFamily: "sans-serif",
   },
 });
-const dayIs = ["Mond", "Tues", "Wed", "Thur", "Fri", "Sat", "Sun"];
+const dayIs = ["Sun", "Mond", "Tues", "Wed", "Thur", "Fri", "Sat"];
 export default function MyMeetings() {
   const classes = useStyles();
   // const classes = {};
@@ -258,7 +258,7 @@ export default function MyMeetings() {
         },
         (meeting) => {
           selectedRoom.current = meeting;
-          setChatMessage([]);
+          setChatMessagges([]);
           setPrevMeetings((prev) => [...prev, meeting]);
         }
       );
@@ -503,7 +503,7 @@ export default function MyMeetings() {
           </Box>
         </Drawer>
       )}
-      <Grid container spacing={1} style={{ marginTop: "1vh", paddingTop: "2vh" }}>
+      <Grid container spacing={1} style={{ marginTop: "1vh", overflowX: "hidden", paddingTop: "2vh" }}>
         <Grid item xs={3} style={{ paddingLeft: "2vw" }}>
           <List
             style={{ height: "78vh", backgroundColor: "white", border: "solid lightgrey 1px" }}
@@ -670,7 +670,7 @@ export default function MyMeetings() {
                         <ShowChatMessage message={chatMssg.message} />
                       </Typography>
                       <Box style={{ color: "lightgrey", textAlign: chatMssg.from.uniqueId !== uniqueIdRef.current ? "left" : "right" }}>
-                        {chatMssg.dateTime && chatMssg.dateTime.getHours() + ":" + chatMssg.dateTime.getMinutes() + "," + dayIs[chatMssg.dateTime.getDay() - 1]}
+                        {chatMssg.dateTime && chatMssg.dateTime.getHours() + ":" + chatMssg.dateTime.getMinutes() + "," + dayIs[chatMssg.dateTime.getDay()]}
                       </Box>
                     </Box>
                   </Box>

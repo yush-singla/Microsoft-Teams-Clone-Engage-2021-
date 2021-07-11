@@ -59,7 +59,7 @@ const useStyles = makeStyles({
     fontFamily: "sans-serif",
   },
 });
-const dayIs = ["Mond", "Tues", "Wed", "Thur", "Fri", "Sat", "Sun"];
+const dayIs = ["Sun", "Mond", "Tues", "Wed", "Thur", "Fri", "Sat"];
 
 export default function ChatDrawer({ uniqueIdRef, windowWidth, chatOpen, setChatOpen, chatOpenRef, videos, myId, myNameRef, myPicRef, setShowChatPopUp }) {
   const classes = useStyles();
@@ -228,7 +228,7 @@ export default function ChatDrawer({ uniqueIdRef, windowWidth, chatOpen, setChat
                     <ShowChatMessage message={chatMssg.message} />
                   </Typography>
                   <Box style={{ color: "lightgrey", textAlign: chatMssg.from.userId !== myId ? "left" : "right" }}>
-                    {new Date().getHours() + ":" + new Date().getMinutes() + "," + dayIs[new Date().getDay() - 1]}
+                    {new Date().getHours() + ":" + new Date().getMinutes() + "," + dayIs[new Date().getDay()]}
                   </Box>
                 </Box>
               </Box>

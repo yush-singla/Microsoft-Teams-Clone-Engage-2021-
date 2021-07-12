@@ -308,7 +308,7 @@ export default function MyMeetings() {
   };
 
   return (
-    <>
+    <div style={{ overflow: "hidden" }}>
       <AppBar position="static">
         <Toolbar>
           <Box flexDirection="right" flexGrow={1}>
@@ -703,6 +703,6 @@ export default function MyMeetings() {
           <button onClick={createMeetingForLater}>Create New Meeting for Later</button> */}
         </Grid>
       </Grid>
-    </>
+    </div>
   );
 }

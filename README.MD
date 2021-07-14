@@ -61,7 +61,7 @@ npm run dev
    - User Authentication
    - Fun Face Masks
 3. Problems faced (with solutions)
-   - List of problem faced(#problems-faced)
+   - [List of problem faced](#problems-faced)
 
 4. [Design](#design)
 

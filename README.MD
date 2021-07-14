@@ -162,6 +162,24 @@ npm run dev
 3. He can also put him in the, and then admit him at a later point.
 4. In the meantimes the person in the waiting room, can chose the status of his audio/video before he joins the meeting
 
+
+## Problems Faced
+1. Face Masks
+   - Face Detection Algoritm(by tensorflow) made for static images, How to make use of it in a video setting and also make it work for stream of remote peers?
+      * To implement algorithm on video, I ran it in a loop at interval of 100ms which makes it capture the elements of video as image fast enough to work.
+      * To run it on remote peers, Instead of sending the stream for the mask, I ran the algorithm locally on the other system on the video of the person
+      * This also saved me a lot of bandwidth and made the process overall a lot simpler as well and faster, now the starting/stopping of sticker is controlled by the server for other's video stream, and you for your own video stream!
+2. Chats 
+   - How to store the chats and allow users to communicate before and after the meetings as well
+      * I used Mongo Db to store the messages and implemented the concept of teams, where you could invite people to your team before the meeting to have a chat with them before the meeting also, Also I linked the meeting chat I already had to this new chat as well, and loaded all the messages whenver page rendered so that users can chat before, after easily.
+3. Prevent Unauthorised Access
+   - Since people would be sharing the links, I wanted to make sure that noone is allowed to join/use without signing in, but I did'nt want to redirect them to the home page to sign In since it hampers the user Experience, It was a challenge to remember that from which page the person has came and take him to the same page after login.
+      * To implement this I made use of Protected Routes, which informed the server about the route, they came from and server stored it in the user session, then later on when the user was authenticated those details were taken from the session and sent to the protected route along with a secret key, The protected route identified the secret key if it matched correctly then took the person to the original page he wanted to visit!
+ 
+4. Screen Share
+   - Sharing screens, required me to send a different video stream altogether to the other users, hence I had to figure out how to do this in such a way, that doesn't cause audio, video loss since replacing tracks in a webrtc connection causes renegotiation which results in some audio, video loss for a couple of seconds.
+      * I am still trying to figure out a better aproach to this problem, right now I have just used the mediastram.replaceTrack and RtcPeerConnection.replaceTrack both of which can need renogotiation but are better than completely reestablishing the entire call itself.
+
 ## Design
 
 ### High Level Design

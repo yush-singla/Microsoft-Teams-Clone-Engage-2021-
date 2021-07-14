@@ -7,7 +7,7 @@ Microsoft Teams Clone is a webRTC based project to enjoy free, Quality video con
 
 
 <!-- ![image](https://user-images.githubusercontent.com/70366079/123800040-7c195c00-d906-11eb-80af-9856360e4185.png) -->
-<img src="https://user-images.githubusercontent.com/70366079/123800040-7c195c00-d906-11eb-80af-9856360e4185.png" width="800" > 
+<img src="https://user-images.githubusercontent.com/70366079/125647878-50212127-b07e-4e82-a4a3-a587096cca13.png" width="800" > 
 
 ## How to use
 
@@ -32,15 +32,18 @@ npm run dev
 ### Features
 
 1. Video Meetings
-2. Built In Chat
+2. Built In Chat(before, during and after meetings)
 3. Waiting Rooms
 4. User Authentication
 5. Fun Face Masks
 6. Screen Share
+7. Responsive design for mobile
 
 <img src="https://user-images.githubusercontent.com/70366079/124368483-10751d00-dc7f-11eb-8cb2-e48e412a8c03.png" width="200" >  <img src="https://user-images.githubusercontent.com/70366079/124368419-92187b00-dc7e-11eb-909e-1bdf232e3cee.png" width="200" style="margin:auto">  <img src="https://user-images.githubusercontent.com/70366079/124368406-65646380-dc7e-11eb-8d55-6645603677ad.png" width="200" >
-<img src="https://user-images.githubusercontent.com/70366079/124368458-d7d54380-dc7e-11eb-99c5-8bcfd8d5be42.png" width="200" > <img src="https://user-images.githubusercontent.com/70366079/123799398-cfd77580-d905-11eb-9382-195bfeecfee0.png" width="200" >   <img src="https://user-images.githubusercontent.com/70366079/124368537-92654600-dc7f-11eb-842c-855efd363e55.png" width="200" > 
+<img src="https://user-images.githubusercontent.com/70366079/124368458-d7d54380-dc7e-11eb-99c5-8bcfd8d5be42.png" width="200" > <img src="https://user-images.githubusercontent.com/70366079/123799398-cfd77580-d905-11eb-9382-195bfeecfee0.png" width="200" >   <img src="https://user-images.githubusercontent.com/70366079/125648501-e6f0154b-fcfb-44ce-96eb-114c13637fb8.png" width="200" > 
 <img src="https://user-images.githubusercontent.com/70366079/124369189-b11b0b00-dc86-11eb-8fe2-0e2208f5f8e1.png" width="200" style="margin:auto">
+<img src="https://user-images.githubusercontent.com/70366079/125648728-7ce08490-2523-4c28-99ce-54231c280422.png" width="200" style="margin:auto">
+<img src="https://user-images.githubusercontent.com/70366079/125648869-f99489e6-ea25-4f26-b8fb-9d9d16c3bfcc.png" width="200" style="margin:auto">
 
 
 
@@ -57,7 +60,10 @@ npm run dev
    - Screen Share
    - User Authentication
    - Fun Face Masks
-3. [Design](#design)
+3. Problems faced (with solutions)
+   - List of problem faced(#problems-faced)
+
+4. [Design](#design)
 
 - [High Level Design](#high-level-design)
   - Video Meetings
@@ -79,6 +85,7 @@ npm run dev
 3. Socket.io
 4. WebRTC(PeerJs)
 5. PassPortJs
+6. Mono DB
 
 ### Usage
 
@@ -87,12 +94,13 @@ npm run dev
 3. Socket.io is used for communication between the server and the client back and forth. It handles all the events like mute,cam off,etc and informs other peers in the meet to adjust the ui accordingly, thus maintaining a sync between all the users. _Since it is event driven, we have much more control and all we need to do to communicate is emit and listen for an event_.
 4. WebRTC is used to transfer video streams, Peer to Peer basis, _It is one of the best ways to stream video using the resources of the browser only and not use any other service, the quality is simply awsome_.
 5. PassPortJs is a middleware that is used to implement User authentication in NodeJs, _Since it open source I preffered to use it rather than any BAAS_ .
+6. Mongo DB is used to provide a NO sql database, where we store all the users' information, along with the teams they are a part of and the chat messages for all their teams that they are a part of.
 
 ## Deep Dive into the Features
 
 ### 1. Video Meetings
 <!-- ![image](https://user-images.githubusercontent.com/70366079/124368537-92654600-dc7f-11eb-842c-855efd363e55.png) -->
-<img src="https://user-images.githubusercontent.com/70366079/124368537-92654600-dc7f-11eb-842c-855efd363e55.png" width="600" > 
+<img src="https://user-images.githubusercontent.com/70366079/125648501-e6f0154b-fcfb-44ce-96eb-114c13637fb8.png" width="600" > 
 
 
 1. Supports upto 5 people.
@@ -104,9 +112,11 @@ npm run dev
 <img src="https://user-images.githubusercontent.com/70366079/123799398-cfd77580-d905-11eb-9382-195bfeecfee0.png" width="600" > 
 
 
-1. Can send message to individuals, as well as to everyone in the meeting.
-2. Links can also be shared easily and become clickable.
-3. Push Notifications are sent to the user, who recieves a message.
+1. The chat is made so that you can chat before, during and even after the meeting.
+2. All your messages are stored in the database.
+3. People in the meeting can also chat with people who are a part of the team and not the meeting right now through meeting chat also since they are interlinked.
+4. Links can also be shared easily and become clickable.
+5. Push Notifications are sent to the user, who recieves a message.
 
 ### 3. Screen Share
 <img src="https://user-images.githubusercontent.com/70366079/124368458-d7d54380-dc7e-11eb-99c5-8bcfd8d5be42.png" width="600" style="margin:auto">
@@ -127,7 +137,7 @@ npm run dev
 3. Supported
    *Google
    *Facebook
-   \*Github
+   *Github
 
 ### 5. Fun Face Masks
 <img src="https://user-images.githubusercontent.com/70366079/124368419-92187b00-dc7e-11eb-909e-1bdf232e3cee.png" width="600" style="margin:auto">
@@ -168,8 +178,10 @@ npm run dev
 
 #### Chat
 
-1. Chat is made using socket.io. The user can chose whom to send the message ie an individual or everyone.
-2. The server listens for the message, and on reception it broadcasts the message to the users applicable per the request from the persom.
+1. Chat is made using socket.io. The user can chose to send the message to everyone.
+2. The server listens for the message, and on reception it broadcasts the message to the users applicable per the request from the person.
+3. All the messages are stored in the database for later access, and stay available in your team chats, to be accessed later on.
+4. The chats are stored in the database on a key of roomId so that all the messages remain there and can be presented to people when they try to access it.
 
 #### Screen Share
 
@@ -338,6 +350,30 @@ socket.on("send-chat", (chat) => {
 ```
 
 1. This code listens for the event chat fired from the client, and broadcasts the messsage to everyone else in the meet.
+
+
+### Database Schema
+ 
+#### Models
+1. Users
+   - UserId
+   - PicUrl
+   - Name
+   - Rooms(*array of RoomIds*)
+2. Rooms
+   - RoomId
+   - RoomName
+   - Participants(array of {*userId,PicUrl,Name*}):It shows all the user in the room and we may access their images, name, etc also from here.
+
+3. Chats
+   - RoomId
+   - Chats(array of following)
+      * from {*UserId,name,PicURl*}
+      * to {*UserId,name,PicUrl*)
+      * content of the *message*
+      * Date(*date and time when the message was sent*)
+
+
 
 #### Protected Routes(Waiting Rooms And User Authentication)
 

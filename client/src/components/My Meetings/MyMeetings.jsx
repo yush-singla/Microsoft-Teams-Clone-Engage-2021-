@@ -698,9 +698,6 @@ export default function MyMeetings() {
               }}
             />
           )}
-
-          {/* <button onClick={createInstantMeeting}>Create Instant New Meeting</button>
-          <button onClick={createMeetingForLater}>Create New Meeting for Later</button> */}
         </Grid>
       </Grid>
     </div>

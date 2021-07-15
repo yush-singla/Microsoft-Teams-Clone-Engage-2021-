@@ -105,7 +105,7 @@ export default function WaitingRoom() {
               muted
               playsInline
               autoPlay
-              style={{ width: "32vw", height: "42vh" }}
+              style={{ width: "32vw", height: "42vh", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }}
               ref={(videoRef) => {
                 if (videoRef && myVideo) {
                   videoRef.srcObject = myVideo.stream;

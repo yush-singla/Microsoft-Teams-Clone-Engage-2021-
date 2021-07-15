@@ -51,7 +51,11 @@ export default function ScreenShare({ someOneSharingScreen, videos, classes, myI
                       <video
                         autoPlay
                         muted={videoStream.userId === myId || speakerToggle}
-                        style={(!videoStream.video && videoStream.userId !== myId) || (!video && videoStream.userId === myId) ? { display: "none" } : { width: "30vw" }}
+                        style={
+                          (!videoStream.video && videoStream.userId !== myId) || (!video && videoStream.userId === myId)
+                            ? { display: "none", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }
+                            : { width: "30vw", WebkitTransform: "scaleX(-1)", transform: "scaleX(-1)" }
+                        }
                         ref={(videoRef) => {
                           if (videoRef) videoRef.srcObject = videoStream.stream;
                           return videoRef;

@@ -228,7 +228,7 @@ export default function ChatDrawer({ uniqueIdRef, windowWidth, chatOpen, setChat
                     <ShowChatMessage message={chatMssg.message} />
                   </Typography>
                   <Box style={{ color: "lightgrey", textAlign: chatMssg.from.userId !== myId ? "left" : "right" }}>
-                    {new Date().getHours() + ":" + new Date().getMinutes() + "," + dayIs[new Date().getDay()]}
+                    {chatMssg.dateTime.getHours() + ":" + chatMssg.dateTime.getMinutes() + "," + dayIs[chatMssg.dateTime.getDay()]}
                   </Box>
                 </Box>
               </Box>

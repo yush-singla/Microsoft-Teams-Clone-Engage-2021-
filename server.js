@@ -81,6 +81,8 @@ passport.deserializeUser(function (id, done) {
   });
 });
 
+//beggining of oath routes for all google,facebook and github with passport
+
 passport.use(
   new GoogleStrategy(
     {
@@ -308,6 +310,7 @@ let getSocketIdByUserId = {};
 let getNameFromSocketId = {};
 let getUniqueIdFromSocketId = {};
 let getSocketIdFromUniqueId = {};
+
 //sockets coding
 io.on("connection", (socket) => {
   socket.on("join-all-rooms", (uniqueId) => {
@@ -405,10 +408,6 @@ io.on("connection", (socket) => {
     if (waitingRooms[roomId] === undefined) {
       waitingRooms[roomId] = socket.id;
     }
-    // Rooms.findOneAndUpdate({ roomId }, { $addToSet: { participants: { uniqueId, picurL, name } } }, (err, room) => {
-    //   if (err) console.log(err);
-    //   console.log(room);
-    // });
     pushUserToRoom({ uniqueId, name, picurL, roomId });
 
     socket.join(roomId);
